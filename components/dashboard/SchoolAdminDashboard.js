@@ -7,6 +7,7 @@ import api from "@/lib/api";
 import DashboardHeader from "./DashboardHeader";
 import StatCard from "./StatCard";
 import AttendanceOverview from "./AttendanceOverview";
+import StudentGrowth from "./StudentGrowth";
 import QuickActions from "./QuickActions";
 import RecentAssignments from "./RecentAssignments";
 import RecentPayments from "./RecentPayments";
@@ -40,12 +41,18 @@ export default function SchoolAdminDashboard({ user }) {
           api.get("/student-fee-accounts/report/outstanding"),
         ]);
 
-        const students = studentsResponse.data?.students || [];
-        const teachers = teachersResponse.data?.teachers || [];
-        const classes = classesResponse.data?.classes || [];
+        const students =
+          studentsResponse.data?.students || [];
+
+        const teachers =
+          teachersResponse.data?.teachers || [];
+
+        const classes =
+          classesResponse.data?.classes || [];
 
         const outstandingFees =
-          outstandingFeesResponse.data?.summary?.totalOutstanding || 0;
+          outstandingFeesResponse.data?.summary
+            ?.totalOutstanding || 0;
 
         setStats({
           students: students.length,
@@ -118,10 +125,16 @@ export default function SchoolAdminDashboard({ user }) {
         />
       </section>
 
-      {/* Attendance + Quick Links */}
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-  <div className="xl:col-span-2 xl:h-[620px]">
-    <AttendanceOverview />
+     {/* Dashboard Charts + Quick Links */}
+<section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+  <div className="flex min-h-0 flex-col gap-6 xl:col-span-2">
+    <div className="h-[300px]">
+      <AttendanceOverview />
+    </div>
+
+    <div className="h-[300px]">
+      <StudentGrowth />
+    </div>
   </div>
 
   <div className="xl:h-[620px]">
@@ -137,4 +150,3 @@ export default function SchoolAdminDashboard({ user }) {
     </div>
   );
 }
-

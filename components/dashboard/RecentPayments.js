@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   CreditCard,
@@ -65,6 +66,8 @@ const formatAmount = (amount) => {
 };
 
 export default function RecentPayments() {
+  const router = useRouter();
+
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -75,9 +78,12 @@ export default function RecentPayments() {
         setLoading(true);
         setError("");
 
-        const response = await api.get("/payments/school-fees");
+        const response = await api.get(
+          "/payments/school-fees"
+        );
 
-        const data = response.data?.payments || [];
+        const data =
+          response.data?.payments || [];
 
         setPayments(data.slice(0, 5));
       } catch (err) {
@@ -100,6 +106,7 @@ export default function RecentPayments() {
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-base font-semibold text-slate-900">
@@ -113,19 +120,26 @@ export default function RecentPayments() {
 
         <button
           type="button"
-          className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700"
+          onClick={() =>
+            router.push(
+              "/dashboard/school-admin/payments"
+            )
+          }
+          className="flex items-center gap-1 text-xs font-medium text-emerald-600 transition hover:text-emerald-700"
         >
           View all
           <ChevronRight size={14} />
         </button>
       </div>
 
+      {/* Error */}
       {error && (
         <div className="mt-4 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600">
           {error}
         </div>
       )}
 
+      {/* Payments */}
       <div className="mt-5 divide-y divide-slate-100">
         {loading ? (
           Array.from({ length: 3 }).map((_, index) => (
@@ -178,10 +192,12 @@ export default function RecentPayments() {
                 key={payment._id}
                 className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
               >
+                {/* Icon */}
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
                   <CreditCard size={17} />
                 </div>
 
+                {/* Student + Reference */}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium text-slate-800">
                     {studentName}
@@ -196,6 +212,7 @@ export default function RecentPayments() {
                   </p>
                 </div>
 
+                {/* Amount */}
                 <p className="whitespace-nowrap text-sm font-semibold text-slate-800">
                   {formatAmount(payment.amount)}
                 </p>

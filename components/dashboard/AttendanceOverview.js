@@ -65,13 +65,17 @@ export default function AttendanceOverview() {
         setLoading(true);
         setError("");
 
-        const [classesResponse, termsResponse] = await Promise.all([
-          api.get("/classes"),
-          api.get("/academic-terms"),
-        ]);
+        const [classesResponse, termsResponse] =
+          await Promise.all([
+            api.get("/classes"),
+            api.get("/academic-terms"),
+          ]);
 
-        const classes = classesResponse.data?.classes || [];
-        const terms = termsResponse.data?.terms || [];
+        const classes =
+          classesResponse.data?.classes || [];
+
+        const terms =
+          termsResponse.data?.terms || [];
 
         const currentTerm =
           terms.find((term) => term.isCurrent) || null;
@@ -104,7 +108,9 @@ export default function AttendanceOverview() {
                     `/attendance/class?classId=${schoolClass._id}&date=${day.dateString}&term=${currentTerm._id}`
                   );
 
-                  return response.data?.attendance || [];
+                  return (
+                    response.data?.attendance || []
+                  );
                 } catch (error) {
                   console.error(
                     `Failed to fetch attendance for ${schoolClass.name} on ${day.dateString}:`,
@@ -126,7 +132,9 @@ export default function AttendanceOverview() {
 
             const percentage =
               records.length > 0
-                ? Math.round((attended / records.length) * 100)
+                ? Math.round(
+                    (attended / records.length) * 100
+                  )
                 : 0;
 
             return {
@@ -200,10 +208,10 @@ export default function AttendanceOverview() {
         }));
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       {/* Header */}
       <div className="shrink-0">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-slate-900">
               Attendance Overview
@@ -214,26 +222,26 @@ export default function AttendanceOverview() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 text-xs">
-            <div className="flex items-center gap-1.5 text-slate-500">
+          <div className="flex items-center gap-2 text-[11px]">
+            <div className="flex items-center gap-1 text-slate-500">
               <CheckCircle2
-                size={14}
+                size={13}
                 className="text-emerald-500"
               />
               Present
             </div>
 
-            <div className="flex items-center gap-1.5 text-slate-500">
+            <div className="flex items-center gap-1 text-slate-500">
               <Clock3
-                size={14}
+                size={13}
                 className="text-amber-500"
               />
               Late
             </div>
 
-            <div className="flex items-center gap-1.5 text-slate-500">
+            <div className="flex items-center gap-1 text-slate-500">
               <XCircle
-                size={14}
+                size={13}
                 className="text-red-400"
               />
               Absent
@@ -242,30 +250,32 @@ export default function AttendanceOverview() {
         </div>
 
         {error && (
-          <div className="mt-4 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600">
+          <div className="mt-3 rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600">
             {error}
           </div>
         )}
       </div>
 
       {/* Chart */}
-      <div className="mt-6 min-h-0 flex-1">
-        <div className="flex h-full items-stretch justify-between gap-4">
+      <div className="mt-4 min-h-0 flex-1">
+        <div className="flex h-full items-stretch justify-between gap-3">
           {chartData.map((item) => (
             <div
               key={item.day}
               className="flex min-w-0 flex-1 flex-col items-center"
             >
               {/* Percentage */}
-              <span className="mb-3 shrink-0 text-xs font-semibold text-slate-600">
-                {loading ? "—" : `${item.percentage}%`}
+              <span className="mb-2 shrink-0 text-xs font-semibold text-slate-600">
+                {loading
+                  ? "—"
+                  : `${item.percentage}%`}
               </span>
 
-              {/* Bar area */}
+              {/* Bar */}
               <div className="flex min-h-0 w-full flex-1 items-end justify-center">
-                <div className="h-full w-full max-w-16 overflow-hidden rounded-xl bg-slate-100">
+                <div className="h-full w-full max-w-10 overflow-hidden rounded-lg bg-slate-100">
                   <div
-                    className="w-full rounded-xl bg-emerald-400 transition-all duration-500"
+                    className="w-full rounded-lg bg-emerald-400 transition-all duration-500"
                     style={{
                       height: loading
                         ? "0%"
@@ -276,7 +286,7 @@ export default function AttendanceOverview() {
               </div>
 
               {/* Day */}
-              <span className="mt-3 shrink-0 text-xs font-medium text-slate-400">
+              <span className="mt-2 shrink-0 text-[11px] font-medium text-slate-400">
                 {item.day}
               </span>
             </div>
@@ -285,33 +295,39 @@ export default function AttendanceOverview() {
       </div>
 
       {/* Summary */}
-      <div className="mt-6 shrink-0 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-5">
+      <div className="mt-4 shrink-0 grid grid-cols-3 divide-x divide-slate-100 border-t border-slate-100 pt-3">
         <div className="text-center">
-          <p className="text-xl font-bold text-slate-900">
-            {loading ? "—" : `${summary.present}%`}
+          <p className="text-lg font-bold text-slate-900">
+            {loading
+              ? "—"
+              : `${summary.present}%`}
           </p>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-0.5 text-[11px] text-slate-400">
             Present
           </p>
         </div>
 
         <div className="text-center">
-          <p className="text-xl font-bold text-slate-900">
-            {loading ? "—" : `${summary.late}%`}
+          <p className="text-lg font-bold text-slate-900">
+            {loading
+              ? "—"
+              : `${summary.late}%`}
           </p>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-0.5 text-[11px] text-slate-400">
             Late
           </p>
         </div>
 
         <div className="text-center">
-          <p className="text-xl font-bold text-slate-900">
-            {loading ? "—" : `${summary.absent}%`}
+          <p className="text-lg font-bold text-slate-900">
+            {loading
+              ? "—"
+              : `${summary.absent}%`}
           </p>
 
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-0.5 text-[11px] text-slate-400">
             Absent
           </p>
         </div>
