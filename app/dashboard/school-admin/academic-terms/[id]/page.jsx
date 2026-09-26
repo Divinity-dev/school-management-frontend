@@ -20,7 +20,7 @@ export default function AcademicTermDetailsPage() {
   const params = useParams();
   const router = useRouter();
 
-  const termId = params.termId;
+  const termId = params.id;
 
   const [term, setTerm] = useState(null);
   const [loading, setLoading] = useState(true);

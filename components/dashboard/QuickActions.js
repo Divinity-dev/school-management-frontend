@@ -15,7 +15,7 @@ BarChart3,
 WalletCards,
 CreditCard,
 Megaphone,
-ArrowRight,
+ArrowRight
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -116,6 +116,11 @@ description: "View school payments",
 icon: CreditCard,
 href: "/dashboard/school-admin/payments",
 },
+{
+  label: "Subscription",
+  href: "/dashboard/school-admin/subscription",
+  icon: CreditCard,
+}
 ],
 },
 {
