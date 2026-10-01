@@ -1,4 +1,4 @@
-import TeacherForm from "@/components/dashboard/Teachers/TeacherFom";
+import TeacherForm from "@/components/dashboard/TeacherDashboard/Teachers/TeacherFom";
 
 export default function NewTeacherPage() {
   return <TeacherForm mode="create" />;
