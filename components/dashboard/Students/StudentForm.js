@@ -468,8 +468,8 @@ className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-500 trans
           required
         >
           <option value="">Select gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
         </Select>
 
         <Input
