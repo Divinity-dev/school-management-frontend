@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 
-import TeacherForm from "@/components/dashboard/Teachers/TeacherFom";
+import TeacherForm from "@/components/dashboard/TeacherDashboard/Teachers/TeacherFom";
 
 export default function EditTeacherPage() {
 const params = useParams();

@@ -14,6 +14,7 @@ import {
   Clock3,
   AlertCircle,
   UserRound,
+  Megaphone,
 } from "lucide-react";
 
 import api from "@/lib/api";
@@ -36,7 +37,7 @@ export default function TeacherDashboard({ user }) {
           await Promise.all([
             api.get("/classes"),
             api.get("/subject-assignments"),
-            api.get("/assignments"),
+            api.get("/assignments/teacher"),
           ]);
 
         setClasses(classesResponse.data?.classes || []);
@@ -156,31 +157,37 @@ export default function TeacherDashboard({ user }) {
   ];
 
   const quickActions = [
-    {
-      title: "Create Assignment",
-      description: "Give your students a new assignment",
-      icon: FileText,
-      href: "/dashboard/teacher/assignments/create",
-    },
-    {
-      title: "Mark Attendance",
-      description: "Record today's class attendance",
-      icon: ClipboardCheck,
-      href: "/dashboard/teacher/attendance",
-    },
-    {
-      title: "Enter Results",
-      description: "Enter and submit student results",
-      icon: GraduationCap,
-      href: "/dashboard/teacher/results",
-    },
-    {
-      title: "View My Subjects",
-      description: "See the subjects assigned to you",
-      icon: BookOpen,
-      href: "/dashboard/teacher/subjects",
-    },
-  ];
+  {
+    title: "Announcements",
+    description: "View important school announcements",
+    icon: Megaphone,
+    href: "/dashboard/teacher/announcements",
+  },
+  {
+    title: "Create Assignment",
+    description: "Give your students a new assignment",
+    icon: FileText,
+    href: "/dashboard/teacher/assignments/create",
+  },
+  {
+    title: "Mark Attendance",
+    description: "Record today's class attendance",
+    icon: ClipboardCheck,
+    href: "/dashboard/teacher/attendance",
+  },
+  {
+    title: "Enter Results",
+    description: "Enter and submit student results",
+    icon: GraduationCap,
+    href: "/dashboard/teacher/results",
+  },
+  {
+    title: "View My Subjects",
+    description: "See the subjects assigned to you",
+    icon: BookOpen,
+    href: "/dashboard/teacher/subjects",
+  },
+];
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">

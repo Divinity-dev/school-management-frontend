@@ -88,6 +88,13 @@ export default function ParentChildResultsPage() {
           `/parents/children/${id}/results`
         );
 
+
+console.log("PARENT RESULTS RESPONSE:", response.data);
+console.log(
+  "FIRST RESULT:",
+  response.data?.results?.[0]
+);
+
         setStudent(response.data?.student || null);
 
         setResults(
@@ -112,6 +119,8 @@ export default function ParentChildResultsPage() {
 
     fetchResults();
   }, [id]);
+
+  
 
   const sessions = useMemo(() => {
     const map = new Map();

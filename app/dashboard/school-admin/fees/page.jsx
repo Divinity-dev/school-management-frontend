@@ -133,7 +133,7 @@ export default function FeesPage() {
         <button
           type="button"
           onClick={() =>
-            router.push("/dashboard/school-admin/fees/create")
+            router.push("/dashboard/school-admin/fees/new")
           }
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
         >

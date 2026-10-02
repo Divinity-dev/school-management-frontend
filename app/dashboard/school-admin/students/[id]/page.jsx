@@ -42,7 +42,9 @@ export default function StudentPage() {
         setLoading(true);
         setError("");
 
-        const response = await api.get(`/students/${studentId}`);
+        const response = await api.get(
+          `/students/${studentId}`
+        );
 
         setStudent(response.data?.student || null);
       } catch (err) {
@@ -132,7 +134,9 @@ export default function StudentPage() {
         <button
           type="button"
           onClick={() =>
-            router.push("/dashboard/school-admin/students")
+            router.push(
+              "/dashboard/school-admin/students"
+            )
           }
           className="flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-emerald-600"
         >
@@ -150,11 +154,14 @@ export default function StudentPage() {
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
+
       <div className="flex flex-col gap-5">
         <button
           type="button"
           onClick={() =>
-            router.push("/dashboard/school-admin/students")
+            router.push(
+              "/dashboard/school-admin/students"
+            )
           }
           className="flex w-fit items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-emerald-600"
         >
@@ -162,38 +169,53 @@ export default function StudentPage() {
           Back to Students
         </button>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        {/* Student Header */}
+
+        <section className="rounded-2xl bg-black p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-lg font-bold text-emerald-600 sm:h-20 sm:w-20 sm:text-xl">
-                {getInitials()}
+              {/* Profile Image */}
+
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 text-lg font-bold text-emerald-400 sm:h-20 sm:w-20 sm:text-xl">
+                {student.profileImage ? (
+                  <img
+                    src={student.profileImage}
+                    alt={getStudentName()}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  getInitials()
+                )}
               </div>
 
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                  <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
                     {getStudentName()}
                   </h1>
 
                   <span
                     className={`rounded-full px-2.5 py-1 text-[10px] font-semibold ${
                       student.isActive
-                        ? "bg-emerald-50 text-emerald-600"
-                        : "bg-slate-100 text-slate-500"
+                        ? "bg-emerald-500/15 text-emerald-400"
+                        : "bg-slate-700 text-slate-400"
                     }`}
                   >
-                    {student.isActive ? "Active" : "Inactive"}
+                    {student.isActive
+                      ? "Active"
+                      : "Inactive"}
                   </span>
                 </div>
 
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-500">
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400">
                   <span className="flex items-center gap-1.5">
-                    <Hash className="h-4 w-4 text-slate-400" />
-                    {student.studentId || "No student ID"}
+                    <Hash className="h-4 w-4 text-slate-500" />
+                    {student.studentId ||
+                      "No student ID"}
                   </span>
 
                   <span className="flex items-center gap-1.5">
-                    <GraduationCap className="h-4 w-4 text-slate-400" />
+                    <GraduationCap className="h-4 w-4 text-slate-500" />
                     {getClassName()}
                   </span>
                 </div>
@@ -207,7 +229,7 @@ export default function StudentPage() {
                   `/dashboard/school-admin/students/${student._id}/edit`
                 )
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
             >
               <Edit3 className="h-4 w-4" />
               Edit Student
@@ -217,6 +239,7 @@ export default function StudentPage() {
       </div>
 
       {/* Overview cards */}
+
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <OverviewCard
           icon={ClipboardCheck}
@@ -248,6 +271,7 @@ export default function StudentPage() {
       </section>
 
       {/* Student information */}
+
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <SectionHeader
           icon={User}
@@ -303,6 +327,7 @@ export default function StudentPage() {
       </section>
 
       {/* Academic information */}
+
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <SectionHeader
           icon={GraduationCap}
@@ -314,8 +339,7 @@ export default function StudentPage() {
           <InfoItem
             label="Academic Session"
             value={
-              student.academicSession?.name ||
-              "—"
+              student.academicSession?.name || "—"
             }
           />
 
@@ -333,6 +357,7 @@ export default function StudentPage() {
       </section>
 
       {/* Parent / Guardian */}
+
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <SectionHeader
           icon={Users}
@@ -456,4 +481,3 @@ function OverviewCard({
     </button>
   );
 }
-
