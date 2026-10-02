@@ -1,6 +1,6 @@
 "use client";
 
-import GradingSettings from "@/components/dashboard/SchoolAdminDashboard/GradingSettings";
+import GradingSettings from "@/components/dashboard/GradingSettings";
 
 export default function GradingSettingsPage() {
   return <GradingSettings />;

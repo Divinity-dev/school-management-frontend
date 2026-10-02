@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   CreditCard,
@@ -17,25 +16,17 @@ import {
 import api from "@/lib/api";
 
 export default function ParentChildFees({ studentId }) {
-  const searchParams = useSearchParams();
-
   const [student, setStudent] = useState(null);
   const [feeAccounts, setFeeAccounts] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [paymentLoading, setPaymentLoading] = useState(false);
-  const [verifyingPayment, setVerifyingPayment] = useState(false);
 
   const [error, setError] = useState("");
   const [paymentError, setPaymentError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
 
-  const [selectedFeeAccount, setSelectedFeeAccount] =
-    useState(null);
-
+  const [selectedFeeAccount, setSelectedFeeAccount] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState("");
-
-  const verificationStarted = useRef(false);
 
   const fetchFees = async () => {
     if (!studentId) return;
@@ -65,70 +56,6 @@ export default function ParentChildFees({ studentId }) {
   useEffect(() => {
     fetchFees();
   }, [studentId]);
-
-  /*
-   * Verify the Paystack payment after the parent
-   * is redirected back to this page.
-   */
-  useEffect(() => {
-    const reference = searchParams.get("reference");
-
-    if (!reference || verificationStarted.current) {
-      return;
-    }
-
-    verificationStarted.current = true;
-
-    const verifyPayment = async () => {
-      try {
-        setVerifyingPayment(true);
-        setPaymentError("");
-        setSuccessMessage("");
-
-        const response = await api.get(
-          `/parent-payments/school-fees/verify/${encodeURIComponent(
-            reference
-          )}`
-        );
-
-        setSuccessMessage(
-          response.data.message ||
-            "Payment verified successfully."
-        );
-
-        await fetchFees();
-
-        /*
-         * Remove the Paystack reference from the URL
-         * after verification so refreshing the page does
-         * not trigger another verification attempt.
-         */
-        const cleanUrl =
-          window.location.pathname +
-          window.location.hash;
-
-        window.history.replaceState(
-          {},
-          document.title,
-          cleanUrl
-        );
-      } catch (err) {
-        console.error(
-          "Payment verification failed:",
-          err
-        );
-
-        setPaymentError(
-          err.response?.data?.message ||
-            "We could not verify this payment."
-        );
-      } finally {
-        setVerifyingPayment(false);
-      }
-    };
-
-    verifyPayment();
-  }, [searchParams, studentId]);
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-NG", {
@@ -165,29 +92,25 @@ export default function ParentChildFees({ studentId }) {
       case "paid":
         return {
           label: "Paid",
-          className:
-            "bg-emerald-50 text-emerald-700",
+          className: "bg-emerald-50 text-emerald-700",
         };
 
       case "partial":
         return {
           label: "Partially Paid",
-          className:
-            "bg-amber-50 text-amber-700",
+          className: "bg-amber-50 text-amber-700",
         };
 
       case "unpaid":
         return {
           label: "Unpaid",
-          className:
-            "bg-red-50 text-red-700",
+          className: "bg-red-50 text-red-700",
         };
 
       default:
         return {
           label: status || "Unknown",
-          className:
-            "bg-slate-100 text-slate-600",
+          className: "bg-slate-100 text-slate-600",
         };
     }
   };
@@ -200,7 +123,6 @@ export default function ParentChildFees({ studentId }) {
     setSelectedFeeAccount(feeAccount);
     setPaymentAmount(String(feeAccount.balance));
     setPaymentError("");
-    setSuccessMessage("");
   };
 
   const closePaymentModal = () => {
@@ -214,9 +136,6 @@ export default function ParentChildFees({ studentId }) {
   const handleAmountChange = (event) => {
     const value = event.target.value;
 
-    /*
-     * Allow only numbers and one decimal point.
-     */
     if (!/^\d*\.?\d*$/.test(value)) {
       return;
     }
@@ -228,14 +147,10 @@ export default function ParentChildFees({ studentId }) {
     if (!selectedFeeAccount) return;
 
     const amount = Number(paymentAmount);
-    const balance = Number(
-      selectedFeeAccount.balance || 0
-    );
+    const balance = Number(selectedFeeAccount.balance || 0);
 
     if (!Number.isFinite(amount) || amount <= 0) {
-      setPaymentError(
-        "Please enter a valid payment amount."
-      );
+      setPaymentError("Please enter a valid payment amount.");
       return;
     }
 
@@ -260,8 +175,7 @@ export default function ParentChildFees({ studentId }) {
         }
       );
 
-      const authorizationUrl =
-        response.data?.authorizationUrl;
+      const authorizationUrl = response.data?.authorizationUrl;
 
       if (!authorizationUrl) {
         throw new Error(
@@ -270,17 +184,13 @@ export default function ParentChildFees({ studentId }) {
       }
 
       /*
-       * Send the parent to Paystack.
-       *
-       * The backend has already configured the callback
-       * URL for this specific student's fees page.
+       * The backend supplies the Paystack callback URL.
+       * Paystack will redirect the parent to the callback page
+       * after the payment is completed.
        */
       window.location.href = authorizationUrl;
     } catch (err) {
-      console.error(
-        "Failed to initialize payment:",
-        err
-      );
+      console.error("Failed to initialize payment:", err);
 
       setPaymentError(
         err.response?.data?.message ||
@@ -375,33 +285,6 @@ export default function ParentChildFees({ studentId }) {
           </p>
         </div>
 
-        {/* Payment Verification */}
-        {verifyingPayment && (
-          <div className="mb-6 flex items-center gap-3 rounded-2xl border border-blue-100 bg-blue-50 px-5 py-4 text-sm text-blue-700">
-            <Loader2 className="h-5 w-5 animate-spin" />
-
-            <span>
-              Verifying your payment with Paystack...
-            </span>
-          </div>
-        )}
-
-        {successMessage && (
-          <div className="mb-6 flex items-start gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-5 py-4">
-            <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
-
-            <div>
-              <p className="font-medium text-emerald-800">
-                Payment successful
-              </p>
-
-              <p className="mt-1 text-sm text-emerald-700">
-                {successMessage}
-              </p>
-            </div>
-          </div>
-        )}
-
         {paymentError && !selectedFeeAccount && (
           <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 px-5 py-4">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
@@ -495,9 +378,7 @@ export default function ParentChildFees({ studentId }) {
           ) : (
             <div className="space-y-5">
               {feeAccounts.map((account) => {
-                const status = getStatusStyles(
-                  account.status
-                );
+                const status = getStatusStyles(account.status);
 
                 const progress =
                   account.totalAmountDue > 0
@@ -522,24 +403,16 @@ export default function ParentChildFees({ studentId }) {
                             "School Fees"}
                         </h3>
 
-                        {account.feeStructure
-                          ?.description && (
+                        {account.feeStructure?.description && (
                           <p className="mt-1 text-sm text-slate-500">
-                            {
-                              account.feeStructure
-                                .description
-                            }
+                            {account.feeStructure.description}
                           </p>
                         )}
 
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {account.academicSession
-                            ?.name && (
+                          {account.academicSession?.name && (
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                              {
-                                account.academicSession
-                                  .name
-                              }
+                              {account.academicSession.name}
                             </span>
                           )}
 
@@ -608,8 +481,7 @@ export default function ParentChildFees({ studentId }) {
                     </div>
 
                     {/* Fee Breakdown */}
-                    {account.feeStructure?.items
-                      ?.length > 0 && (
+                    {account.feeStructure?.items?.length > 0 && (
                       <div className="mt-6 border-t border-slate-100 pt-5">
                         <h4 className="text-sm font-semibold text-slate-900">
                           Fee Breakdown
@@ -619,9 +491,7 @@ export default function ParentChildFees({ studentId }) {
                           {account.feeStructure.items.map(
                             (item, index) => (
                               <div
-                                key={
-                                  item._id || index
-                                }
+                                key={item._id || index}
                                 className="flex items-center justify-between gap-4 py-3"
                               >
                                 <span className="text-sm text-slate-600">
@@ -629,9 +499,7 @@ export default function ParentChildFees({ studentId }) {
                                 </span>
 
                                 <span className="text-sm font-medium text-slate-900">
-                                  {formatCurrency(
-                                    item.amount
-                                  )}
+                                  {formatCurrency(item.amount)}
                                 </span>
                               </div>
                             )
@@ -655,7 +523,7 @@ export default function ParentChildFees({ studentId }) {
                           onClick={() =>
                             openPaymentModal(account)
                           }
-                          disabled={verifyingPayment}
+                          disabled={paymentLoading}
                           className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <CreditCard className="h-4 w-4" />
@@ -738,9 +606,7 @@ export default function ParentChildFees({ studentId }) {
                 </span>
 
                 <span className="font-semibold text-slate-900">
-                  {formatCurrency(
-                    selectedFeeAccount.balance
-                  )}
+                  {formatCurrency(selectedFeeAccount.balance)}
                 </span>
               </div>
             </div>
@@ -887,4 +753,3 @@ function AmountCard({
     </div>
   );
 }
-

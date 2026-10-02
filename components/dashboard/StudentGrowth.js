@@ -1,13 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { TrendingUp } from "lucide-react";
-
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 import api from "@/lib/api";
 
 export default function StudentGrowth() {
   const [growthData, setGrowthData] = useState([]);
+  const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sessionName, setSessionName] = useState("");
@@ -26,6 +34,8 @@ export default function StudentGrowth() {
 
         if (!currentTerm?.academicSession) {
           setGrowthData([]);
+          setTotalStudents(0);
+          setSessionName("");
           return;
         }
 
@@ -39,6 +49,7 @@ export default function StudentGrowth() {
         );
 
         setGrowthData(response.data?.growth || []);
+        setTotalStudents(response.data?.totalStudents || 0);
 
         setSessionName(
           response.data?.academicSession?.name || ""
@@ -61,11 +72,6 @@ export default function StudentGrowth() {
     fetchStudentGrowth();
   }, []);
 
-  const maxStudents = Math.max(
-    ...growthData.map((item) => item.students),
-    1
-  );
-
   return (
     <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
       {/* Header */}
@@ -77,7 +83,7 @@ export default function StudentGrowth() {
             </h2>
 
             <p className="mt-1 text-xs text-slate-500">
-              Enrollment growth
+              New student registrations
               {sessionName ? ` for ${sessionName}` : ""}
             </p>
           </div>
@@ -98,7 +104,7 @@ export default function StudentGrowth() {
       </div>
 
       {/* Chart */}
-      <div className="mt-6 min-h-0 flex-1">
+      <div className="mt-5 min-h-0 flex-1">
         {loading ? (
           <div className="flex h-full items-center justify-center">
             <p className="text-xs text-slate-400">
@@ -120,57 +126,104 @@ export default function StudentGrowth() {
               </p>
 
               <p className="mt-1 text-xs text-slate-400">
-                Student growth will appear here as students are
-                registered.
+                Student registrations will appear here.
               </p>
             </div>
           </div>
         ) : (
-          <div className="flex h-full items-stretch justify-between gap-2 sm:gap-3">
-            {growthData.map((item) => (
-              <div
-                key={item.month}
-                className="flex min-w-0 flex-1 flex-col items-center"
-              >
-                {/* Count */}
-                <span className="mb-3 shrink-0 text-xs font-semibold text-slate-600">
-                  {item.students}
-                </span>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={growthData}
+              margin={{
+                top: 10,
+                right: 10,
+                left: -20,
+                bottom: 0,
+              }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                stroke="#e2e8f0"
+              />
 
-                {/* Bar */}
-                <div className="flex min-h-0 w-full flex-1 items-end justify-center">
-                  <div className="h-full w-full max-w-12 overflow-hidden rounded-xl bg-slate-100">
-                    <div
-                      className="w-full rounded-xl bg-emerald-400 transition-all duration-500"
-                      style={{
-                        height: `${Math.max(
-                          (item.students / maxStudents) * 100,
-                          item.students > 0 ? 3 : 0
-                        )}%`,
-                      }}
-                    />
-                  </div>
-                </div>
+              <XAxis
+                dataKey="month"
+                axisLine={false}
+                tickLine={false}
+                tick={{
+                  fontSize: 11,
+                  fill: "#94a3b8",
+                }}
+                dy={8}
+              />
 
-                {/* Month */}
-                <span className="mt-3 shrink-0 text-xs font-medium text-slate-400">
-                  {item.month}
-                </span>
-              </div>
-            ))}
-          </div>
+              <YAxis
+                allowDecimals={false}
+                domain={[0, "auto"]}
+                axisLine={false}
+                tickLine={false}
+                tick={{
+                  fontSize: 11,
+                  fill: "#94a3b8",
+                }}
+                width={30}
+              />
+
+              <Tooltip
+                cursor={{
+                  stroke: "#cbd5e1",
+                  strokeDasharray: "4 4",
+                }}
+                contentStyle={{
+                  borderRadius: "12px",
+                  border: "1px solid #e2e8f0",
+                  boxShadow:
+                    "0 8px 24px rgba(15, 23, 42, 0.08)",
+                  fontSize: "12px",
+                }}
+                labelStyle={{
+                  color: "#475569",
+                  fontWeight: 600,
+                  marginBottom: "4px",
+                }}
+                formatter={(value) => [
+                  `${value} ${
+                    Number(value) === 1
+                      ? "student"
+                      : "students"
+                  }`,
+                  "Registered",
+                ]}
+              />
+
+              <Line
+                type="monotone"
+                dataKey="students"
+                stroke="#10b981"
+                strokeWidth={3}
+                dot={{
+                  r: 4,
+                  fill: "#10b981",
+                  strokeWidth: 2,
+                  stroke: "#ffffff",
+                }}
+                activeDot={{
+                  r: 6,
+                  strokeWidth: 2,
+                  stroke: "#ffffff",
+                }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         )}
       </div>
 
-      {/* Summary */}
-      <div className="mt-6 shrink-0 border-t border-slate-100 pt-5">
+      {/* Total */}
+      <div className="mt-5 shrink-0 border-t border-slate-100 pt-4">
         <div className="text-center">
           <p className="text-xl font-bold text-slate-900">
-            {loading
-              ? "—"
-              : growthData.length > 0
-              ? growthData[growthData.length - 1].students
-              : 0}
+            {loading ? "—" : totalStudents}
           </p>
 
           <p className="mt-1 text-xs text-slate-400">
@@ -181,3 +234,4 @@ export default function StudentGrowth() {
     </div>
   );
 }
+

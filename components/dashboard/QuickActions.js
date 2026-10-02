@@ -14,6 +14,7 @@ import {
   BarChart3,
   WalletCards,
   CreditCard,
+  Building2,
   Megaphone,
   Settings2,
   ArrowRight,
@@ -122,6 +123,12 @@ const actionGroups = [
         description: "View school payments",
         icon: CreditCard,
         href: "/dashboard/school-admin/payments",
+      },
+      {
+        label: "Bank Details",
+        description: "Manage school payment account",
+        icon: Building2,
+        href: "/dashboard/school-admin/bank-details",
       },
       {
         label: "Subscription",

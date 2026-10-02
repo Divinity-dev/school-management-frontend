@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   AlertCircle,
   CalendarDays,
@@ -12,6 +13,7 @@ import {
   Receipt,
   XCircle,
   Clock3,
+  Printer,
 } from "lucide-react";
 
 import api from "@/lib/api";
@@ -347,6 +349,10 @@ export default function ParentChildPayments({ studentId }) {
                     <th className="px-5 py-4 font-semibold">
                       Status
                     </th>
+
+                    <th className="px-5 py-4 text-right font-semibold">
+                      Receipt
+                    </th>
                   </tr>
                 </thead>
 
@@ -388,7 +394,9 @@ export default function ParentChildPayments({ studentId }) {
                       </td>
 
                       <td className="px-5 py-4 text-slate-600">
-                        {formatDate(payment.paidAt || payment.createdAt)}
+                        {formatDate(
+                          payment.paidAt || payment.createdAt
+                        )}
                       </td>
 
                       <td className="px-5 py-4">
@@ -400,6 +408,22 @@ export default function ParentChildPayments({ studentId }) {
                           {getStatusIcon(payment.status)}
                           {getStatusLabel(payment.status)}
                         </span>
+                      </td>
+
+                      <td className="px-5 py-4 text-right">
+                        {payment.status === "successful" ? (
+                          <Link
+                            href={`/dashboard/parent/children/${studentId}/payments/${payment._id}/receipt`}
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
+                          >
+                            <Printer className="h-4 w-4" />
+                            Receipt
+                          </Link>
+                        ) : (
+                          <span className="text-xs text-slate-400">
+                            —
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -444,7 +468,9 @@ export default function ParentChildPayments({ studentId }) {
                     <InfoItem
                       icon={<CalendarDays className="h-4 w-4" />}
                       label="Term"
-                      value={payment.academicTerm?.name || "—"}
+                      value={
+                        payment.academicTerm?.name || "—"
+                      }
                     />
 
                     <InfoItem
@@ -466,6 +492,16 @@ export default function ParentChildPayments({ studentId }) {
                     <p className="mt-4 text-xs text-slate-400">
                       Paid at {formatDateTime(payment.paidAt)}
                     </p>
+                  )}
+
+                  {payment.status === "successful" && (
+                    <Link
+                      href={`/dashboard/parent/children/${studentId}/payments/${payment._id}/receipt`}
+                      className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                    >
+                      <Printer className="h-4 w-4" />
+                      View & Print Receipt
+                    </Link>
                   )}
                 </div>
               ))}

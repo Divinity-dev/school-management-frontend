@@ -32,11 +32,18 @@ export default function TeacherProfilePage() {
         setLoading(true);
         setError("");
 
-        const response = await api.get(`/teachers/${teacherId}`);
+        const response = await api.get(
+          `/teachers/${teacherId}`
+        );
 
-        setTeacher(response.data?.teacher || response.data);
+        setTeacher(
+          response.data?.teacher || response.data
+        );
       } catch (err) {
-        console.error("Failed to fetch teacher:", err);
+        console.error(
+          "Failed to fetch teacher:",
+          err
+        );
 
         setError(
           err?.response?.data?.message ||
@@ -53,10 +60,15 @@ export default function TeacherProfilePage() {
   const getInitials = () => {
     if (!teacher) return "T";
 
-    const first = teacher.firstName?.charAt(0) || "";
-    const last = teacher.lastName?.charAt(0) || "";
+    const first =
+      teacher.firstName?.charAt(0) || "";
 
-    return `${first}${last}`.toUpperCase() || "T";
+    const last =
+      teacher.lastName?.charAt(0) || "";
+
+    return (
+      `${first}${last}`.toUpperCase() || "T"
+    );
   };
 
   if (loading) {
@@ -93,8 +105,9 @@ export default function TeacherProfilePage() {
   }
 
   const fullName =
-    `${teacher.firstName || ""} ${teacher.lastName || ""}`.trim() ||
-    "Unnamed Teacher";
+    `${teacher.firstName || ""} ${
+      teacher.lastName || ""
+    }`.trim() || "Unnamed Teacher";
 
   const isActive = teacher.isActive !== false;
 
@@ -102,6 +115,7 @@ export default function TeacherProfilePage() {
     <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-5xl space-y-6">
         {/* Back */}
+
         <Link
           href="/dashboard/school-admin/teachers"
           className="inline-flex items-center gap-2 text-sm font-semibold text-slate-600 transition hover:text-emerald-600"
@@ -111,32 +125,57 @@ export default function TeacherProfilePage() {
         </Link>
 
         {/* Profile Header */}
-        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-100 bg-slate-50 px-5 py-6 sm:px-8">
+
+        <section className="overflow-hidden rounded-2xl border border-slate-800 bg-black shadow-sm">
+          <div className="bg-black px-5 py-6 sm:px-8">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-xl font-bold text-emerald-700">
-                  {getInitials()}
+                {/* Profile Photo */}
+
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 text-lg font-bold text-emerald-400 sm:h-20 sm:w-20 sm:text-xl">
+                  {teacher.profileImage ? (
+                    <img
+                      src={teacher.profileImage}
+                      alt={fullName}
+                      className="h-full w-full object-cover"
+                      onError={(event) => {
+                        event.currentTarget.style.display =
+                          "none";
+                      }}
+                    />
+                  ) : (
+                    getInitials()
+                  )}
+
+                  {/* Fallback initials layer */}
+
+                  {teacher.profileImage && (
+                    <span className="hidden">
+                      {getInitials()}
+                    </span>
+                  )}
                 </div>
 
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+                    <h1 className="text-2xl font-bold tracking-tight text-white">
                       {fullName}
                     </h1>
 
                     <span
                       className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                         isActive
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-slate-100 text-slate-500"
+                          ? "bg-emerald-500/15 text-emerald-400"
+                          : "bg-slate-700 text-slate-400"
                       }`}
                     >
-                      {isActive ? "Active" : "Inactive"}
+                      {isActive
+                        ? "Active"
+                        : "Inactive"}
                     </span>
                   </div>
 
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-slate-400">
                     Teacher
                   </p>
                 </div>
@@ -144,7 +183,7 @@ export default function TeacherProfilePage() {
 
               <Link
                 href={`/dashboard/school-admin/teachers/${teacher._id}/edit`}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
               >
                 <Edit3 className="h-4 w-4" />
                 Edit Teacher
@@ -153,35 +192,38 @@ export default function TeacherProfilePage() {
           </div>
 
           {/* Contact Summary */}
-          <div className="grid grid-cols-1 divide-y divide-slate-100 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+
+          <div className="grid grid-cols-1 divide-y divide-slate-800 bg-black sm:grid-cols-2 sm:divide-x sm:divide-y-0">
             <div className="flex items-center gap-3 px-5 py-5 sm:px-8">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-slate-400">
                 <Mail className="h-4 w-4" />
               </div>
 
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   Email
                 </p>
 
-                <p className="mt-1 break-all text-sm font-semibold text-slate-700">
-                  {teacher.email || "Not provided"}
+                <p className="mt-1 break-all text-sm font-semibold text-slate-300">
+                  {teacher.email ||
+                    "Not provided"}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3 px-5 py-5 sm:px-8">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-slate-400">
                 <Phone className="h-4 w-4" />
               </div>
 
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
                   Phone
                 </p>
 
-                <p className="mt-1 text-sm font-semibold text-slate-700">
-                  {teacher.phone || "Not provided"}
+                <p className="mt-1 text-sm font-semibold text-slate-300">
+                  {teacher.phone ||
+                    "Not provided"}
                 </p>
               </div>
             </div>
@@ -189,6 +231,7 @@ export default function TeacherProfilePage() {
         </section>
 
         {/* Information */}
+
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
           <SectionHeader
             icon={<User className="h-4 w-4" />}
@@ -219,6 +262,7 @@ export default function TeacherProfilePage() {
         </section>
 
         {/* Account Status */}
+
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8">
           <SectionHeader
             icon={
