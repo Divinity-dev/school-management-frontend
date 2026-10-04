@@ -17,6 +17,7 @@ import {
   Building2,
   Megaphone,
   Settings2,
+  Globe2,
   ArrowRight,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -79,11 +80,11 @@ const actionGroups = [
         href: "/dashboard/school-admin/academic-terms",
       },
       {
-        label: "Grading System",
-        description: "Configure CA and exam weighting",
-        icon: Settings2,
-        href: "/dashboard/school-admin/settings/grading",
-      },
+  label: "Settings",
+  description: "Manage website and academic settings",
+  icon: Settings2,
+  href: "/dashboard/school-admin/settings/website",
+},
     ],
   },
   {
