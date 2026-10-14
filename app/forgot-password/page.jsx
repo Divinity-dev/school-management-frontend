@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -12,6 +11,7 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
+import AuthActionButton from "../../components/AuthActionButton";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -293,13 +293,13 @@ export default function ForgotPasswordPage() {
     <main className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-10">
       <div className="w-full max-w-md">
         {/* Back to login */}
-        <Link
-          href="/login"
+        <AuthActionButton
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-600 transition mb-8"
+          label="Back to login"
         >
           <ArrowLeft size={17} />
           Back to login
-        </Link>
+        </AuthActionButton>
 
         {/* Card */}
         <div className="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 sm:p-10">
@@ -395,12 +395,10 @@ export default function ForgotPasswordPage() {
           <div className="mt-8 pt-6 border-t border-slate-100 text-center">
             <p className="text-sm text-slate-500">
               Remember your password?{" "}
-              <Link
-                href="/login"
+              <AuthActionButton
+                label="Sign in"
                 className="font-semibold text-emerald-600 hover:text-emerald-700"
-              >
-                Sign in
-              </Link>
+              />
             </p>
           </div>
         </div>

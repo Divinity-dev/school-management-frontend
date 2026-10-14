@@ -8,9 +8,11 @@ import {
   ChevronDown,
   GraduationCap,
   Loader2,
+  Printer,
   Trophy,
   TrendingUp,
 } from "lucide-react";
+import Link from "next/link";
 
 import api from "@/lib/api";
 
@@ -377,6 +379,40 @@ export default function StudentResultsPage() {
             </FilterSelect>
           </div>
         </section>
+
+        {/* Print report card */}
+<div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h2 className="text-sm font-semibold text-slate-900">
+      Printable Report Card
+    </h2>
+
+    <p className="mt-1 text-xs text-slate-500">
+      Select one academic session and one term to generate your official report card.
+    </p>
+  </div>
+
+  {selectedSession !== "all" && selectedTerm !== "all" ? (
+    <Link
+      href={`/dashboard/student/report-card?academicSession=${encodeURIComponent(
+        selectedSession
+      )}&academicTerm=${encodeURIComponent(selectedTerm)}`}
+      className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+    >
+      <Printer className="h-4 w-4" />
+      Print Report Card
+    </Link>
+  ) : (
+    <button
+      type="button"
+      disabled
+      className="inline-flex shrink-0 cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-400"
+    >
+      <Printer className="h-4 w-4" />
+      Select Session & Term
+    </button>
+  )}
+</div>
 
         {/* Selected period */}
         {(currentSession || currentTerm) && (

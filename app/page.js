@@ -1,4 +1,6 @@
 import Link from "next/link";
+import AuthActionButton from "../components/AuthActionButton";
+import DashboardNavLink from "../components/DashboardNavLink";
 import {
   ArrowRight,
   BarChart3,
@@ -71,12 +73,11 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
+            <DashboardNavLink className="hidden px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:text-emerald-600 sm:block" />
+
+            <AuthActionButton
               className="hidden px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:text-emerald-600 sm:block"
-            >
-              Login
-            </Link>
+            />
 
             <Link
               href="/register"
@@ -127,12 +128,10 @@ export default function Home() {
                 <ArrowRight size={18} />
               </Link>
 
-              <Link
-                href="/login"
+              <AuthActionButton
+                label="Sign In"
                 className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-7 py-4 font-semibold text-white transition hover:bg-white/10"
-              >
-                Sign In
-              </Link>
+              />
             </div>
 
             <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 text-sm text-slate-400">
@@ -680,12 +679,10 @@ export default function Home() {
               <ArrowRight size={18} />
             </Link>
 
-            <Link
-              href="/login"
+            <AuthActionButton
+              label="Sign In"
               className="inline-flex items-center justify-center rounded-full border border-white/30 px-7 py-4 font-semibold text-white transition hover:bg-white/10"
-            >
-              Sign In
-            </Link>
+            />
           </div>
         </div>
       </section>
@@ -752,12 +749,9 @@ export default function Home() {
               <h3 className="font-semibold text-white">Account</h3>
 
               <div className="mt-5 space-y-3 text-sm">
-                <Link
-                  href="/login"
+                <AuthActionButton
                   className="block transition hover:text-white"
-                >
-                  Login
-                </Link>
+                />
 
                 <Link
                   href="/register"

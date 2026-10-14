@@ -245,7 +245,7 @@ function SchoolPerformanceCard({ schoolData }) {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 text-xs text-slate-500">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
           <span>Slug:</span>
 
           <span className="rounded-md bg-slate-100 px-2 py-1 font-medium text-slate-700">
@@ -937,4 +937,3 @@ export default function SuperAdminDashboard() {
     </div>
   );
 }
-

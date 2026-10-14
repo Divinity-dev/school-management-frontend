@@ -11,6 +11,9 @@ import {
   FaYoutube,
 } from "react-icons/fa";
 
+import AuthActionButton from "../AuthActionButton";
+import DashboardNavLink from "../DashboardNavLink";
+
 export default function PublicSiteLayout({ school, children }) {
   const profile = school.publicProfile || {};
 
@@ -114,13 +117,15 @@ export default function PublicSiteLayout({ school, children }) {
           </nav>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/login"
+            <DashboardNavLink
+              className="hidden rounded-full px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 sm:block"
+            />
+
+            <AuthActionButton
+              label="Portal Login"
               className="hidden rounded-full px-5 py-2.5 text-sm font-semibold text-white sm:block"
               style={{ backgroundColor: primaryColor }}
-            >
-              Portal Login
-            </Link>
+            />
 
             <button
               type="button"

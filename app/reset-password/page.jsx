@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import { ArrowRight, CheckCircle2, Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import AuthActionButton from "../../components/AuthActionButton";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -145,13 +145,12 @@ return ( <main className="min-h-screen bg-slate-50 flex items-center justify-cen
           now sign in using your new password.
         </p>
 
-        <Link
-          href="/login"
+        <AuthActionButton
+          label="Continue to login"
           className="mt-7 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
         >
-          Continue to login
           <ArrowRight size={18} />
-        </Link>
+        </AuthActionButton>
       </div>
     </div>
   </main>
@@ -313,12 +312,10 @@ return ( <main className="min-h-screen bg-slate-50 flex items-center justify-cen
       </form>
 
       <div className="mt-7 text-center">
-        <Link
-          href="/login"
+        <AuthActionButton
+          label="Back to login"
           className="text-sm font-semibold text-emerald-600 hover:text-emerald-700"
-        >
-          Back to login
-        </Link>
+        />
       </div>
     </div>
   </div>

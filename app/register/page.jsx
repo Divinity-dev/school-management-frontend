@@ -15,6 +15,7 @@ Check,
 } from "lucide-react";
 
 import authService from "../../services/authService";
+import AuthActionButton from "../../components/AuthActionButton";
 
 export default function RegisterPage() {
 const router = useRouter();
@@ -623,12 +624,10 @@ return ( <main className="min-h-screen bg-slate-50 lg:grid lg:grid-cols-2">
 
       <p className="mt-8 text-center text-sm text-slate-500">
         Already have a school account?{" "}
-        <a
-          href="/login"
+        <AuthActionButton
+          label="Sign in"
           className="font-semibold text-emerald-600 hover:text-emerald-700"
-        >
-          Sign in
-        </a>
+        />
       </p>
     </div>
   </section>

@@ -32,7 +32,7 @@ export default function AssignmentDetailsPage({ params }) {
       setLoading(true);
       setError("");
 
-      const response = await api.get(`/assignments/${assignmentId}`);
+      const response = await api.get(`/assignments/${id}`);
 
       setAssignment(response.data.assignment);
     } catch (err) {
@@ -49,7 +49,7 @@ export default function AssignmentDetailsPage({ params }) {
 
   useEffect(() => {
     fetchAssignment();
-  }, [assignmentId]);
+  }, [id]);
 
   const handlePublish = async () => {
     try {
@@ -58,7 +58,7 @@ export default function AssignmentDetailsPage({ params }) {
       setSuccess("");
 
       const response = await api.patch(
-        `/assignments/${assignmentId}/publish`
+        `/assignments/${id}/publish`
       );
 
       setAssignment(response.data.assignment || {
@@ -89,7 +89,7 @@ export default function AssignmentDetailsPage({ params }) {
       setSuccess("");
 
       const response = await api.patch(
-        `/assignments/${assignmentId}/close`
+        `/assignments/${id}/close`
       );
 
       setAssignment(response.data.assignment || {

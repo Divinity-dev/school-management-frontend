@@ -3,7 +3,10 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-import { restoreCredentials } from "../store/slices/authSlice";
+import {
+  finishAuthInitialization,
+  restoreCredentials,
+} from "../store/slices/authSlice";
 
 export default function AuthInitializer() {
   const dispatch = useDispatch();
@@ -12,20 +15,24 @@ export default function AuthInitializer() {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
 
-    if (token && user) {
-      try {
+    try {
+      if (token && user) {
         dispatch(
           restoreCredentials({
             token,
             user: JSON.parse(user),
           })
         );
-      } catch (error) {
-        console.error("Failed to restore authentication:", error);
-
+      } else if (token || user) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
       }
+    } catch (error) {
+      console.error("Failed to restore authentication:", error);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    } finally {
+      dispatch(finishAuthInitialization());
     }
   }, [dispatch]);
 

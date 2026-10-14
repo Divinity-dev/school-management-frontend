@@ -14,6 +14,7 @@ import {
   EyeOff,
   CheckCircle2,
   UserRoundPlus,
+  FileSpreadsheet,
 } from "lucide-react";
 
 import api from "@/lib/api";
@@ -36,6 +37,8 @@ export default function StudentsPage() {
   const [creatingAccount, setCreatingAccount] = useState(false);
   const [accountError, setAccountError] = useState("");
   const [accountSuccess, setAccountSuccess] = useState("");
+  const [openActionMenu, setOpenActionMenu] = useState(null);
+const [updatingStudentId, setUpdatingStudentId] = useState(null);
 
   const fetchStudents = async () => {
     try {
@@ -61,10 +64,12 @@ export default function StudentsPage() {
     fetchStudents();
   }, []);
 
-  const filteredStudents = useMemo(() => {
-    const searchValue = search.trim().toLowerCase();
+ 
+const filteredStudents = useMemo(() => {
+  const searchValue = search.trim().toLowerCase();
 
-    return students.filter((student) => {
+  return [...students]
+    .filter((student) => {
       const fullName = [
         student.firstName,
         student.middleName,
@@ -77,9 +82,7 @@ export default function StudentsPage() {
       const matchesSearch =
         !searchValue ||
         fullName.includes(searchValue) ||
-        student.studentId
-          ?.toLowerCase()
-          .includes(searchValue);
+        student.studentId?.toLowerCase().includes(searchValue);
 
       const matchesStatus =
         statusFilter === "all" ||
@@ -87,8 +90,30 @@ export default function StudentsPage() {
         (statusFilter === "inactive" && !student.isActive);
 
       return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      const nameA = [
+        a.firstName,
+        a.middleName,
+        a.lastName,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const nameB = [
+        b.firstName,
+        b.middleName,
+        b.lastName,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      return nameA.localeCompare(nameB, undefined, {
+        sensitivity: "base",
+      });
     });
-  }, [students, search, statusFilter]);
+}, [students, search, statusFilter]);
+
 
   const activeStudents = students.filter(
     (student) => student.isActive
@@ -212,6 +237,43 @@ export default function StudentsPage() {
     }
   };
 
+  
+const handleToggleStudentStatus = async (student) => {
+  const action = student.isActive ? "deactivate" : "activate";
+
+  const confirmed = window.confirm(
+    `Are you sure you want to ${action} ${getStudentName(student)}?`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    setUpdatingStudentId(student._id);
+    setOpenActionMenu(null);
+    setError("");
+
+    // Replace this endpoint with your actual activation endpoint
+    // if your backend uses a different route.
+    await api.patch(`/students/${student._id}/status`, {
+      isActive: !student.isActive,
+    });
+
+    await fetchStudents();
+  } catch (err) {
+    setError(
+      err?.response?.data?.message ||
+        `Unable to ${action} this student.`
+    );
+  } finally {
+    setUpdatingStudentId(null);
+  }
+};
+
+const handleRefreshStudents = async () => {
+  await fetchStudents();
+};
+
+
   return (
     <>
       <div className="space-y-6 p-4 sm:p-6 lg:p-8">
@@ -313,13 +375,23 @@ export default function StudentsPage() {
                 <option value="inactive">Inactive</option>
               </select>
 
-              <Link
-                href="/dashboard/school-admin/students/new"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-              >
-                <UserPlus size={17} />
-                Add Student
-              </Link>
+              
+<Link
+  href="/dashboard/school-admin/students/import"
+  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
+>
+  <FileSpreadsheet size={17} />
+  Import Students
+</Link>
+
+<Link
+  href="/dashboard/school-admin/students/new"
+  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+>
+  <UserPlus size={17} />
+  Add Student
+</Link>
+
             </div>
           </div>
 
@@ -491,17 +563,59 @@ export default function StudentsPage() {
                       </td>
 
                       {/* Action */}
-                      <td className="px-5 py-4 text-right">
-                        <button
-                          type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                          aria-label={`Actions for ${getStudentName(
-                            student
-                          )}`}
-                        >
-                          <MoreHorizontal size={18} />
-                        </button>
-                      </td>
+                     
+<td className="px-5 py-4 text-right">
+  <div className="relative inline-block text-left">
+    <button
+      type="button"
+      onClick={() =>
+        setOpenActionMenu((current) =>
+          current === student._id ? null : student._id
+        )
+      }
+      disabled={updatingStudentId === student._id}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 disabled:opacity-50"
+      aria-label={`Actions for ${getStudentName(student)}`}
+      aria-expanded={openActionMenu === student._id}
+    >
+      <MoreHorizontal size={18} />
+    </button>
+
+    {openActionMenu === student._id && (
+      <div className="absolute right-0 z-20 mt-2 w-52 rounded-xl border border-slate-200 bg-white p-1.5 text-left shadow-lg">
+        <Link
+          href={`/dashboard/school-admin/students/${student._id}`}
+          onClick={() => setOpenActionMenu(null)}
+          className="block rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+        >
+          View Student
+        </Link>
+
+        {!student.user && student.isActive && (
+          <button
+            type="button"
+            onClick={() => {
+              setOpenActionMenu(null);
+              openAccountModal(student);
+            }}
+            className="block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Create Portal Account
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={() => setOpenActionMenu(null)}
+          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-500 hover:bg-slate-50"
+        >
+          Close Menu
+        </button>
+      </div>
+    )}
+  </div>
+</td>
+
                     </tr>
                   ))
                 )}
@@ -517,13 +631,17 @@ export default function StudentsPage() {
                 {students.length} students
               </p>
 
-              <button
-                type="button"
-                className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700"
-              >
-                View all
-                <ChevronRight size={14} />
-              </button>
+              
+<button
+  type="button"
+  onClick={handleRefreshStudents}
+  disabled={loading}
+  className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+>
+  {loading ? "Refreshing..." : "Refresh list"}
+  <ChevronRight size={14} />
+</button>
+
             </div>
           )}
         </section>
