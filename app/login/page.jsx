@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -16,19 +16,34 @@ import {
 
 import authService from "../../services/authService";
 import { setCredentials } from "../../store/slices/authSlice";
+import { getLoginRedirectPath } from "../../lib/dashboardNavigation";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const { user, isAuthenticated, isInitialized } = useSelector(
+    (state) => state.auth
+  );
+  const skipExistingSessionRedirect = useRef(false);
 
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  identifier: "",
+  password: "",
+});
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (
+      isInitialized &&
+      isAuthenticated &&
+      !skipExistingSessionRedirect.current
+    ) {
+      router.replace(getLoginRedirectPath(user));
+    }
+  }, [isAuthenticated, isInitialized, router, user]);
 
   const handleChange = (e) => {
     setFormData({
@@ -46,6 +61,38 @@ export default function LoginPage() {
     try {
       const data = await authService.login(formData);
 
+      let dashboardPath;
+
+      switch (data.user?.role) {
+        case "schoolAdmin":
+          dashboardPath = "/dashboard/school-admin";
+          break;
+
+        case "student":
+          dashboardPath = "/dashboard/student";
+          break;
+
+        case "teacher":
+          dashboardPath = "/dashboard/teacher";
+          break;
+
+        case "parent":
+          dashboardPath = "/dashboard/parent";
+          break;
+
+        case "superAdmin":
+          dashboardPath = "/dashboard/super-admin";
+          break;
+
+        default:
+          setError(
+            "Your account role is not configured for dashboard access."
+          );
+          return;
+      }
+
+      skipExistingSessionRedirect.current = true;
+
       dispatch(
         setCredentials({
           user: data.user,
@@ -56,34 +103,7 @@ export default function LoginPage() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      switch (data.user?.role) {
-        case "schoolAdmin":
-          router.push("/dashboard/school-admin");
-          break;
-
-        case "student":
-          router.push("/dashboard/student");
-          break;
-
-        case "teacher":
-          router.push("/dashboard/teacher");
-          break;
-
-        case "parent":
-          router.push("/dashboard/parent");
-          break;
-
-        case "superAdmin":
-          router.push("/dashboard/super-admin");
-          break;
-
-        default:
-          setError(
-            "Your account role is not configured for dashboard access."
-          );
-          setLoading(false);
-          return;
-      }
+      router.push(dashboardPath);
     } catch (error) {
       setError(
         error.response?.data?.message ||
@@ -93,6 +113,14 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (!isInitialized || isAuthenticated) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-50">
+        <p className="text-sm text-slate-500">Checking your session...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 lg:grid lg:grid-cols-2">
@@ -214,21 +242,18 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-slate-700"
-              >
-                Email address
-              </label>
+              <label htmlFor="identifier">
+  Email address or username
+</label>
 
               <input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
+                id="identifier"
+                name="identifier"
+                type="text"
+                value={formData.identifier}
                 onChange={handleChange}
-                placeholder="you@example.com"
-                autoComplete="email"
+                placeholder="Enter your email or username"
+                autoComplete="username"
                 required
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
               />

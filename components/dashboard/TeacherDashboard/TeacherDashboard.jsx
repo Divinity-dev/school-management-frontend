@@ -182,6 +182,13 @@ export default function TeacherDashboard({ user }) {
     href: "/dashboard/teacher/results",
   },
   {
+title: "Class Teacher Remarks",
+description: "Write and manage students' report comments",
+icon: FileText,
+href: "/dashboard/teacher/class-teacher-remarks",
+},
+
+  {
     title: "View My Subjects",
     description: "See the subjects assigned to you",
     icon: BookOpen,
