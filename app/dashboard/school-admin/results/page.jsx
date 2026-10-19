@@ -19,6 +19,7 @@ import {
 
 import api from "@/lib/api";
 import ReportCardDocument from "@/components/results/ReportCardDocument";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 function getId(value) {
   if (!value) return "";
@@ -144,6 +145,7 @@ export default function SchoolAdminResultsPage() {
   const [actionLoading, setActionLoading] = useState("");
   const [actionError, setActionError] = useState("");
   const [actionSuccess, setActionSuccess] = useState("");
+  const [confirmation, setConfirmation] = useState(null);
 
   const [reportCard, setReportCard] = useState(null);
   const [reportCardLoadingId, setReportCardLoadingId] = useState("");
@@ -375,7 +377,7 @@ setMatrixData(
     [allResults]
   );
 
-  const handleBulkAction = async (action) => {
+  const handleBulkAction = (action) => {
     const results =
       action === "publish" ? pendingResults : publishedResults;
 
@@ -390,12 +392,17 @@ setMatrixData(
 
     const actionLabel = action === "publish" ? "publish" : "lock";
 
-    const confirmed = window.confirm(
-      `Are you sure you want to ${actionLabel} ${results.length} result(s) for this class?`
-    );
+    setConfirmation({
+      title: `${action === "publish" ? "Publish" : "Lock"} results?`,
+      message: `Are you sure you want to ${actionLabel} ${results.length} result(s) for this class?`,
+      confirmLabel: action === "publish" ? "Publish Results" : "Lock Results",
+      variant: action === "lock" ? "danger" : "default",
+      onConfirm: () => executeBulkAction(action, results),
+    });
+  };
 
-    if (!confirmed) return;
-
+  const executeBulkAction = async (action, results) => {
+    const actionLabel = action === "publish" ? "publish" : "lock";
     setActionLoading(action);
     setActionError("");
     setActionSuccess("");
@@ -1135,7 +1142,12 @@ setMatrixData(
           </section>
         )}
       </div>
+      {confirmation && (
+        <ConfirmDialog
+          {...confirmation}
+          onCancel={() => setConfirmation(null)}
+        />
+      )}
     </main>
   );
 }
-

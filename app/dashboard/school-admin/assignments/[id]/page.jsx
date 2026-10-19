@@ -167,7 +167,7 @@ export default function AssignmentDetailsPage({ params }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-[400px] items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="flex items-center gap-3 text-slate-600">
           <Loader2 className="h-5 w-5 animate-spin" />
           <span>Loading assignment...</span>
@@ -178,7 +178,7 @@ export default function AssignmentDetailsPage({ params }) {
 
   if (error || !assignment) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <Link
           href="/dashboard/school-admin/assignments"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 transition hover:text-emerald-600"
@@ -219,7 +219,7 @@ export default function AssignmentDetailsPage({ params }) {
   const className = assignment.schoolClass?.name || "—";
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Back */}
       <Link
         href="/dashboard/school-admin/assignments"

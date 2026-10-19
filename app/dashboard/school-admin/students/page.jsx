@@ -19,6 +19,7 @@ import {
 
 import api from "@/lib/api";
 import Link from "next/link";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState([]);
@@ -39,6 +40,7 @@ export default function StudentsPage() {
   const [accountSuccess, setAccountSuccess] = useState("");
   const [openActionMenu, setOpenActionMenu] = useState(null);
 const [updatingStudentId, setUpdatingStudentId] = useState(null);
+  const [confirmation, setConfirmation] = useState(null);
 
   const fetchStudents = async () => {
     try {
@@ -241,12 +243,6 @@ const filteredStudents = useMemo(() => {
 const handleToggleStudentStatus = async (student) => {
   const action = student.isActive ? "deactivate" : "activate";
 
-  const confirmed = window.confirm(
-    `Are you sure you want to ${action} ${getStudentName(student)}?`
-  );
-
-  if (!confirmed) return;
-
   try {
     setUpdatingStudentId(student._id);
     setOpenActionMenu(null);
@@ -267,6 +263,18 @@ const handleToggleStudentStatus = async (student) => {
   } finally {
     setUpdatingStudentId(null);
   }
+};
+
+const requestToggleStudentStatus = (student) => {
+  const action = student.isActive ? "deactivate" : "activate";
+
+  setConfirmation({
+    title: `${action === "deactivate" ? "Deactivate" : "Activate"} student?`,
+    message: `Are you sure you want to ${action} ${getStudentName(student)}?`,
+    confirmLabel: action === "deactivate" ? "Deactivate" : "Activate",
+    variant: action === "deactivate" ? "danger" : "default",
+    onConfirm: () => handleToggleStudentStatus(student),
+  });
 };
 
 const handleRefreshStudents = async () => {
@@ -591,6 +599,17 @@ const handleRefreshStudents = async () => {
           View Student
         </Link>
 
+        <button
+          type="button"
+          onClick={() => {
+            setOpenActionMenu(null);
+            requestToggleStudentStatus(student);
+          }}
+          className="block w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+        >
+          {student.isActive ? "Deactivate Student" : "Activate Student"}
+        </button>
+
         {!student.user && student.isActive && (
           <button
             type="button"
@@ -838,6 +857,12 @@ const handleRefreshStudents = async () => {
             </form>
           </div>
         </div>
+      )}
+      {confirmation && (
+        <ConfirmDialog
+          {...confirmation}
+          onCancel={() => setConfirmation(null)}
+        />
       )}
     </>
   );

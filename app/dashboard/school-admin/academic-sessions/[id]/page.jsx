@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import api from "@/lib/api";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function AcademicSessionDetailsPage() {
   const params = useParams();
@@ -24,6 +25,7 @@ export default function AcademicSessionDetailsPage() {
   const [deactivating, setDeactivating] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmation, setConfirmation] = useState(null);
 
   useEffect(() => {
     const loadSession = async () => {
@@ -72,12 +74,6 @@ export default function AcademicSessionDetailsPage() {
   }, [sessionId]);
 
   const handleDeactivate = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to deactivate this academic session?"
-    );
-
-    if (!confirmed) return;
-
     try {
       setDeactivating(true);
       setError("");
@@ -108,6 +104,16 @@ export default function AcademicSessionDetailsPage() {
     } finally {
       setDeactivating(false);
     }
+  };
+
+  const requestDeactivate = () => {
+    setConfirmation({
+      title: "Deactivate academic session?",
+      message: "Are you sure you want to deactivate this academic session?",
+      confirmLabel: "Deactivate",
+      variant: "danger",
+      onConfirm: handleDeactivate,
+    });
   };
 
   const formatDate = (date) => {
@@ -342,7 +348,7 @@ export default function AcademicSessionDetailsPage() {
           {session?.isActive !== false && (
             <button
               type="button"
-              onClick={handleDeactivate}
+              onClick={requestDeactivate}
               disabled={deactivating}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -361,6 +367,12 @@ export default function AcademicSessionDetailsPage() {
           )}
         </div>
       </section>
+      {confirmation && (
+        <ConfirmDialog
+          {...confirmation}
+          onCancel={() => setConfirmation(null)}
+        />
+      )}
     </div>
   );
 }
