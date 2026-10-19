@@ -17,6 +17,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import api from "@/lib/api";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function StudentImportPage() {
  const fileInputRef = useRef(null);
@@ -31,6 +32,7 @@ const previewSectionRef = useRef(null);
   const [loadingReport, setLoadingReport] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [confirmation, setConfirmation] = useState(null);
 
   const getErrorMessage = (err) =>
     err?.response?.data?.message ||
@@ -154,20 +156,24 @@ const handlePreview = async () => {
 
 
  
-const handleConfirmImport = async () => {
+const handleConfirmImport = () => {
   if (!file || !preview?.validCount) {
     setError("There are no valid student records to import.");
     return;
   }
 
-  const confirmed = window.confirm(
-    `You are about to import ${preview.validCount} valid student record(s).\n\n` +
+  setConfirmation({
+    title: "Confirm student import",
+    message:
+      `You are about to import ${preview.validCount} valid student record(s).\n\n` +
       `${preview.invalidCount} invalid record(s) will be skipped.\n\n` +
-      "This action creates student records but does not create portal accounts. Continue?"
-  );
+      "This action creates student records but does not create portal accounts.",
+    confirmLabel: "Import Students",
+    onConfirm: executeImport,
+  });
+};
 
-  if (!confirmed) return;
-
+const executeImport = async () => {
   setError("");
   setSuccess("");
   setLoadingImport(true);
@@ -734,6 +740,12 @@ const handleConfirmImport = async () => {
           </section>
         )}
       </div>
+      {confirmation && (
+        <ConfirmDialog
+          {...confirmation}
+          onCancel={() => setConfirmation(null)}
+        />
+      )}
     </div>
   );
 }

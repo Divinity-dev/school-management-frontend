@@ -396,12 +396,12 @@ export default function TeacherAssignments() {
                   </div>
 
                   <div className="mt-5 flex gap-2">
-                    <Link
+                    {/* <Link
                       href={`/dashboard/teacher/assignments/${assignment._id}`}
                       className="flex-1 rounded-xl border border-slate-200 px-3 py-2.5 text-center text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
                       View
-                    </Link>
+                    </Link> */}
 
                     {assignment.status === "published" && (
                       <Link

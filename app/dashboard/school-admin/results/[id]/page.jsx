@@ -17,6 +17,7 @@ XCircle,
 } from "lucide-react";
 
 import api from "@/lib/api";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 const STATUS_STYLES = {
 draft: "bg-gray-100 text-gray-700",
@@ -156,6 +157,7 @@ const [loadError, setLoadError] = useState("");
 const [actionError, setActionError] = useState("");
 const [successMessage, setSuccessMessage] = useState("");
 const [actionLoading, setActionLoading] = useState("");
+const [confirmation, setConfirmation] = useState(null);
 
 const fetchResult = useCallback(async ({ showLoading = true } = {}) => {
 if (!resultId) {
@@ -205,7 +207,7 @@ useEffect(() => {
 fetchResult();
 }, [fetchResult]);
 
-const handleResultAction = async (action) => {
+const handleResultAction = (action) => {
 if (!result?._id || actionLoading) return;
 
 
@@ -218,14 +220,19 @@ if (result.status !== "pending_review") {
 
 const isPublish = action === "publish";
 
-const confirmed = window.confirm(
-  isPublish
+setConfirmation({
+  title: isPublish ? "Publish result?" : "Return result for correction?",
+  message: isPublish
     ? "Publish this result? The student will be able to view it in their portal."
-    : "Return this result to draft status so the teacher can correct and resubmit it?"
-);
+    : "Return this result to draft status so the teacher can correct and resubmit it?",
+  confirmLabel: isPublish ? "Publish Result" : "Return for Correction",
+  variant: isPublish ? "default" : "danger",
+  onConfirm: () => executeResultAction(action),
+});
+};
 
-if (!confirmed) return;
-
+const executeResultAction = async (action) => {
+const isPublish = action === "publish";
 setActionLoading(action);
 setActionError("");
 setSuccessMessage("");
@@ -743,6 +750,12 @@ Back to Results </button>
       </div>
     )}
   </SectionCard>
+  {confirmation && (
+    <ConfirmDialog
+      {...confirmation}
+      onCancel={() => setConfirmation(null)}
+    />
+  )}
 </div>
 
 

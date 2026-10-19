@@ -11,6 +11,8 @@ import {
   Power,
 } from "lucide-react";
 import api from "@/lib/api";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import Toast from "@/components/ui/Toast";
 
 export default function SubjectsPage() {
   const router = useRouter();
@@ -20,6 +22,8 @@ export default function SubjectsPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [confirmation, setConfirmation] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
 
   const fetchSubjects = async () => {
     try {
@@ -67,30 +71,34 @@ export default function SubjectsPage() {
     setFilteredSubjects(filtered);
   }, [search, subjects]);
 
-  const handleDeactivate = async (subjectId, subjectName) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to deactivate ${subjectName}?`
-    );
-
-    if (!confirmed) return;
-
+  const handleDeactivate = async (subjectId) => {
     try {
       await api.patch(
         `/subjects/${subjectId}/deactivate`
       );
 
-      fetchSubjects();
+      await fetchSubjects();
     } catch (error) {
       console.error(
         "Failed to deactivate subject:",
         error
       );
 
-      alert(
+      setToastMessage(
         error.response?.data?.message ||
           "Failed to deactivate subject."
       );
     }
+  };
+
+  const requestDeactivate = (subjectId, subjectName) => {
+    setConfirmation({
+      title: "Deactivate subject?",
+      message: `Are you sure you want to deactivate ${subjectName}?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+      onConfirm: () => handleDeactivate(subjectId),
+    });
   };
 
   return (
@@ -301,7 +309,7 @@ export default function SubjectsPage() {
                               type="button"
                               title="Deactivate subject"
                               onClick={() =>
-                                handleDeactivate(
+                                requestDeactivate(
                                   subject._id,
                                   subject.name
                                 )
@@ -395,6 +403,18 @@ export default function SubjectsPage() {
           </>
         )}
       </div>
+      {confirmation && (
+        <ConfirmDialog
+          {...confirmation}
+          onCancel={() => setConfirmation(null)}
+        />
+      )}
+      {toastMessage && (
+        <Toast
+          message={toastMessage}
+          onClose={() => setToastMessage("")}
+        />
+      )}
     </div>
   );
 }

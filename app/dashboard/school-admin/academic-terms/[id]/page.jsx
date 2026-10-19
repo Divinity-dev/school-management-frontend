@@ -15,6 +15,7 @@ import {
   Star,
 } from "lucide-react";
 import api from "@/lib/api";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function AcademicTermDetailsPage() {
   const params = useParams();
@@ -28,6 +29,7 @@ export default function AcademicTermDetailsPage() {
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [confirmation, setConfirmation] = useState(null);
 
   const fetchTerm = async () => {
     try {
@@ -94,14 +96,6 @@ export default function AcademicTermDetailsPage() {
   };
 
   const handleDeactivate = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to deactivate this academic term?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
     try {
       setActionLoading(true);
       setActionError("");
@@ -129,21 +123,33 @@ export default function AcademicTermDetailsPage() {
     }
   };
 
+  const requestDeactivate = () => {
+    setConfirmation({
+      title: "Deactivate academic term?",
+      message: "Are you sure you want to deactivate this academic term?",
+      confirmLabel: "Deactivate",
+      variant: "danger",
+      onConfirm: handleDeactivate,
+    });
+  };
+
   if (loading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600" />
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-emerald-600" />
 
-        <p className="mt-4 text-sm text-slate-500">
-          Loading academic term...
-        </p>
+          <p className="mt-4 text-sm text-slate-500">
+            Loading academic term...
+          </p>
+        </div>
       </div>
     );
   }
 
   if (error || !term) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 p-4 sm:p-6 lg:p-8">
         <Link
           href="/dashboard/school-admin/academic-terms"
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900"
@@ -184,7 +190,7 @@ export default function AcademicTermDetailsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Back */}
       <Link
         href="/dashboard/school-admin/academic-terms"
@@ -249,7 +255,7 @@ export default function AcademicTermDetailsPage() {
           {term.isActive && (
             <button
               type="button"
-              onClick={handleDeactivate}
+              onClick={requestDeactivate}
               disabled={actionLoading}
               className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-4 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -452,6 +458,12 @@ export default function AcademicTermDetailsPage() {
             </div>
           </div>
         </div>
+      )}
+      {confirmation && (
+        <ConfirmDialog
+          {...confirmation}
+          onCancel={() => setConfirmation(null)}
+        />
       )}
     </div>
   );

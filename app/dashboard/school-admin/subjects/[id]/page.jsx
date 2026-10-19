@@ -9,6 +9,7 @@ import {
   Power,
 } from "lucide-react";
 import api from "@/lib/api";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 export default function SubjectDetailsPage() {
   const params = useParams();
@@ -17,6 +18,7 @@ export default function SubjectDetailsPage() {
   const [subject, setSubject] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [confirmation, setConfirmation] = useState(null);
 
   useEffect(() => {
     const fetchSubject = async () => {
@@ -50,12 +52,6 @@ export default function SubjectDetailsPage() {
   }, [params.id]);
 
   const handleDeactivate = async () => {
-    const confirmed = window.confirm(
-      `Are you sure you want to deactivate ${subject.name}?`
-    );
-
-    if (!confirmed) return;
-
     try {
       await api.patch(
         `/subjects/${subject._id}/deactivate`
@@ -78,9 +74,19 @@ export default function SubjectDetailsPage() {
     }
   };
 
+  const requestDeactivate = () => {
+    setConfirmation({
+      title: "Deactivate subject?",
+      message: `Are you sure you want to deactivate ${subject.name}?`,
+      confirmLabel: "Deactivate",
+      variant: "danger",
+      onConfirm: handleDeactivate,
+    });
+  };
+
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-[400px] items-center justify-center p-4 sm:p-6 lg:p-8">
         <p className="text-sm text-gray-500">
           Loading subject...
         </p>
@@ -90,7 +96,7 @@ export default function SubjectDetailsPage() {
 
   if (error && !subject) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
         <button
           type="button"
           onClick={() => router.back()}
@@ -108,7 +114,7 @@ export default function SubjectDetailsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
@@ -155,7 +161,7 @@ export default function SubjectDetailsPage() {
           {subject.isActive && (
             <button
               type="button"
-              onClick={handleDeactivate}
+              onClick={requestDeactivate}
               className="flex items-center gap-2 rounded-lg border border-red-200 bg-white px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50"
             >
               <Power size={17} />
@@ -259,6 +265,12 @@ export default function SubjectDetailsPage() {
           </div>
         </div>
       </div>
+      {confirmation && (
+        <ConfirmDialog
+          {...confirmation}
+          onCancel={() => setConfirmation(null)}
+        />
+      )}
     </div>
   );
 }
