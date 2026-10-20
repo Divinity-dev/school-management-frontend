@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useSelector } from "react-redux";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -72,6 +73,8 @@ const getPaymentMethodLabel = (payment) => {
 
 export default function ParentPaymentReceiptPage() {
   const { id, paymentId } = useParams();
+  const { user } = useSelector((state) => state.auth);
+  const schoolName = user?.school?.name;
 
   const [student, setStudent] = useState(null);
   const [payment, setPayment] = useState(null);
@@ -209,8 +212,14 @@ export default function ParentPaymentReceiptPage() {
 
                 <div>
                   <p className="text-xl font-bold tracking-tight text-slate-900">
-                    School Fee Receipt
+                    {schoolName || "School Fee Receipt"}
                   </p>
+
+                  {schoolName && (
+                    <p className="mt-1 text-sm font-semibold text-slate-700">
+                      School Fee Receipt
+                    </p>
+                  )}
 
                   <p className="mt-1 text-sm text-slate-500">
                     Official payment receipt
