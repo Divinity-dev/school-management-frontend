@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   CheckCircle2,
@@ -10,7 +10,7 @@ import {
 
 import api from "@/lib/api";
 
-export default function ParentFeePaymentCallbackPage() {
+function ParentFeePaymentCallbackContent() {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -134,7 +134,7 @@ export default function ParentFeePaymentCallbackPage() {
             </p>
 
             <p className="mt-4 text-xs text-slate-400">
-              Please don't close this page.
+              Please don&apos;t close this page.
             </p>
           </>
         )}
@@ -188,5 +188,19 @@ export default function ParentFeePaymentCallbackPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function ParentFeePaymentCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+          <Loader2 className="h-7 w-7 animate-spin text-blue-600" />
+        </main>
+      }
+    >
+      <ParentFeePaymentCallbackContent />
+    </Suspense>
   );
 }
