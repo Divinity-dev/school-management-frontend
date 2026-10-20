@@ -1,13 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2, Eye, EyeOff, LockKeyhole } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import AuthActionButton from "../../components/AuthActionButton";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
 const searchParams = useSearchParams();
 
 const email = searchParams.get("email");
@@ -322,4 +322,20 @@ return ( <main className="min-h-screen bg-slate-50 flex items-center justify-cen
 </main>
 
 );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-12">
+          <p className="text-sm text-slate-500">
+            Loading password reset...
+          </p>
+        </main>
+      }
+    >
+      <ResetPasswordForm />
+    </Suspense>
+  );
 }

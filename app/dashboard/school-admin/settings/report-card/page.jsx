@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 
 import api from "@/lib/api";
-import CloudinaryImageUpload from "@/components/CloudinaryImageUpload";
+import CloudinaryImageUpload from "@/components/dashboard/CloudinaryImageUpload";
 
 export default function ReportCardSettingsPage() {
   const [branding, setBranding] = useState({
