@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   Globe2,
@@ -14,6 +15,8 @@ import {
   Share2,
   Phone,
   GraduationCap,
+  FileText,
+  ArrowUpRight,
 } from "lucide-react";
 
 import api from "@/lib/api";
@@ -26,14 +29,12 @@ export default function SchoolWebsiteSettings() {
   const [form, setForm] = useState({
     name: "",
     logo: "",
-
     tagline: "",
     description: "",
     history: "",
     mission: "",
     vision: "",
     coreValues: [],
-
     admissions: {
       enabled: true,
       status: "Admissions Now Open",
@@ -44,26 +45,20 @@ export default function SchoolWebsiteSettings() {
       applicationButtonText: "Apply Now",
       contactText: "",
     },
-
     principalMessage: "",
     principalName: "",
     principalPhoto: "",
-
     primaryColor: "#0F766E",
     secondaryColor: "#63E6BE",
-
     heroImage: "",
     favicon: "",
-
     whatsapp: "",
     googleMapsUrl: "",
-
     facebook: "",
     instagram: "",
     x: "",
     linkedin: "",
     youtube: "",
-
     showPrincipalMessage: true,
     showTestimonials: true,
     showStatistics: true,
@@ -74,17 +69,12 @@ export default function SchoolWebsiteSettings() {
   const [newValue, setNewValue] = useState("");
   const [newAdmissionRequirement, setNewAdmissionRequirement] =
     useState("");
-
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
     loadSettings();
   }, []);
-
-  /* =========================================================
-     LOAD SETTINGS
-  ========================================================= */
 
   const loadSettings = async () => {
     try {
@@ -101,7 +91,6 @@ export default function SchoolWebsiteSettings() {
       setForm({
         name: school?.name || "",
         logo: school?.logo || "",
-
         tagline: profile.tagline || "",
         description: profile.description || "",
         history: profile.history || "",
@@ -113,18 +102,12 @@ export default function SchoolWebsiteSettings() {
           : [],
 
         admissions: {
-          enabled:
-            profile.admissions?.enabled ?? true,
-
+          enabled: profile.admissions?.enabled ?? true,
           status:
             profile.admissions?.status ||
             "Admissions Now Open",
-
-          title:
-            profile.admissions?.title || "",
-
-          description:
-            profile.admissions?.description || "",
+          title: profile.admissions?.title || "",
+          description: profile.admissions?.description || "",
 
           requirements: Array.isArray(
             profile.admissions?.requirements
@@ -139,72 +122,34 @@ export default function SchoolWebsiteSettings() {
             profile.admissions?.applicationButtonText ||
             "Apply Now",
 
-          contactText:
-            profile.admissions?.contactText || "",
+          contactText: profile.admissions?.contactText || "",
         },
 
-        principalMessage:
-          profile.principalMessage || "",
-
-        principalName:
-          profile.principalName || "",
-
-        principalPhoto:
-          profile.principalPhoto || "",
-
-        primaryColor:
-          profile.primaryColor || "#0F766E",
-
-        secondaryColor:
-          profile.secondaryColor || "#63E6BE",
-
-        heroImage:
-          profile.heroImage || "",
-
-        favicon:
-          profile.favicon || "",
-
-        whatsapp:
-          profile.whatsapp || "",
-
-        googleMapsUrl:
-          profile.googleMapsUrl || "",
-
-        facebook:
-          profile.facebook || "",
-
-        instagram:
-          profile.instagram || "",
-
-        x:
-          profile.x || "",
-
-        linkedin:
-          profile.linkedin || "",
-
-        youtube:
-          profile.youtube || "",
+        principalMessage: profile.principalMessage || "",
+        principalName: profile.principalName || "",
+        principalPhoto: profile.principalPhoto || "",
+        primaryColor: profile.primaryColor || "#0F766E",
+        secondaryColor: profile.secondaryColor || "#63E6BE",
+        heroImage: profile.heroImage || "",
+        favicon: profile.favicon || "",
+        whatsapp: profile.whatsapp || "",
+        googleMapsUrl: profile.googleMapsUrl || "",
+        facebook: profile.facebook || "",
+        instagram: profile.instagram || "",
+        x: profile.x || "",
+        linkedin: profile.linkedin || "",
+        youtube: profile.youtube || "",
 
         showPrincipalMessage:
           profile.showPrincipalMessage ?? true,
 
-        showTestimonials:
-          profile.showTestimonials ?? true,
-
-        showStatistics:
-          profile.showStatistics ?? true,
-
-        showEvents:
-          profile.showEvents ?? true,
-
-        showNews:
-          profile.showNews ?? true,
+        showTestimonials: profile.showTestimonials ?? true,
+        showStatistics: profile.showStatistics ?? true,
+        showEvents: profile.showEvents ?? true,
+        showNews: profile.showNews ?? true,
       });
     } catch (err) {
-      console.error(
-        "Load website settings error:",
-        err
-      );
+      console.error("Load website settings error:", err);
 
       setError(
         err.response?.data?.message ||
@@ -215,10 +160,6 @@ export default function SchoolWebsiteSettings() {
     }
   };
 
-  /* =========================================================
-     FORM HANDLERS
-  ========================================================= */
-
   const handleChange = (field, value) => {
     setForm((prev) => ({
       ...prev,
@@ -226,10 +167,7 @@ export default function SchoolWebsiteSettings() {
     }));
   };
 
-  const handleAdmissionChange = (
-    field,
-    value
-  ) => {
+  const handleAdmissionChange = (field, value) => {
     setForm((prev) => ({
       ...prev,
       admissions: {
@@ -239,10 +177,6 @@ export default function SchoolWebsiteSettings() {
     }));
   };
 
-  /* =========================================================
-     CORE VALUES
-  ========================================================= */
-
   const addCoreValue = () => {
     const value = newValue.trim();
 
@@ -250,9 +184,7 @@ export default function SchoolWebsiteSettings() {
 
     if (
       form.coreValues.some(
-        (item) =>
-          item.toLowerCase() ===
-          value.toLowerCase()
+        (item) => item.toLowerCase() === value.toLowerCase()
       )
     ) {
       return;
@@ -260,10 +192,7 @@ export default function SchoolWebsiteSettings() {
 
     setForm((prev) => ({
       ...prev,
-      coreValues: [
-        ...prev.coreValues,
-        value,
-      ],
+      coreValues: [...prev.coreValues, value],
     }));
 
     setNewValue("");
@@ -273,27 +202,19 @@ export default function SchoolWebsiteSettings() {
     setForm((prev) => ({
       ...prev,
       coreValues: prev.coreValues.filter(
-        (_, valueIndex) =>
-          valueIndex !== index
+        (_, valueIndex) => valueIndex !== index
       ),
     }));
   };
 
-  /* =========================================================
-     ADMISSION REQUIREMENTS
-  ========================================================= */
-
   const addAdmissionRequirement = () => {
-    const value =
-      newAdmissionRequirement.trim();
+    const value = newAdmissionRequirement.trim();
 
     if (!value) return;
 
     if (
       form.admissions.requirements.some(
-        (item) =>
-          item.toLowerCase() ===
-          value.toLowerCase()
+        (item) => item.toLowerCase() === value.toLowerCase()
       )
     ) {
       return;
@@ -313,25 +234,17 @@ export default function SchoolWebsiteSettings() {
     setNewAdmissionRequirement("");
   };
 
-  const removeAdmissionRequirement = (
-    index
-  ) => {
+  const removeAdmissionRequirement = (index) => {
     setForm((prev) => ({
       ...prev,
       admissions: {
         ...prev.admissions,
-        requirements:
-          prev.admissions.requirements.filter(
-            (_, requirementIndex) =>
-              requirementIndex !== index
-          ),
+        requirements: prev.admissions.requirements.filter(
+          (_, requirementIndex) => requirementIndex !== index
+        ),
       },
     }));
   };
-
-  /* =========================================================
-     SAVE
-  ========================================================= */
 
   const handleSave = async () => {
     try {
@@ -345,150 +258,77 @@ export default function SchoolWebsiteSettings() {
       );
 
       const school = response.data?.school;
-      const profile =
-        school?.publicProfile || {};
+      const profile = school?.publicProfile || {};
 
       setForm((current) => ({
         ...current,
+        name: school?.name || current.name,
+        logo: school?.logo || "",
+        tagline: profile.tagline || "",
+        description: profile.description || "",
+        history: profile.history || "",
+        mission: profile.mission || "",
+        vision: profile.vision || "",
 
-        name:
-          school?.name || current.name,
-
-        logo:
-          school?.logo || "",
-
-        tagline:
-          profile.tagline || "",
-
-        description:
-          profile.description || "",
-
-        history:
-          profile.history || "",
-
-        mission:
-          profile.mission || "",
-
-        vision:
-          profile.vision || "",
-
-        coreValues:
-          Array.isArray(profile.coreValues)
-            ? profile.coreValues
-            : [],
+        coreValues: Array.isArray(profile.coreValues)
+          ? profile.coreValues
+          : [],
 
         admissions: {
-          enabled:
-            profile.admissions?.enabled ??
-            true,
-
+          enabled: profile.admissions?.enabled ?? true,
           status:
             profile.admissions?.status ||
             "Admissions Now Open",
-
-          title:
-            profile.admissions?.title || "",
-
-          description:
-            profile.admissions?.description ||
-            "",
+          title: profile.admissions?.title || "",
+          description: profile.admissions?.description || "",
 
           requirements: Array.isArray(
-            profile.admissions
-              ?.requirements
+            profile.admissions?.requirements
           )
             ? profile.admissions.requirements
             : [],
 
           applicationUrl:
-            profile.admissions
-              ?.applicationUrl || "",
+            profile.admissions?.applicationUrl || "",
 
           applicationButtonText:
-            profile.admissions
-              ?.applicationButtonText ||
+            profile.admissions?.applicationButtonText ||
             "Apply Now",
 
-          contactText:
-            profile.admissions
-              ?.contactText || "",
+          contactText: profile.admissions?.contactText || "",
         },
 
-        principalMessage:
-          profile.principalMessage || "",
-
-        principalName:
-          profile.principalName || "",
-
-        principalPhoto:
-          profile.principalPhoto || "",
-
-        primaryColor:
-          profile.primaryColor ||
-          "#0F766E",
-
-        secondaryColor:
-          profile.secondaryColor ||
-          "#63E6BE",
-
-        heroImage:
-          profile.heroImage || "",
-
-        favicon:
-          profile.favicon || "",
-
-        whatsapp:
-          profile.whatsapp || "",
-
-        googleMapsUrl:
-          profile.googleMapsUrl || "",
-
-        facebook:
-          profile.facebook || "",
-
-        instagram:
-          profile.instagram || "",
-
-        x:
-          profile.x || "",
-
-        linkedin:
-          profile.linkedin || "",
-
-        youtube:
-          profile.youtube || "",
+        principalMessage: profile.principalMessage || "",
+        principalName: profile.principalName || "",
+        principalPhoto: profile.principalPhoto || "",
+        primaryColor: profile.primaryColor || "#0F766E",
+        secondaryColor: profile.secondaryColor || "#63E6BE",
+        heroImage: profile.heroImage || "",
+        favicon: profile.favicon || "",
+        whatsapp: profile.whatsapp || "",
+        googleMapsUrl: profile.googleMapsUrl || "",
+        facebook: profile.facebook || "",
+        instagram: profile.instagram || "",
+        x: profile.x || "",
+        linkedin: profile.linkedin || "",
+        youtube: profile.youtube || "",
 
         showPrincipalMessage:
-          profile.showPrincipalMessage ??
-          true,
+          profile.showPrincipalMessage ?? true,
 
-        showTestimonials:
-          profile.showTestimonials ??
-          true,
-
-        showStatistics:
-          profile.showStatistics ??
-          true,
-
-        showEvents:
-          profile.showEvents ?? true,
-
-        showNews:
-          profile.showNews ?? true,
+        showTestimonials: profile.showTestimonials ?? true,
+        showStatistics: profile.showStatistics ?? true,
+        showEvents: profile.showEvents ?? true,
+        showNews: profile.showNews ?? true,
       }));
 
-      setMessage(
-        "Website settings saved successfully."
-      );
+      setMessage("Website settings saved successfully.");
 
       setTimeout(() => {
         setMessage("");
       }, 4000);
     } catch (err) {
-      console.error(
-        "Save website settings error:",
-        err
-      );
+      console.error("Save website settings error:", err);
 
       setError(
         err.response?.data?.message ||
@@ -498,10 +338,6 @@ export default function SchoolWebsiteSettings() {
       setSaving(false);
     }
   };
-
-  /* =========================================================
-     LOADING
-  ========================================================= */
 
   if (loading) {
     return (
@@ -515,17 +351,12 @@ export default function SchoolWebsiteSettings() {
 
   return (
     <div className="space-y-8">
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
+      {/* HEADER AND REPORT CARD NAVIGATION */}
 
-      <div>
+      <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-center">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
-            <Globe2
-              className="text-emerald-600"
-              size={22}
-            />
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+            <Globe2 className="text-emerald-600" size={22} />
           </div>
 
           <div>
@@ -534,14 +365,35 @@ export default function SchoolWebsiteSettings() {
             </h1>
 
             <p className="mt-1 text-sm text-slate-500">
-              Customize how your school's public
-              website looks and what visitors see.
+              Customize your school's public website and content.
             </p>
           </div>
         </div>
-      </div>
 
-      {/* SUCCESS */}
+        <Link
+          href="/dashboard/school-admin/settings/report-card"
+          className="group inline-flex items-center justify-center gap-3 rounded-xl border border-emerald-200 bg-white px-4 py-3 text-left shadow-sm transition hover:border-emerald-400 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <FileText size={21} />
+          </span>
+
+          <span>
+            <span className="block text-sm font-semibold text-slate-900">
+              Report Card Settings
+            </span>
+
+            <span className="mt-1 block text-xs text-slate-500">
+              Upload principal's signature and school stamp
+            </span>
+          </span>
+
+          <ArrowUpRight
+            size={18}
+            className="ml-2 shrink-0 text-slate-400 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-emerald-700"
+          />
+        </Link>
+      </div>
 
       {message && (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
@@ -549,17 +401,13 @@ export default function SchoolWebsiteSettings() {
         </div>
       )}
 
-      {/* ERROR */}
-
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* =====================================================
-          BRANDING
-      ===================================================== */}
+      {/* BRANDING */}
 
       <SettingsCard
         icon={<Palette size={20} />}
@@ -570,9 +418,7 @@ export default function SchoolWebsiteSettings() {
           <InputField
             label="School Name"
             value={form.name}
-            onChange={(value) =>
-              handleChange("name", value)
-            }
+            onChange={(value) => handleChange("name", value)}
             placeholder="Bright Future Academy"
           />
 
@@ -580,9 +426,7 @@ export default function SchoolWebsiteSettings() {
             <CloudinaryImageUpload
               label="School Logo"
               value={form.logo}
-              onChange={(value) =>
-                handleChange("logo", value)
-              }
+              onChange={(value) => handleChange("logo", value)}
               description="Upload the school's main logo."
               aspect="square"
             />
@@ -590,12 +434,7 @@ export default function SchoolWebsiteSettings() {
             <CloudinaryImageUpload
               label="Favicon"
               value={form.favicon}
-              onChange={(value) =>
-                handleChange(
-                  "favicon",
-                  value
-                )
-              }
+              onChange={(value) => handleChange("favicon", value)}
               description="This appears in the browser tab."
               aspect="square"
             />
@@ -605,31 +444,19 @@ export default function SchoolWebsiteSettings() {
             <ColorField
               label="Primary Color"
               value={form.primaryColor}
-              onChange={(value) =>
-                handleChange(
-                  "primaryColor",
-                  value
-                )
-              }
+              onChange={(value) => handleChange("primaryColor", value)}
             />
 
             <ColorField
               label="Secondary Color"
               value={form.secondaryColor}
-              onChange={(value) =>
-                handleChange(
-                  "secondaryColor",
-                  value
-                )
-              }
+              onChange={(value) => handleChange("secondaryColor", value)}
             />
           </div>
         </div>
       </SettingsCard>
 
-      {/* =====================================================
-          HOMEPAGE
-      ===================================================== */}
+      {/* HOMEPAGE */}
 
       <SettingsCard
         icon={<ImageIcon size={20} />}
@@ -640,24 +467,14 @@ export default function SchoolWebsiteSettings() {
           <InputField
             label="Tagline"
             value={form.tagline}
-            onChange={(value) =>
-              handleChange(
-                "tagline",
-                value
-              )
-            }
+            onChange={(value) => handleChange("tagline", value)}
             placeholder="Building Excellence, Inspiring Futures"
           />
 
           <TextAreaField
             label="School Description"
             value={form.description}
-            onChange={(value) =>
-              handleChange(
-                "description",
-                value
-              )
-            }
+            onChange={(value) => handleChange("description", value)}
             placeholder="Tell visitors about your school..."
             rows={5}
           />
@@ -665,12 +482,7 @@ export default function SchoolWebsiteSettings() {
           <CloudinaryImageUpload
             label="Hero Image"
             value={form.heroImage}
-            onChange={(value) =>
-              handleChange(
-                "heroImage",
-                value
-              )
-            }
+            onChange={(value) => handleChange("heroImage", value)}
             description="This image appears behind the main hero section on the homepage."
             aspect="wide"
           />
@@ -679,12 +491,7 @@ export default function SchoolWebsiteSettings() {
             <TextAreaField
               label="Mission"
               value={form.mission}
-              onChange={(value) =>
-                handleChange(
-                  "mission",
-                  value
-                )
-              }
+              onChange={(value) => handleChange("mission", value)}
               placeholder="Our mission is..."
               rows={5}
             />
@@ -692,12 +499,7 @@ export default function SchoolWebsiteSettings() {
             <TextAreaField
               label="Vision"
               value={form.vision}
-              onChange={(value) =>
-                handleChange(
-                  "vision",
-                  value
-                )
-              }
+              onChange={(value) => handleChange("vision", value)}
               placeholder="Our vision is..."
               rows={5}
             />
@@ -705,9 +507,7 @@ export default function SchoolWebsiteSettings() {
         </div>
       </SettingsCard>
 
-      {/* =====================================================
-          ABOUT
-      ===================================================== */}
+      {/* ABOUT */}
 
       <SettingsCard
         icon={<Globe2 size={20} />}
@@ -717,20 +517,13 @@ export default function SchoolWebsiteSettings() {
         <TextAreaField
           label="School History"
           value={form.history}
-          onChange={(value) =>
-            handleChange(
-              "history",
-              value
-            )
-          }
+          onChange={(value) => handleChange("history", value)}
           placeholder="Tell the story of how your school was founded, how it has grown and what it has achieved..."
           rows={9}
         />
       </SettingsCard>
 
-      {/* =====================================================
-          CORE VALUES
-      ===================================================== */}
+      {/* CORE VALUES */}
 
       <SettingsCard
         icon={<Globe2 size={20} />}
@@ -741,9 +534,7 @@ export default function SchoolWebsiteSettings() {
           <input
             type="text"
             value={newValue}
-            onChange={(e) =>
-              setNewValue(e.target.value)
-            }
+            onChange={(e) => setNewValue(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -751,7 +542,7 @@ export default function SchoolWebsiteSettings() {
               }
             }}
             placeholder="e.g. Integrity"
-            className="h-11 flex-1 rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500"
+            className="h-11 min-w-0 flex-1 rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500"
           />
 
           <button
@@ -766,28 +557,25 @@ export default function SchoolWebsiteSettings() {
 
         {form.coreValues.length > 0 ? (
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {form.coreValues.map(
-              (value, index) => (
-                <div
-                  key={`${value}-${index}`}
-                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
-                >
-                  <span className="text-sm font-medium text-slate-700">
-                    {value}
-                  </span>
+            {form.coreValues.map((value, index) => (
+              <div
+                key={`${value}-${index}`}
+                className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+              >
+                <span className="text-sm font-medium text-slate-700">
+                  {value}
+                </span>
 
-                  <button
-                    type="button"
-                    onClick={() =>
-                      removeCoreValue(index)
-                    }
-                    className="text-slate-400 hover:text-red-600"
-                  >
-                    <Trash2 size={17} />
-                  </button>
-                </div>
-              )
-            )}
+                <button
+                  type="button"
+                  onClick={() => removeCoreValue(index)}
+                  className="text-slate-400 hover:text-red-600"
+                  aria-label={`Remove ${value}`}
+                >
+                  <Trash2 size={17} />
+                </button>
+              </div>
+            ))}
           </div>
         ) : (
           <p className="mt-4 text-sm text-slate-500">
@@ -796,9 +584,7 @@ export default function SchoolWebsiteSettings() {
         )}
       </SettingsCard>
 
-      {/* =====================================================
-          ADMISSIONS
-      ===================================================== */}
+      {/* ADMISSIONS */}
 
       <SettingsCard
         icon={<GraduationCap size={20} />}
@@ -809,58 +595,32 @@ export default function SchoolWebsiteSettings() {
           <div className="rounded-xl border border-slate-200 bg-slate-50">
             <Toggle
               label="Enable admissions page"
-              checked={
-                form.admissions.enabled
-              }
-              onChange={(value) =>
-                handleAdmissionChange(
-                  "enabled",
-                  value
-                )
-              }
+              checked={form.admissions.enabled}
+              onChange={(value) => handleAdmissionChange("enabled", value)}
             />
           </div>
 
           <InputField
             label="Admissions Status"
             value={form.admissions.status}
-            onChange={(value) =>
-              handleAdmissionChange(
-                "status",
-                value
-              )
-            }
+            onChange={(value) => handleAdmissionChange("status", value)}
             placeholder="Admissions Now Open"
           />
 
           <InputField
             label="Page Title"
             value={form.admissions.title}
-            onChange={(value) =>
-              handleAdmissionChange(
-                "title",
-                value
-              )
-            }
+            onChange={(value) => handleAdmissionChange("title", value)}
             placeholder="Begin Your Journey With Us"
           />
 
           <TextAreaField
             label="Description"
-            value={
-              form.admissions.description
-            }
-            onChange={(value) =>
-              handleAdmissionChange(
-                "description",
-                value
-              )
-            }
+            value={form.admissions.description}
+            onChange={(value) => handleAdmissionChange("description", value)}
             placeholder="Tell prospective parents and students about your admission process..."
             rows={6}
           />
-
-          {/* REQUIREMENTS */}
 
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -868,21 +628,14 @@ export default function SchoolWebsiteSettings() {
             </label>
 
             <p className="mb-3 text-xs leading-5 text-slate-500">
-              Add the documents, qualifications or
-              conditions applicants should know about.
+              Add the documents, qualifications or conditions applicants should know about.
             </p>
 
             <div className="flex gap-3">
               <input
                 type="text"
-                value={
-                  newAdmissionRequirement
-                }
-                onChange={(e) =>
-                  setNewAdmissionRequirement(
-                    e.target.value
-                  )
-                }
+                value={newAdmissionRequirement}
+                onChange={(e) => setNewAdmissionRequirement(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault();
@@ -890,14 +643,12 @@ export default function SchoolWebsiteSettings() {
                   }
                 }}
                 placeholder="e.g. Birth Certificate"
-                className="h-11 flex-1 rounded-lg border border-slate-200 px-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                className="h-11 min-w-0 flex-1 rounded-lg border border-slate-200 px-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
 
               <button
                 type="button"
-                onClick={
-                  addAdmissionRequirement
-                }
+                onClick={addAdmissionRequirement}
                 className="inline-flex h-11 items-center gap-2 rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition hover:bg-slate-800"
               >
                 <Plus size={17} />
@@ -905,43 +656,33 @@ export default function SchoolWebsiteSettings() {
               </button>
             </div>
 
-            {form.admissions.requirements
-              .length > 0 ? (
+            {form.admissions.requirements.length > 0 ? (
               <div className="mt-5 space-y-2">
-                {form.admissions.requirements.map(
-                  (
-                    requirement,
-                    index
-                  ) => (
-                    <div
-                      key={`${requirement}-${index}`}
-                      className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">
-                          {index + 1}
-                        </div>
-
-                        <span className="text-sm font-medium text-slate-700">
-                          {requirement}
-                        </span>
+                {form.admissions.requirements.map((requirement, index) => (
+                  <div
+                    key={`${requirement}-${index}`}
+                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-700">
+                        {index + 1}
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeAdmissionRequirement(
-                            index
-                          )
-                        }
-                        className="text-slate-400 transition hover:text-red-600"
-                        aria-label={`Remove ${requirement}`}
-                      >
-                        <Trash2 size={17} />
-                      </button>
+                      <span className="text-sm font-medium text-slate-700">
+                        {requirement}
+                      </span>
                     </div>
-                  )
-                )}
+
+                    <button
+                      type="button"
+                      onClick={() => removeAdmissionRequirement(index)}
+                      className="text-slate-400 transition hover:text-red-600"
+                      aria-label={`Remove ${requirement}`}
+                    >
+                      <Trash2 size={17} />
+                    </button>
+                  </div>
+                ))}
               </div>
             ) : (
               <p className="mt-4 text-sm text-slate-500">
@@ -953,30 +694,16 @@ export default function SchoolWebsiteSettings() {
           <div className="grid gap-6 md:grid-cols-2">
             <InputField
               label="Application URL"
-              value={
-                form.admissions
-                  .applicationUrl
-              }
-              onChange={(value) =>
-                handleAdmissionChange(
-                  "applicationUrl",
-                  value
-                )
-              }
+              value={form.admissions.applicationUrl}
+              onChange={(value) => handleAdmissionChange("applicationUrl", value)}
               placeholder="https://example.com/apply"
             />
 
             <InputField
               label="Application Button Text"
-              value={
-                form.admissions
-                  .applicationButtonText
-              }
+              value={form.admissions.applicationButtonText}
               onChange={(value) =>
-                handleAdmissionChange(
-                  "applicationButtonText",
-                  value
-                )
+                handleAdmissionChange("applicationButtonText", value)
               }
               placeholder="Apply Now"
             />
@@ -984,34 +711,23 @@ export default function SchoolWebsiteSettings() {
 
           <TextAreaField
             label="Contact Text"
-            value={
-              form.admissions.contactText
-            }
-            onChange={(value) =>
-              handleAdmissionChange(
-                "contactText",
-                value
-              )
-            }
+            value={form.admissions.contactText}
+            onChange={(value) => handleAdmissionChange("contactText", value)}
             placeholder="For enquiries about admission, please contact the school office..."
             rows={4}
           />
 
           <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-4">
             <p className="text-sm leading-6 text-emerald-700">
-              These settings control the content
-              displayed on your public Admissions page.
-              If admissions are disabled, the public
-              page will indicate that admissions are
+              These settings control the content displayed on your public Admissions page.
+              If admissions are disabled, the public page will indicate that admissions are
               currently unavailable.
             </p>
           </div>
         </div>
       </SettingsCard>
 
-      {/* =====================================================
-          PRINCIPAL
-      ===================================================== */}
+      {/* PRINCIPAL */}
 
       <SettingsCard
         icon={<UserRound size={20} />}
@@ -1022,24 +738,14 @@ export default function SchoolWebsiteSettings() {
           <InputField
             label="Principal's Name"
             value={form.principalName}
-            onChange={(value) =>
-              handleChange(
-                "principalName",
-                value
-              )
-            }
+            onChange={(value) => handleChange("principalName", value)}
             placeholder="Mrs. Grace Okafor"
           />
 
           <CloudinaryImageUpload
             label="Principal Photo"
             value={form.principalPhoto}
-            onChange={(value) =>
-              handleChange(
-                "principalPhoto",
-                value
-              )
-            }
+            onChange={(value) => handleChange("principalPhoto", value)}
             description="Upload a professional photo of the principal."
             aspect="square"
           />
@@ -1047,34 +753,20 @@ export default function SchoolWebsiteSettings() {
           <TextAreaField
             label="Message"
             value={form.principalMessage}
-            onChange={(value) =>
-              handleChange(
-                "principalMessage",
-                value
-              )
-            }
+            onChange={(value) => handleChange("principalMessage", value)}
             placeholder="Welcome to our school..."
             rows={7}
           />
 
           <Toggle
             label="Show principal's message on homepage"
-            checked={
-              form.showPrincipalMessage
-            }
-            onChange={(value) =>
-              handleChange(
-                "showPrincipalMessage",
-                value
-              )
-            }
+            checked={form.showPrincipalMessage}
+            onChange={(value) => handleChange("showPrincipalMessage", value)}
           />
         </div>
       </SettingsCard>
 
-      {/* =====================================================
-          CONTACT
-      ===================================================== */}
+      {/* CONTACT */}
 
       <SettingsCard
         icon={<Phone size={20} />}
@@ -1085,24 +777,14 @@ export default function SchoolWebsiteSettings() {
           <InputField
             label="WhatsApp URL"
             value={form.whatsapp}
-            onChange={(value) =>
-              handleChange(
-                "whatsapp",
-                value
-              )
-            }
+            onChange={(value) => handleChange("whatsapp", value)}
             placeholder="https://wa.me/2348012345678"
           />
 
           <InputField
             label="Google Maps URL"
             value={form.googleMapsUrl}
-            onChange={(value) =>
-              handleChange(
-                "googleMapsUrl",
-                value
-              )
-            }
+            onChange={(value) => handleChange("googleMapsUrl", value)}
             placeholder="https://maps.google.com/..."
           />
         </div>
@@ -1112,18 +794,14 @@ export default function SchoolWebsiteSettings() {
             <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
 
             <p className="text-sm leading-6 text-blue-700">
-              The public Contact page will continue
-              using your school's existing address, city,
-              state, phone and email. These fields add
-              website-specific contact options.
+              The public Contact page will continue using your school's existing address,
+              city, state, phone and email. These fields add website-specific contact options.
             </p>
           </div>
         </div>
       </SettingsCard>
 
-      {/* =====================================================
-          SOCIAL MEDIA
-      ===================================================== */}
+      {/* SOCIAL MEDIA */}
 
       <SettingsCard
         icon={<Share2 size={20} />}
@@ -1134,65 +812,41 @@ export default function SchoolWebsiteSettings() {
           <InputField
             label="Facebook"
             value={form.facebook}
-            onChange={(value) =>
-              handleChange(
-                "facebook",
-                value
-              )
-            }
+            onChange={(value) => handleChange("facebook", value)}
             placeholder="https://facebook.com/..."
           />
 
           <InputField
             label="Instagram"
             value={form.instagram}
-            onChange={(value) =>
-              handleChange(
-                "instagram",
-                value
-              )
-            }
+            onChange={(value) => handleChange("instagram", value)}
             placeholder="https://instagram.com/..."
           />
 
           <InputField
             label="X"
             value={form.x}
-            onChange={(value) =>
-              handleChange("x", value)
-            }
+            onChange={(value) => handleChange("x", value)}
             placeholder="https://x.com/..."
           />
 
           <InputField
             label="LinkedIn"
             value={form.linkedin}
-            onChange={(value) =>
-              handleChange(
-                "linkedin",
-                value
-              )
-            }
+            onChange={(value) => handleChange("linkedin", value)}
             placeholder="https://linkedin.com/..."
           />
 
           <InputField
             label="YouTube"
             value={form.youtube}
-            onChange={(value) =>
-              handleChange(
-                "youtube",
-                value
-              )
-            }
+            onChange={(value) => handleChange("youtube", value)}
             placeholder="https://youtube.com/..."
           />
         </div>
       </SettingsCard>
 
-      {/* =====================================================
-          HOMEPAGE SECTIONS
-      ===================================================== */}
+      {/* HOMEPAGE SECTIONS */}
 
       <SettingsCard
         icon={<Eye size={20} />}
@@ -1202,62 +856,35 @@ export default function SchoolWebsiteSettings() {
         <div className="divide-y divide-slate-100 rounded-xl border border-slate-200">
           <Toggle
             label="Testimonials"
-            checked={
-              form.showTestimonials
-            }
-            onChange={(value) =>
-              handleChange(
-                "showTestimonials",
-                value
-              )
-            }
+            checked={form.showTestimonials}
+            onChange={(value) => handleChange("showTestimonials", value)}
           />
 
           <Toggle
             label="School Statistics"
-            checked={
-              form.showStatistics
-            }
-            onChange={(value) =>
-              handleChange(
-                "showStatistics",
-                value
-              )
-            }
+            checked={form.showStatistics}
+            onChange={(value) => handleChange("showStatistics", value)}
           />
 
           <Toggle
             label="Events"
             checked={form.showEvents}
-            onChange={(value) =>
-              handleChange(
-                "showEvents",
-                value
-              )
-            }
+            onChange={(value) => handleChange("showEvents", value)}
           />
 
           <Toggle
             label="News"
             checked={form.showNews}
-            onChange={(value) =>
-              handleChange(
-                "showNews",
-                value
-              )
-            }
+            onChange={(value) => handleChange("showNews", value)}
           />
         </div>
       </SettingsCard>
 
-      {/* =====================================================
-          SAVE
-      ===================================================== */}
+      {/* SAVE */}
 
       <div className="flex flex-col gap-4 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-slate-500">
-          Changes will immediately affect your public
-          school website.
+          Changes will immediately affect your public school website.
         </p>
 
         <button
@@ -1267,26 +894,16 @@ export default function SchoolWebsiteSettings() {
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Save size={18} />
-
-          {saving
-            ? "Saving..."
-            : "Save Website Settings"}
+          {saving ? "Saving..." : "Save Website Settings"}
         </button>
       </div>
     </div>
   );
 }
 
-/* =========================================================
-   REUSABLE COMPONENTS
-========================================================= */
+/* REUSABLE COMPONENTS */
 
-function SettingsCard({
-  icon,
-  title,
-  description,
-  children,
-}) {
+function SettingsCard({ icon, title, description, children }) {
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
       <div className="flex items-start gap-3">
@@ -1295,29 +912,19 @@ function SettingsCard({
         </div>
 
         <div>
-          <h2 className="font-semibold text-slate-900">
-            {title}
-          </h2>
-
+          <h2 className="font-semibold text-slate-900">{title}</h2>
           <p className="mt-1 text-sm leading-6 text-slate-500">
             {description}
           </p>
         </div>
       </div>
 
-      <div className="mt-6">
-        {children}
-      </div>
+      <div className="mt-6">{children}</div>
     </section>
   );
 }
 
-function InputField({
-  label,
-  value,
-  onChange,
-  placeholder,
-}) {
+function InputField({ label, value, onChange, placeholder }) {
   return (
     <div>
       <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -1327,9 +934,7 @@ function InputField({
       <input
         type="text"
         value={value}
-        onChange={(e) =>
-          onChange(e.target.value)
-        }
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
       />
@@ -1352,9 +957,7 @@ function TextAreaField({
 
       <textarea
         value={value}
-        onChange={(e) =>
-          onChange(e.target.value)
-        }
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
         className="w-full resize-y rounded-lg border border-slate-200 px-3 py-3 text-sm leading-6 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
@@ -1363,11 +966,7 @@ function TextAreaField({
   );
 }
 
-function ColorField({
-  label,
-  value,
-  onChange,
-}) {
+function ColorField({ label, value, onChange }) {
   return (
     <div>
       <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -1378,18 +977,14 @@ function ColorField({
         <input
           type="color"
           value={value}
-          onChange={(e) =>
-            onChange(e.target.value)
-          }
+          onChange={(e) => onChange(e.target.value)}
           className="h-11 w-16 cursor-pointer rounded-lg border border-slate-200 bg-white p-1"
         />
 
         <input
           type="text"
           value={value}
-          onChange={(e) =>
-            onChange(e.target.value)
-          }
+          onChange={(e) => onChange(e.target.value)}
           className="h-11 flex-1 rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500"
         />
       </div>
@@ -1397,32 +992,22 @@ function ColorField({
   );
 }
 
-function Toggle({
-  label,
-  checked,
-  onChange,
-}) {
+function Toggle({ label, checked, onChange }) {
   return (
     <div className="flex items-center justify-between gap-5 px-4 py-4">
-      <span className="text-sm font-medium text-slate-700">
-        {label}
-      </span>
+      <span className="text-sm font-medium text-slate-700">{label}</span>
 
       <button
         type="button"
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 shrink-0 rounded-full transition ${
-          checked
-            ? "bg-emerald-600"
-            : "bg-slate-300"
+          checked ? "bg-emerald-600" : "bg-slate-300"
         }`}
         aria-pressed={checked}
       >
         <span
           className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow-sm transition ${
-            checked
-              ? "left-6"
-              : "left-1"
+            checked ? "left-6" : "left-1"
           }`}
         />
       </button>
