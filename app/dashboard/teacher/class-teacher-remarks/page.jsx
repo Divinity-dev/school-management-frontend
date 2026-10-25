@@ -363,13 +363,13 @@ export default function ClassTeacherRemarksPage() {
       current.map((entry) =>
         getId(entry.student) === studentId
           ? {
-              ...entry,
-              attendanceOverride: {
-                ...emptyOverride(),
-                ...(entry.attendanceOverride || {}),
-                enabled,
-              },
-            }
+            ...entry,
+            attendanceOverride: {
+              ...emptyOverride(),
+              ...(entry.attendanceOverride || {}),
+              enabled,
+            },
+          }
           : entry
       )
     );
@@ -388,13 +388,13 @@ export default function ClassTeacherRemarksPage() {
       current.map((entry) =>
         getId(entry.student) === studentId
           ? {
-              ...entry,
-              attendanceOverride: {
-                ...emptyOverride(),
-                ...(entry.attendanceOverride || {}),
-                [field]: value,
-              },
-            }
+            ...entry,
+            attendanceOverride: {
+              ...emptyOverride(),
+              ...(entry.attendanceOverride || {}),
+              [field]: value,
+            },
+          }
           : entry
       )
     );
@@ -473,7 +473,7 @@ export default function ClassTeacherRemarksPage() {
       showNotice(
         "success",
         response.data?.message ||
-          "Remarks and attendance settings saved successfully."
+        "Remarks and attendance settings saved successfully."
       );
     } catch (error) {
       showNotice("error", getErrorMessage(error));
@@ -589,11 +589,10 @@ export default function ClassTeacherRemarksPage() {
         {notice.message && (
           <div
             role="status"
-            className={`flex items-start gap-3 rounded-xl border p-4 text-sm ${
-              notice.type === "success"
+            className={`flex items-start gap-3 rounded-xl border p-4 text-sm ${notice.type === "success"
                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                 : "border-red-200 bg-red-50 text-red-700"
-            }`}
+              }`}
           >
             {notice.type === "success" ? (
               <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />
@@ -802,9 +801,16 @@ export default function ClassTeacherRemarksPage() {
                       .join(" ");
 
                     const displayName =
-                      fullName ||
+                      [
+                        student.firstName,
+                        student.middleName,
+                        student.lastName,
+                      ]
+                        .filter((part) => typeof part === "string" && part.trim())
+                        .map((part) => part.trim())
+                        .join(" ") ||
+                      student.fullName ||
                       student.name ||
-                      student.admissionNumber ||
                       `Student ${index + 1}`;
 
                     const attendance = getEffectiveAttendance(entry);
@@ -832,11 +838,10 @@ export default function ClassTeacherRemarksPage() {
 
                           <div className="flex flex-wrap items-center gap-2">
                             <span
-                              className={`rounded-full px-3 py-1 text-xs font-medium ${
-                                entry.remark?.trim()
+                              className={`rounded-full px-3 py-1 text-xs font-medium ${entry.remark?.trim()
                                   ? "bg-emerald-50 text-emerald-700"
                                   : "bg-amber-50 text-amber-700"
-                              }`}
+                                }`}
                             >
                               {entry.remark?.trim()
                                 ? "Remark entered"
@@ -923,11 +928,10 @@ export default function ClassTeacherRemarksPage() {
                                   Term attendance
                                 </h4>
                                 <span
-                                  className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${
-                                    override.enabled
+                                  className={`w-fit rounded-full px-3 py-1 text-xs font-semibold ${override.enabled
                                       ? "bg-amber-100 text-amber-800"
                                       : "bg-emerald-100 text-emerald-800"
-                                  }`}
+                                    }`}
                                 >
                                   {override.enabled
                                     ? "Manual override in use"
