@@ -344,60 +344,54 @@ export default function TeacherResults() {
      VIEW AND PRINT PUBLISHED REPORT CARD
   ========================================================= */
 
-  const handleViewReportCard = async (item) => {
-    const studentId = getId(item.student);
-    const status = getResultStatus(item);
+  
+const handleViewReportCard = async (item) => {
+  const studentId = getId(item.student);
 
-    if (!studentId) {
-      setReportCardError("Unable to identify this student.");
-      return;
+  if (!studentId) {
+    setReportCardError("Unable to identify this student.");
+    return;
+  }
+
+  if (!selectedSession || !selectedTerm) {
+    setReportCardError(
+      "Select an academic session and term before viewing a report card."
+    );
+    return;
+  }
+
+  try {
+    setLoadingReportCardStudentId(studentId);
+    setReportCardError("");
+    setError("");
+
+    const response = await api.get("/results/report-card", {
+      params: {
+        studentId,
+        academicSession: selectedSession,
+        academicTerm: selectedTerm,
+      },
+    });
+
+    const report = response.data?.data;
+
+    if (!report) {
+      throw new Error("The report card data was not returned.");
     }
 
-    if (!["published", "locked"].includes(status)) {
-      setReportCardError(
-        "This student's report card is unavailable until the school administrator publishes the results."
-      );
-      return;
-    }
+    setReportCard(report);
+  } catch (err) {
+    setReportCardError(
+      getErrorMessage(
+        err,
+        "Unable to load this student's report card."
+      )
+    );
+  } finally {
+    setLoadingReportCardStudentId("");
+  }
+};
 
-    if (!selectedSession || !selectedTerm) {
-      setReportCardError(
-        "Select an academic session and term before viewing a report card."
-      );
-      return;
-    }
-
-    try {
-      setLoadingReportCardStudentId(studentId);
-      setReportCardError("");
-      setError("");
-
-      const response = await api.get("/results/report-card", {
-        params: {
-          studentId,
-          academicSession: selectedSession,
-          academicTerm: selectedTerm,
-        },
-      });
-
-      const report = response.data?.data;
-
-      if (!report) {
-        throw new Error("The report card data was not returned.");
-      }
-
-      setReportCard(report);
-    } catch (err) {
-      setReportCardError(
-        getErrorMessage(
-          err,
-          "Unable to load this student's report card."
-        )
-      );
-    } finally {
-      setLoadingReportCardStudentId("");
-    }
-  };
 
   /* =========================================================
      SCORE STATE
@@ -1231,9 +1225,11 @@ export default function TeacherResults() {
                     const status = getResultStatus(item);
                     const editable = isEditable(item);
                     const canPrintReportCard = [
-                      "published",
-                      "locked",
-                    ].includes(status);
+  "draft",
+  "pending_review",
+  "published",
+  "locked",
+].includes(status);
 
                     return (
                       <tr
