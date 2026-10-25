@@ -20,6 +20,7 @@ import {
   Mail, 
   Phone
 } from "lucide-react";
+import HomeMobileMenu from "@/components/HomeMobileMenu";
 
 // Replace these with contact details you actually control.
 const CONTACT_EMAIL = "schoolpilot@gmail.com";
@@ -30,7 +31,7 @@ export default function Home() {
     <main className="min-h-screen bg-white text-slate-900">
       {/* NAVBAR */}
       <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur-xl">
-        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
+        <div className="relative mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
               <GraduationCap size={23} />
@@ -46,7 +47,7 @@ export default function Home() {
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-8 lg:flex">
             <a href="#features" className="text-sm font-medium text-slate-600 transition hover:text-emerald-600">
               Features
             </a>
@@ -62,13 +63,15 @@ export default function Home() {
           </nav>
 
           <div className="flex items-center gap-3">
-            <DashboardNavLink className="hidden px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:text-emerald-600 sm:block" />
-            <AuthActionButton className="hidden px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:text-emerald-600 sm:block" />
+            <DashboardNavLink className="hidden px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:text-emerald-600 lg:block" />
+            <AuthActionButton className="hidden px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:text-emerald-600 lg:block" />
 
-            <Link href="/register" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700">
+            <Link href="/register" className="hidden items-center gap-2 rounded-full bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 lg:inline-flex">
               Get Started
               <ArrowRight size={16} />
             </Link>
+
+            <HomeMobileMenu />
           </div>
         </div>
       </header>
@@ -145,19 +148,20 @@ export default function Home() {
                 <div className="w-12" />
               </div>
 
-              <div className="grid min-h-[430px] grid-cols-[90px_1fr]">
-                <div className="border-r border-slate-100 bg-slate-50 p-4">
+              <div className="grid min-h-[430px] grid-cols-[52px_minmax(0,1fr)] sm:grid-cols-[72px_minmax(0,1fr)] lg:grid-cols-[90px_minmax(0,1fr)]">
+                <div className="border-r border-slate-100 bg-slate-50 p-2 sm:p-3 lg:p-4">
                   <div className="mb-8 flex justify-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white">
-                      <GraduationCap size={20} />
+                    <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white sm:h-10 sm:w-10">
+                      <GraduationCap size={18} className="sm:hidden" />
+                      <GraduationCap size={20} className="hidden sm:block" />
                     </div>
                   </div>
 
-                  <div className="space-y-5">
+                  <div className="space-y-3 sm:space-y-5">
                     {[LayoutDashboard, Users, CalendarCheck, BookOpen, WalletCards].map((Icon, index) => (
                       <div
                         key={index}
-                        className={`mx-auto flex h-9 w-9 items-center justify-center rounded-lg ${
+                        className={`mx-auto flex h-8 w-8 items-center justify-center rounded-lg sm:h-9 sm:w-9 ${
                           index === 0
                             ? "bg-emerald-100 text-emerald-600"
                             : "text-slate-300"
@@ -169,25 +173,25 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs font-medium text-slate-400">SCHOOL DASHBOARD</p>
-                      <h3 className="mt-1 text-xl font-bold text-slate-900">
+                <div className="min-w-0 p-3 sm:p-4 lg:p-6">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-[10px] font-medium text-slate-400 sm:text-xs">SCHOOL DASHBOARD</p>
+                      <h3 className="mt-1 text-base font-bold leading-tight text-slate-900 sm:text-xl">
                         Good morning, Admin
                       </h3>
                     </div>
-                    <div className="h-9 w-9 rounded-full bg-emerald-100" />
+                    <div className="h-8 w-8 shrink-0 rounded-full bg-emerald-100 sm:h-9 sm:w-9" />
                   </div>
 
-                  <div className="mt-7 grid grid-cols-2 gap-4">
+                  <div className="mt-5 grid grid-cols-2 gap-2 sm:mt-7 sm:gap-4">
                     <DashboardCard icon={Users} label="Students" value="1,248" />
                     <DashboardCard icon={GraduationCap} label="Teachers" value="86" />
                     <DashboardCard icon={CalendarCheck} label="Attendance" value="94.8%" />
                     <DashboardCard icon={WalletCards} label="Fees Collected" value="₦8.4M" />
                   </div>
 
-                  <div className="mt-5 rounded-2xl border border-slate-100 p-5">
+                  <div className="mt-4 rounded-2xl border border-slate-100 p-3 sm:mt-5 sm:p-5">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Student Growth</p>
@@ -196,7 +200,7 @@ export default function Home() {
                       <BarChart3 size={20} className="text-emerald-500" />
                     </div>
 
-                    <div className="mt-6 flex h-24 items-end gap-3">
+                    <div className="mt-6 flex h-24 items-end gap-2 sm:gap-3">
                       {[35, 48, 42, 65, 58, 76, 88, 82, 96].map((height, index) => (
                         <div
                           key={index}
@@ -596,15 +600,15 @@ export default function Home() {
 
 function DashboardCard({ icon: Icon, label, value }) {
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+    <div className="min-w-0 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm sm:p-4">
       <div className="flex items-center justify-between">
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
           <Icon size={17} />
         </div>
         <ChevronRight size={15} className="text-slate-300" />
       </div>
-      <p className="mt-4 text-xs text-slate-400">{label}</p>
-      <p className="mt-1 text-xl font-bold text-slate-900">{value}</p>
+      <p className="mt-4 text-[11px] text-slate-400 sm:text-xs">{label}</p>
+      <p className="mt-1 text-base font-bold text-slate-900 sm:text-xl">{value}</p>
     </div>
   );
 }
