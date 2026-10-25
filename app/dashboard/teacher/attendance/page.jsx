@@ -37,6 +37,45 @@ const STATUS_OPTIONS = [
   { value: "excused", label: "Excused" },
 ];
 
+const getAttendanceErrorMessage = (err) => {
+  const code = err.response?.data?.code;
+  const message = err.response?.data?.message;
+  const status = err.response?.status;
+
+  if (code === "STUDENT_SEAT_LIMIT_EXCEEDED") {
+    return (
+      message ||
+      "This student is outside your school's purchased student-seat allowance. " +
+        "The school administrator must purchase additional seats or deactivate an eligible student."
+    );
+  }
+
+  if (code === "STUDENT_SEAT_LIMIT_UNAVAILABLE") {
+    return (
+      message ||
+      "The student's paid-seat eligibility could not be verified. " +
+        "Please check the school's active subscription and try again."
+    );
+  }
+
+  if (status === 403) {
+    return (
+      message ||
+      "You are not authorized to perform this attendance action."
+    );
+  }
+
+  if (status === 401) {
+    return "Your session may have expired. Please sign in again.";
+  }
+
+  return (
+    message ||
+    err.message ||
+    "An unexpected attendance error occurred. Please try again."
+  );
+};
+
 const getStudentName = (student) =>
   [
     student.firstName,
@@ -419,10 +458,9 @@ export default function TeacherAttendancePage() {
       } catch (err) {
         if (cancelled) return;
 
-        setError(
-          err.response?.data?.message ||
-            "Failed to load existing attendance."
-        );
+       setError(
+  `Failed to load existing attendance. ${getAttendanceErrorMessage(err)}`
+);
       } finally {
         if (!cancelled) {
           setLoadingAttendance(false);
