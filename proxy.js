@@ -12,6 +12,7 @@ const PLATFORM_DOMAIN = "school-pilot.app";
 
 const RESERVED_PATHS = [
   "/dashboard",
+  "/login",
   "/register",
   "/forgot-password",
   "/reset-password",
@@ -28,7 +29,13 @@ const isReservedPath = (pathname) =>
 
 const rewriteToSchool = (request, slug, pathname, search) => {
   const destination = request.nextUrl.clone();
-  destination.pathname = pathname === "/" ? `/${slug}` : `/${slug}${pathname}`;
+  const schoolPath = `/${slug}`;
+  const alreadyHasSchoolPrefix =
+    pathname === schoolPath || pathname.startsWith(`${schoolPath}/`);
+
+  // Public-school links may already include the slug. Do not prefix it twice.
+  destination.pathname =
+    pathname === "/" ? schoolPath : alreadyHasSchoolPrefix ? pathname : `${schoolPath}${pathname}`;
   destination.search = search;
   return NextResponse.rewrite(destination);
 };
