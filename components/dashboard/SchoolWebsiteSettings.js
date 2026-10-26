@@ -30,6 +30,10 @@ export default function SchoolWebsiteSettings() {
   const [domainDns, setDomainDns] = useState(null);
   const [domainSaving, setDomainSaving] = useState(false);
   const [domainVerifying, setDomainVerifying] = useState(false);
+  const [hostingConfiguring, setHostingConfiguring] = useState(false);
+  const [hostingStatus, setHostingStatus] = useState("not_configured");
+  const [hostingDnsRecords, setHostingDnsRecords] = useState([]);
+  const [vercelVerification, setVercelVerification] = useState([]);
 
   const [form, setForm] = useState({
     name: "",
@@ -94,6 +98,7 @@ export default function SchoolWebsiteSettings() {
       const profile = school?.publicProfile || {};
       setCustomDomain(school?.website?.customDomain || "");
       setDomainVerified(Boolean(school?.website?.customDomainVerified));
+      setHostingStatus(school?.website?.customDomainHostingStatus || "not_configured");
 
       setForm({
         name: school?.name || "",
@@ -264,6 +269,9 @@ export default function SchoolWebsiteSettings() {
       setCustomDomain(response.data?.domain || customDomain);
       setDomainVerified(false);
       setDomainDns(response.data?.dns || null);
+      setHostingStatus("not_configured");
+      setHostingDnsRecords([]);
+      setVercelVerification([]);
       setMessage(response.data?.message || "Domain saved. Add the DNS TXT record to verify ownership.");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to save custom domain.");
@@ -280,11 +288,50 @@ export default function SchoolWebsiteSettings() {
       const response = await api.post("/public/school-website/custom-domain/verify");
       setDomainVerified(Boolean(response.data?.verified));
       setDomainDns(null);
-      setMessage(response.data?.message || "Domain verified successfully.");
+      setHostingStatus(response.data?.hosting?.status || "needs_configuration");
+      setHostingDnsRecords(response.data?.hosting?.dnsRecords || []);
+      setVercelVerification(response.data?.hosting?.vercelVerification || []);
+      setMessage(response.data?.hosting?.message || response.data?.message || "Domain verified successfully.");
     } catch (err) {
       setError(err.response?.data?.message || "Domain verification failed.");
     } finally {
       setDomainVerifying(false);
+    }
+  };
+
+  const handleConfigureDomainHosting = async () => {
+    try {
+      setHostingConfiguring(true);
+      setError("");
+      setMessage("");
+      const response = await api.post("/public/school-website/custom-domain/setup");
+      setDomainVerified(Boolean(response.data?.verified));
+      setHostingStatus(response.data?.hosting?.status || "failed");
+      setHostingDnsRecords(response.data?.hosting?.dnsRecords || []);
+      setVercelVerification(response.data?.hosting?.vercelVerification || []);
+      setMessage(response.data?.hosting?.message || response.data?.message || "Hosting status updated.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not configure domain hosting.");
+    } finally {
+      setHostingConfiguring(false);
+    }
+  };
+
+  const handleRefreshDomainStatus = async () => {
+    try {
+      setHostingConfiguring(true);
+      setError("");
+      setMessage("");
+      const response = await api.get("/public/school-website/custom-domain/status");
+      setDomainVerified(Boolean(response.data?.verified));
+      setHostingStatus(response.data?.hosting?.status || "not_configured");
+      setHostingDnsRecords(response.data?.hosting?.dnsRecords || []);
+      setVercelVerification(response.data?.hosting?.vercelVerification || []);
+      setMessage(response.data?.hosting?.message || "Domain status refreshed.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Could not refresh domain status.");
+    } finally {
+      setHostingConfiguring(false);
     }
   };
 
@@ -953,9 +1000,14 @@ export default function SchoolWebsiteSettings() {
             </p>
             <p className={`mt-1 text-sm leading-6 ${domainVerified ? "text-emerald-700" : "text-amber-700"}`}>
               {domainVerified
-                ? "The domain is verified. Finish the Vercel domain and DNS setup before expecting it to serve your school website."
-                : "Save your domain to receive a DNS TXT verification record. Verification proves ownership; it does not automatically configure hosting."}
+                ? "SchoolPilot will register the domain and its www address with Vercel. Add the DNS records below at your domain provider, then refresh the status."
+                : "Save your domain to receive a DNS TXT verification record. Once you add it, SchoolPilot can automatically register the domain with Vercel."}
             </p>
+            {domainVerified && (
+              <p className="mt-3 text-sm font-semibold text-slate-800">
+                Hosting status: {hostingStatus.replaceAll("_", " ")}
+              </p>
+            )}
           </div>
 
           {domainDns && (
@@ -983,7 +1035,65 @@ export default function SchoolWebsiteSettings() {
             </div>
           )}
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          {domainVerified && hostingDnsRecords.length > 0 && (
+            <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-800">DNS records for Vercel hosting</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  Add these records at the company where the domain's DNS is managed. Do not remove existing email-related MX or TXT records.
+                </p>
+              </div>
+              {hostingDnsRecords.map((record, index) => (
+                <div key={`${record.type}-${record.name}-${record.value}-${index}`} className="grid gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs font-medium text-slate-500">Type</p>
+                    <p className="mt-1 text-sm font-semibold text-slate-800">{record.type}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-slate-500">Name / Host</p>
+                    <p className="mt-1 break-all font-mono text-sm text-slate-800">{record.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-slate-500">Value / Target</p>
+                    <p className="mt-1 break-all font-mono text-sm text-slate-800">{record.value}</p>
+                    <button
+                      type="button"
+                      onClick={() => navigator.clipboard?.writeText(record.value)}
+                      className="mt-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+                    >
+                      Copy value
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {domainVerified && vercelVerification.length > 0 && (
+            <div className="space-y-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+              <p className="text-sm font-semibold text-amber-900">Additional Vercel ownership check</p>
+              <p className="text-xs leading-5 text-amber-800">
+                Vercel may require a separate verification record if this domain was previously connected to another Vercel account or project.
+              </p>
+              {vercelVerification.map((record, index) => (
+                <div key={`${record.domain}-${record.name}-${index}`} className="rounded-lg border border-amber-200 bg-white p-3">
+                  <p className="text-xs text-slate-500">{record.domain} · {record.type}</p>
+                  <p className="mt-1 break-all font-mono text-sm text-slate-800">{record.name}</p>
+                  <p className="mt-1 break-all font-mono text-sm text-slate-800">{record.value}</p>
+                  {record.reason && <p className="mt-1 text-xs text-slate-500">{record.reason}</p>}
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard?.writeText(record.value)}
+                    className="mt-2 text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+                  >
+                    Copy verification value
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <button
               type="button"
               onClick={handleCustomDomainSave}
@@ -998,8 +1108,28 @@ export default function SchoolWebsiteSettings() {
               disabled={domainVerifying || !customDomain.trim() || domainVerified}
               className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
             >
-              {domainVerifying ? "Checking DNS..." : domainVerified ? "Verified" : "Verify DNS ownership"}
+              {domainVerifying ? "Checking DNS..." : domainVerified ? "Ownership verified" : "Verify DNS ownership"}
             </button>
+            {domainVerified && (
+              <>
+                <button
+                  type="button"
+                  onClick={handleConfigureDomainHosting}
+                  disabled={hostingConfiguring}
+                  className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
+                >
+                  {hostingConfiguring ? "Configuring..." : "Configure Vercel hosting"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRefreshDomainStatus}
+                  disabled={hostingConfiguring}
+                  className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  {hostingConfiguring ? "Checking..." : "Refresh hosting status"}
+                </button>
+              </>
+            )}
           </div>
         </div>
       </SettingsCard>
