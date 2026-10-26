@@ -44,7 +44,25 @@ export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
   const hostname = request.headers.get("host")?.split(":")[0]?.toLowerCase();
 
-  if (!hostname || PLATFORM_HOSTS.has(hostname) || hostname.endsWith(".vercel.app")) {
+  if (!hostname) return NextResponse.next();
+
+  /*
+   * Many visitors type www by habit. Redirect www.<school>.school-pilot.app
+   * to the canonical <school>.school-pilot.app address while preserving the
+   * requested path and query string. DNS and Vercel must also route the www
+   * hostname to this deployment for the redirect to be reached.
+   */
+  const wwwSchoolMatch = hostname.match(/^www\.([a-z0-9-]+)\.school-pilot\.app$/);
+  const reservedSubdomains = new Set(["www", "api", "admin", "app", "mail"]);
+
+  if (wwwSchoolMatch && !reservedSubdomains.has(wwwSchoolMatch[1])) {
+    const destination = request.nextUrl.clone();
+    destination.hostname = `${wwwSchoolMatch[1]}.${PLATFORM_DOMAIN}`;
+    destination.protocol = "https:";
+    return NextResponse.redirect(destination, 308);
+  }
+
+  if (PLATFORM_HOSTS.has(hostname) || hostname.endsWith(".vercel.app")) {
     return NextResponse.next();
   }
 
@@ -64,14 +82,13 @@ export async function proxy(request) {
     const subdomain = hostname.slice(0, -`.${PLATFORM_DOMAIN}`.length);
 
     // Only support one-level school subdomains; ignore reserved labels.
-    const reservedSubdomains = new Set(["www", "api", "admin", "app", "mail"]);
     if (!subdomain || subdomain.includes(".") || reservedSubdomains.has(subdomain)) {
       return NextResponse.next();
     }
 
     try {
       const response = await fetch(
-        `${apiBase.replace(/\/$/, "")}/public/subdomains/resolve?subdomain=${encodeURIComponent(subdomain)}`,
+        `${apiBase.replace(/\\/$/, "")}/public/subdomains/resolve?subdomain=${encodeURIComponent(subdomain)}`,
         { cache: "no-store", headers: { Accept: "application/json" } }
       );
 
@@ -91,7 +108,7 @@ export async function proxy(request) {
   // Separately owned custom domains still require verified domain ownership.
   try {
     const response = await fetch(
-      `${apiBase.replace(/\/$/, "")}/public/domains/resolve?domain=${encodeURIComponent(hostname)}`,
+      `${apiBase.replace(/\\/$/, "")}/public/domains/resolve?domain=${encodeURIComponent(hostname)}`,
       { cache: "no-store", headers: { Accept: "application/json" } }
     );
 
