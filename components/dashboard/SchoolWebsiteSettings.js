@@ -25,6 +25,11 @@ import CloudinaryImageUpload from "@/components/dashboard/CloudinaryImageUpload"
 export default function SchoolWebsiteSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [customDomain, setCustomDomain] = useState("");
+  const [domainVerified, setDomainVerified] = useState(false);
+  const [domainDns, setDomainDns] = useState(null);
+  const [domainSaving, setDomainSaving] = useState(false);
+  const [domainVerifying, setDomainVerifying] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -87,6 +92,8 @@ export default function SchoolWebsiteSettings() {
 
       const school = response.data?.school;
       const profile = school?.publicProfile || {};
+      setCustomDomain(school?.website?.customDomain || "");
+      setDomainVerified(Boolean(school?.website?.customDomainVerified));
 
       setForm({
         name: school?.name || "",
@@ -244,6 +251,41 @@ export default function SchoolWebsiteSettings() {
         ),
       },
     }));
+  };
+
+  const handleCustomDomainSave = async () => {
+    try {
+      setDomainSaving(true);
+      setError("");
+      setMessage("");
+      const response = await api.post("/public/school-website/custom-domain", {
+        domain: customDomain,
+      });
+      setCustomDomain(response.data?.domain || customDomain);
+      setDomainVerified(false);
+      setDomainDns(response.data?.dns || null);
+      setMessage(response.data?.message || "Domain saved. Add the DNS TXT record to verify ownership.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to save custom domain.");
+    } finally {
+      setDomainSaving(false);
+    }
+  };
+
+  const handleVerifyCustomDomain = async () => {
+    try {
+      setDomainVerifying(true);
+      setError("");
+      setMessage("");
+      const response = await api.post("/public/school-website/custom-domain/verify");
+      setDomainVerified(Boolean(response.data?.verified));
+      setDomainDns(null);
+      setMessage(response.data?.message || "Domain verified successfully.");
+    } catch (err) {
+      setError(err.response?.data?.message || "Domain verification failed.");
+    } finally {
+      setDomainVerifying(false);
+    }
   };
 
   const handleSave = async () => {
@@ -877,6 +919,88 @@ export default function SchoolWebsiteSettings() {
             checked={form.showNews}
             onChange={(value) => handleChange("showNews", value)}
           />
+        </div>
+      </SettingsCard>
+
+      {/* CUSTOM DOMAIN */}
+
+      <SettingsCard
+        icon={<Globe2 size={20} />}
+        title="Custom School Domain"
+        description="Use your own domain for the public school website while keeping the existing SchoolPilot address available."
+      >
+        <div className="space-y-5">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700">
+              Your domain
+            </label>
+            <input
+              type="text"
+              value={customDomain}
+              onChange={(event) => setCustomDomain(event.target.value)}
+              placeholder="brightfutureacademy.com"
+              autoComplete="url"
+              className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+            <p className="mt-2 text-xs leading-5 text-slate-500">
+              Enter a domain you own, without https:// or a page path. You must also add it to the SchoolPilot Vercel project and configure DNS.
+            </p>
+          </div>
+
+          <div className={`rounded-xl border p-4 ${domainVerified ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
+            <p className={`text-sm font-semibold ${domainVerified ? "text-emerald-800" : "text-amber-800"}`}>
+              {domainVerified ? "Domain ownership verified" : "Domain not yet verified"}
+            </p>
+            <p className={`mt-1 text-sm leading-6 ${domainVerified ? "text-emerald-700" : "text-amber-700"}`}>
+              {domainVerified
+                ? "The domain is verified. Finish the Vercel domain and DNS setup before expecting it to serve your school website."
+                : "Save your domain to receive a DNS TXT verification record. Verification proves ownership; it does not automatically configure hosting."}
+            </p>
+          </div>
+
+          {domainDns && (
+            <div className="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm font-semibold text-slate-800">Add this DNS TXT record at your domain provider</p>
+              <div>
+                <p className="text-xs font-medium text-slate-500">Type</p>
+                <p className="mt-1 text-sm font-semibold text-slate-800">TXT</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-500">Name / Host</p>
+                <p className="mt-1 break-all font-mono text-sm text-slate-800">{domainDns.name}</p>
+              </div>
+              <div>
+                <p className="text-xs font-medium text-slate-500">Value</p>
+                <p className="mt-1 break-all font-mono text-sm text-slate-800">{domainDns.value}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigator.clipboard?.writeText(domainDns.value)}
+                className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Copy TXT value
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={handleCustomDomainSave}
+              disabled={domainSaving || !customDomain.trim()}
+              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+            >
+              {domainSaving ? "Saving domain..." : "Save domain"}
+            </button>
+            <button
+              type="button"
+              onClick={handleVerifyCustomDomain}
+              disabled={domainVerifying || !customDomain.trim() || domainVerified}
+              className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+            >
+              {domainVerifying ? "Checking DNS..." : domainVerified ? "Verified" : "Verify DNS ownership"}
+            </button>
+          </div>
         </div>
       </SettingsCard>
 
