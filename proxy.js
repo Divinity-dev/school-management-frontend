@@ -88,7 +88,7 @@ export async function proxy(request) {
 
     try {
       const response = await fetch(
-        `${apiBase.replace(/\\/$/, "")}/public/subdomains/resolve?subdomain=${encodeURIComponent(subdomain)}`,
+        `${apiBase.replace(/\/$/, "")}/public/subdomains/resolve?subdomain=${encodeURIComponent(subdomain)}`,
         { cache: "no-store", headers: { Accept: "application/json" } }
       );
 
@@ -108,7 +108,7 @@ export async function proxy(request) {
   // Separately owned custom domains still require verified domain ownership.
   try {
     const response = await fetch(
-      `${apiBase.replace(/\\/$/, "")}/public/domains/resolve?domain=${encodeURIComponent(hostname)}`,
+      `${apiBase.replace(/\/$/, "")}/public/domains/resolve?domain=${encodeURIComponent(hostname)}`,
       { cache: "no-store", headers: { Accept: "application/json" } }
     );
 
