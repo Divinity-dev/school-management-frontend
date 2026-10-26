@@ -135,6 +135,7 @@ export default async function PublicSiteLayout({ school, children }) {
 
             <PublicSiteMobileMenu
               schoolPath={schoolPath}
+              schoolHomePath={schoolHomePath}
               primaryColor={primaryColor}
             />
           </div>
