@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { GraduationCap } from "lucide-react";
 
 import {
@@ -12,13 +13,20 @@ import AuthActionButton from "../AuthActionButton";
 import DashboardNavLink from "../DashboardNavLink";
 import PublicSiteMobileMenu from "./PublicSiteMobileMenu";
 
-export default function PublicSiteLayout({ school, children }) {
+export default async function PublicSiteLayout({ school, children }) {
   const profile = school.publicProfile || {};
 
   const primaryColor = profile.primaryColor || "#0F766E";
   const secondaryColor = profile.secondaryColor || "#63E6BE";
 
-  const schoolPath = `/${school.slug}`;
+  const requestHeaders = await headers();
+  const requestHost = (requestHeaders.get("host") || "").split(":")[0].toLowerCase();
+  const configuredDomain = (school.website?.customDomain || "").toLowerCase();
+  const isCustomDomain =
+    Boolean(school.website?.customDomainVerified && configuredDomain) &&
+    (requestHost === configuredDomain || requestHost === `www.${configuredDomain}`);
+  const schoolPath = isCustomDomain ? "" : `/${school.slug}`;
+  const schoolHomePath = isCustomDomain ? "/" : schoolPath;
 
   const socialLinks = [
   {
@@ -55,7 +63,7 @@ export default function PublicSiteLayout({ school, children }) {
       <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/95 backdrop-blur">
         <div className="relative mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
           <Link
-            href={schoolPath}
+            href={schoolHomePath}
             className="flex items-center gap-3"
           >
             {school.logo ? (
