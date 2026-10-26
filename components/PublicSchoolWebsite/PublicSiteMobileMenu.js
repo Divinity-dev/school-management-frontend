@@ -7,11 +7,11 @@ import { Menu, X } from "lucide-react";
 import AuthActionButton from "../AuthActionButton";
 import DashboardNavLink from "../DashboardNavLink";
 
-export default function PublicSiteMobileMenu({ schoolPath, primaryColor }) {
+export default function PublicSiteMobileMenu({ schoolPath, schoolHomePath, primaryColor }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const links = [
-    ["Home", schoolPath],
+    ["Home", schoolHomePath || schoolPath],
     ["About", `${schoolPath}/about`],
     ["Academics", `${schoolPath}/academics`],
     ["Admissions", `${schoolPath}/admissions`],
