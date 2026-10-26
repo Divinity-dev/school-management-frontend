@@ -8,6 +8,8 @@ const PLATFORM_HOSTS = new Set([
   "127.0.0.1",
 ]);
 
+const PLATFORM_DOMAIN = "school-pilot.app";
+
 const RESERVED_PATHS = [
   "/dashboard",
   "/register",
@@ -21,6 +23,16 @@ const RESERVED_PATHS = [
   "/sitemap.xml",
 ];
 
+const isReservedPath = (pathname) =>
+  RESERVED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+
+const rewriteToSchool = (request, slug, pathname, search) => {
+  const destination = request.nextUrl.clone();
+  destination.pathname = pathname === "/" ? `/${slug}` : `/${slug}${pathname}`;
+  destination.search = search;
+  return NextResponse.rewrite(destination);
+};
+
 export async function proxy(request) {
   const { pathname, search } = request.nextUrl;
   const hostname = request.headers.get("host")?.split(":")[0]?.toLowerCase();
@@ -29,13 +41,47 @@ export async function proxy(request) {
     return NextResponse.next();
   }
 
-  if (RESERVED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
+  if (isReservedPath(pathname)) {
     return NextResponse.next();
   }
 
   const apiBase = process.env.NEXT_PUBLIC_API_URL;
   if (!apiBase) return NextResponse.next();
 
+  /*
+   * SchoolPilot platform subdomains must be resolved as school websites,
+   * not sent through the separately-owned custom-domain resolver.
+   * The root domain and www remain the general SchoolPilot homepage.
+   */
+  if (hostname.endsWith(`.${PLATFORM_DOMAIN}`)) {
+    const subdomain = hostname.slice(0, -`.${PLATFORM_DOMAIN}`.length);
+
+    // Only support one-level school subdomains; ignore reserved labels.
+    const reservedSubdomains = new Set(["www", "api", "admin", "app", "mail"]);
+    if (!subdomain || subdomain.includes(".") || reservedSubdomains.has(subdomain)) {
+      return NextResponse.next();
+    }
+
+    try {
+      const response = await fetch(
+        `${apiBase.replace(/\/$/, "")}/public/subdomains/resolve?subdomain=${encodeURIComponent(subdomain)}`,
+        { cache: "no-store", headers: { Accept: "application/json" } }
+      );
+
+      if (!response.ok) return NextResponse.next();
+
+      const data = await response.json();
+      const slug = data?.school?.slug;
+      if (!slug) return NextResponse.next();
+
+      return rewriteToSchool(request, slug, pathname, search);
+    } catch (error) {
+      console.error("School subdomain resolution failed:", error);
+      return NextResponse.next();
+    }
+  }
+
+  // Separately owned custom domains still require verified domain ownership.
   try {
     const response = await fetch(
       `${apiBase.replace(/\/$/, "")}/public/domains/resolve?domain=${encodeURIComponent(hostname)}`,
@@ -48,10 +94,7 @@ export async function proxy(request) {
     const slug = data?.school?.slug;
     if (!slug) return NextResponse.next();
 
-    const destination = request.nextUrl.clone();
-    destination.pathname = pathname === "/" ? `/${slug}` : `/${slug}${pathname}`;
-    destination.search = search;
-    return NextResponse.rewrite(destination);
+    return rewriteToSchool(request, slug, pathname, search);
   } catch (error) {
     console.error("Custom domain resolution failed:", error);
     return NextResponse.next();
