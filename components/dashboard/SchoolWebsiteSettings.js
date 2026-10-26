@@ -990,7 +990,7 @@ export default function SchoolWebsiteSettings() {
               className="h-11 w-full rounded-lg border border-slate-200 px-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
             />
             <p className="mt-2 text-xs leading-5 text-slate-500">
-              Enter a domain you own, without https:// or a page path. You must also add it to the SchoolPilot Vercel project and configure DNS.
+              Enter a domain you own, without https:// or a page path. SchoolPilot will add it to Vercel after ownership verification. You will need to add the DNS records shown below at your domain provider.
             </p>
           </div>
 
