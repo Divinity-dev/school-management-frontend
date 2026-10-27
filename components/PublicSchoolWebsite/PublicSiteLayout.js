@@ -12,6 +12,7 @@ import {
 import AuthActionButton from "../AuthActionButton";
 import DashboardNavLink from "../DashboardNavLink";
 import PublicSiteMobileMenu from "./PublicSiteMobileMenu";
+import AnimatedPublicSections from "./AnimatedPublicSections";
 
 export default async function PublicSiteLayout({ school, children }) {
   const profile = school.publicProfile || {};
@@ -109,9 +110,13 @@ export default async function PublicSiteLayout({ school, children }) {
               Admissions
             </NavLink>
 
+{/* Gallery is intentionally hidden from the navigation for now.
+            The page remains available at /gallery. */}
+            {/*
             <NavLink href={`${schoolPath}/gallery`}>
               Gallery
             </NavLink>
+            */}
 
             <NavLink href={`${schoolPath}/news`}>
               News
@@ -145,7 +150,7 @@ export default async function PublicSiteLayout({ school, children }) {
       {/* =====================================================
           PAGE CONTENT
       ===================================================== */}
-      {children}
+      <AnimatedPublicSections>{children}</AnimatedPublicSections>
 
       {/* =====================================================
           FOOTER
