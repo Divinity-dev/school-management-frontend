@@ -16,6 +16,8 @@ function ParentFeePaymentCallbackContent() {
   const searchParams = useSearchParams();
 
   const { id } = params;
+  const reference =
+    searchParams.get("reference") || searchParams.get("trxref");
 
   const verificationStarted = useRef(false);
 
@@ -25,8 +27,6 @@ function ParentFeePaymentCallbackContent() {
   );
 
   useEffect(() => {
-    const reference = searchParams.get("reference");
-
     if (!reference || verificationStarted.current) {
       return;
     }
@@ -78,12 +78,12 @@ function ParentFeePaymentCallbackContent() {
     };
 
     verifyPayment();
-  }, [searchParams, id, router]);
+  }, [reference, id, router]);
 
   /*
    * If Paystack returns without a reference.
    */
-  if (!searchParams.get("reference")) {
+  if (!reference) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
         <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-8 text-center shadow-sm">
