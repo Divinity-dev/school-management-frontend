@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import authService from "../../services/authService";
-import { setCredentials } from "../../store/slices/authSlice";
+import { logout, setCredentials } from "../../store/slices/authSlice";
 import { getLoginRedirectPath } from "../../lib/dashboardNavigation";
 
 export default function LoginPage() {
@@ -33,12 +33,28 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [verificationMessage, setVerificationMessage] = useState("");
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const emailWasVerified = params.get("verified") === "true";
+
+    if (emailWasVerified) {
+      // Email verification is a public entry point. Clear any previous browser
+      // session so a different, already logged-in role cannot hijack this flow.
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      dispatch(logout());
+      setVerificationMessage(
+        "Your email has been verified. Please sign in with your school administrator account."
+      );
+      return;
+    }
+
     if (isInitialized && isAuthenticated && user) {
       router.replace(getLoginRedirectPath(user));
     }
-  }, [isInitialized, isAuthenticated, user, router]);
+  }, [dispatch, isInitialized, isAuthenticated, user, router]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -204,6 +220,15 @@ export default function LoginPage() {
               Enter your account details to continue to your dashboard.
             </p>
           </div>
+
+          {verificationMessage && (
+            <div
+              role="status"
+              className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"
+            >
+              {verificationMessage}
+            </div>
+          )}
 
           {error && (
             <div
