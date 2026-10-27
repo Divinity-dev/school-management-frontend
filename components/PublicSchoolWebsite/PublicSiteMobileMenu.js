@@ -15,7 +15,8 @@ export default function PublicSiteMobileMenu({ schoolPath, schoolHomePath, prima
     ["About", `${schoolPath}/about`],
     ["Academics", `${schoolPath}/academics`],
     ["Admissions", `${schoolPath}/admissions`],
-    ["Gallery", `${schoolPath}/gallery`],
+    // Gallery is intentionally hidden from navigation for now; the page remains available.
+    // ["Gallery", `${schoolPath}/gallery`],
     ["News", `${schoolPath}/news`],
     ["Contact", `${schoolPath}/contact`],
   ];

@@ -22,6 +22,29 @@ import {
 import api from "@/lib/api";
 import CloudinaryImageUpload from "@/components/dashboard/CloudinaryImageUpload";
 
+const DEFAULT_HOMEPAGE_FEATURES = [
+  {
+    title: "Quality Education",
+    description:
+      "A balanced curriculum builds strong foundations in literacy, numeracy, critical thinking and lifelong curiosity.",
+  },
+  {
+    title: "Qualified Teachers",
+    description:
+      "Caring educators guide each learner with clear instruction, encouragement and individual attention.",
+  },
+  {
+    title: "Academic Excellence",
+    description:
+      "We celebrate progress, strengthen study habits and help every student work towards their full potential.",
+  },
+  {
+    title: "Safe Environment",
+    description:
+      "A welcoming, respectful school community helps learners feel secure, included and ready to participate.",
+  },
+];
+
 export default function SchoolWebsiteSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -40,6 +63,8 @@ export default function SchoolWebsiteSettings() {
     logo: "",
     tagline: "",
     description: "",
+    homepageImages: ["", "", ""],
+    homepageFeatures: DEFAULT_HOMEPAGE_FEATURES.map((feature) => ({ ...feature })),
     history: "",
     mission: "",
     vision: "",
@@ -105,6 +130,14 @@ export default function SchoolWebsiteSettings() {
         logo: school?.logo || "",
         tagline: profile.tagline || "",
         description: profile.description || "",
+        homepageImages: Array.from(
+          { length: 3 },
+          (_, index) => profile.homepageImages?.[index] || ""
+        ),
+        homepageFeatures: DEFAULT_HOMEPAGE_FEATURES.map((fallback, index) => ({
+          ...fallback,
+          ...(profile.homepageFeatures?.[index] || {}),
+        })),
         history: profile.history || "",
         mission: profile.mission || "",
         vision: profile.vision || "",
@@ -187,6 +220,25 @@ export default function SchoolWebsiteSettings() {
         [field]: value,
       },
     }));
+  };
+
+  const handleHomepageImageChange = (index, value) => {
+    setForm((prev) => {
+      const homepageImages = [...prev.homepageImages];
+      homepageImages[index] = value;
+      return { ...prev, homepageImages };
+    });
+  };
+
+  const handleHomepageFeatureChange = (index, field, value) => {
+    setForm((prev) => {
+      const homepageFeatures = [...prev.homepageFeatures];
+      homepageFeatures[index] = {
+        ...homepageFeatures[index],
+        [field]: value,
+      };
+      return { ...prev, homepageFeatures };
+    });
   };
 
   const addCoreValue = () => {
@@ -355,6 +407,14 @@ export default function SchoolWebsiteSettings() {
         logo: school?.logo || "",
         tagline: profile.tagline || "",
         description: profile.description || "",
+        homepageImages: Array.from(
+          { length: 3 },
+          (_, index) => profile.homepageImages?.[index] || ""
+        ),
+        homepageFeatures: DEFAULT_HOMEPAGE_FEATURES.map((fallback, index) => ({
+          ...fallback,
+          ...(profile.homepageFeatures?.[index] || {}),
+        })),
         history: profile.history || "",
         mission: profile.mission || "",
         vision: profile.vision || "",
@@ -575,6 +635,55 @@ export default function SchoolWebsiteSettings() {
             description="This image appears behind the main hero section on the homepage."
             aspect="wide"
           />
+
+          <div className="space-y-5 rounded-xl border border-slate-200 p-5">
+            <div>
+              <h3 className="font-semibold text-slate-800">Student & Classroom Photos</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Upload up to three photos for the homepage photo section. If a slot is empty, the website uses a welcoming default school photo.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {[0, 1, 2].map((index) => (
+                <CloudinaryImageUpload
+                  key={index}
+                  label={["Learning Together", "Growing with Confidence", "Guided by Great Teachers"][index]}
+                  value={form.homepageImages[index] || ""}
+                  onChange={(value) => handleHomepageImageChange(index, value)}
+                  description="Upload a student or classroom photo."
+                  aspect="wide"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-5 rounded-xl border border-slate-200 p-5">
+            <div>
+              <h3 className="font-semibold text-slate-800">Homepage Feature Cards</h3>
+              <p className="mt-1 text-sm leading-6 text-slate-500">
+                Edit the titles and descriptions shown in the four school feature cards.
+              </p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {form.homepageFeatures.map((feature, index) => (
+                <div key={index} className="space-y-4 rounded-xl bg-slate-50 p-4">
+                  <InputField
+                    label={`Card ${index + 1} title`}
+                    value={feature.title}
+                    onChange={(value) => handleHomepageFeatureChange(index, "title", value)}
+                    placeholder={DEFAULT_HOMEPAGE_FEATURES[index].title}
+                  />
+                  <TextAreaField
+                    label="Description"
+                    value={feature.description}
+                    onChange={(value) => handleHomepageFeatureChange(index, "description", value)}
+                    placeholder={DEFAULT_HOMEPAGE_FEATURES[index].description}
+                    rows={4}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
 
           <div className="grid gap-6 md:grid-cols-2">
             <TextAreaField
