@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   ArrowRight,
@@ -11,7 +9,6 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
 
 import PublicSiteLayout from "@/components/PublicSchoolWebsite/PublicSiteLayout";
 import { getPublicSchool } from "@/lib/publicSchool";
@@ -119,12 +116,7 @@ export default async function SchoolHomePage({ params }) {
           )}
           <div className="absolute inset-0 bg-black/45" />
           <div className="relative z-10 mx-auto flex min-h-[650px] max-w-7xl items-center px-6 py-20 lg:px-8">
-            <motion.div
-              className="max-w-3xl"
-              initial={{ opacity: 0, y: 26 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
-            >
+            <div className="max-w-3xl">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur">
                 <span
                   className="h-2 w-2 rounded-full"
@@ -158,7 +150,7 @@ export default async function SchoolHomePage({ params }) {
                 <span className="inline-flex items-center gap-2"><CheckCircle2 size={17} /> A supportive community</span>
                 <span className="inline-flex items-center gap-2"><CheckCircle2 size={17} /> Learning for life</span>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -189,11 +181,9 @@ export default async function SchoolHomePage({ params }) {
             {features.map((item, index) => {
               const Icon = [BookOpen, Users, Trophy, ShieldCheck][index];
               return (
-                <motion.div
+                <div
                   key={item.title}
-                  whileHover={{ y: -5 }}
-                  transition={{ duration: 0.2 }}
-                  className="rounded-2xl border border-slate-100 bg-slate-50 p-6 transition-shadow hover:shadow-lg"
+                  className="rounded-2xl border border-slate-100 bg-slate-50 p-6 transition duration-300 hover:-translate-y-1 hover:shadow-lg"
                 >
                   <div
                     className="flex h-12 w-12 items-center justify-center rounded-2xl"
@@ -203,7 +193,7 @@ export default async function SchoolHomePage({ params }) {
                   </div>
                   <h3 className="mt-5 font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
-                </motion.div>
+                </div>
               );
             })}
           </div>
@@ -226,14 +216,9 @@ export default async function SchoolHomePage({ params }) {
 
           <div className="mt-12 grid gap-6 md:grid-cols-3">
             {homeImages.map((item, index) => (
-              <motion.figure
+              <figure
                 key={item.label}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{ duration: 0.5, delay: index * 0.08 }}
-                whileHover={{ y: -5 }}
-                className="group overflow-hidden rounded-3xl bg-white shadow-sm"
+                className="group overflow-hidden rounded-3xl bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="aspect-[4/3] overflow-hidden">
                   <img
@@ -246,7 +231,7 @@ export default async function SchoolHomePage({ params }) {
                 <figcaption className="px-5 py-4 font-semibold text-slate-800">
                   {item.label}
                 </figcaption>
-              </motion.figure>
+              </figure>
             ))}
           </div>
         </div>
