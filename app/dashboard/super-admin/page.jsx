@@ -245,12 +245,28 @@ function SchoolPerformanceCard({ schoolData }) {
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-          <span>Slug:</span>
+        <div className="flex flex-col gap-2 text-xs text-slate-500 sm:items-end">
+          <div className="flex flex-wrap items-center gap-3">
+            <span>Slug:</span>
+            <span className="rounded-md bg-slate-100 px-2 py-1 font-medium text-slate-700">
+              {school.slug || "Not assigned"}
+            </span>
+          </div>
 
-          <span className="rounded-md bg-slate-100 px-2 py-1 font-medium text-slate-700">
-            {school.slug}
-          </span>
+          {school.slug && (
+            <div className="flex flex-wrap items-center gap-2">
+              <span>Default website:</span>
+              <a
+                href={`https://${String(school.slug).toLowerCase().replace(/[^a-z0-9]/g, "")}.school-pilot.app`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-semibold text-emerald-700 underline decoration-emerald-300 underline-offset-2 hover:text-emerald-900"
+              >
+                {`https://${String(school.slug).toLowerCase().replace(/[^a-z0-9]/g, "")}.school-pilot.app`}
+                <ArrowUpRight className="h-3 w-3" />
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

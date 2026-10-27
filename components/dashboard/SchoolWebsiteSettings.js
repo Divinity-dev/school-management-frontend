@@ -48,6 +48,7 @@ const DEFAULT_HOMEPAGE_FEATURES = [
 export default function SchoolWebsiteSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [schoolSlug, setSchoolSlug] = useState("");
   const [customDomain, setCustomDomain] = useState("");
   const [domainVerified, setDomainVerified] = useState(false);
   const [domainDns, setDomainDns] = useState(null);
@@ -121,6 +122,7 @@ export default function SchoolWebsiteSettings() {
 
       const school = response.data?.school;
       const profile = school?.publicProfile || {};
+      setSchoolSlug(school?.slug || "");
       setCustomDomain(school?.website?.customDomain || "");
       setDomainVerified(Boolean(school?.website?.customDomainVerified));
       setHostingStatus(school?.website?.customDomainHostingStatus || "not_configured");
@@ -543,6 +545,31 @@ export default function SchoolWebsiteSettings() {
           />
         </Link>
       </div>
+
+      {schoolSlug && (
+        <section className="rounded-2xl border border-emerald-200 bg-emerald-50/70 p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="font-semibold text-slate-900">Your SchoolPilot Website</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                This is your school's default public website address.
+              </p>
+              <a
+                href={`https://${String(schoolSlug).toLowerCase().replace(/[^a-z0-9]/g, "")}.school-pilot.app`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 break-all font-semibold text-emerald-800 underline underline-offset-2 hover:text-emerald-950"
+              >
+                {`https://${String(schoolSlug).toLowerCase().replace(/[^a-z0-9]/g, "")}.school-pilot.app`}
+                <ArrowUpRight size={15} />
+              </a>
+              <p className="mt-2 text-xs text-slate-500">
+                The older school-pilot.app/slug address remains available as a fallback.
+              </p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {message && (
         <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
