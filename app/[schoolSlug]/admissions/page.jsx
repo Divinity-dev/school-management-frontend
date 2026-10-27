@@ -6,6 +6,7 @@ import {
   MessageCircle,
   ClipboardCheck,
   CalendarDays,
+  GraduationCap,
 } from "lucide-react";
 
 import PublicSiteLayout from "@/components/PublicSchoolWebsite/PublicSiteLayout";
@@ -139,7 +140,7 @@ export default async function AdmissionsPage({ params }) {
 
               <div className="self-start rounded-3xl bg-white p-8 shadow-sm">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl text-white" style={{ backgroundColor: primaryColor }}>
-                  <GraduationCapIcon />
+                  <GraduationCap size={28} />
                 </div>
                 <h3 className="mt-6 text-2xl font-bold">Need help with your application?</h3>
                 <p className="mt-4 leading-7 text-slate-600">
@@ -182,9 +183,6 @@ function Step({ number, icon: Icon, title, text, color }) {
   );
 }
 
-function GraduationCapIcon() {
-  return <span aria-hidden="true" className="text-2xl">🎓</span>;
-}
 
 function NotFound() {
   return (
