@@ -3,7 +3,6 @@ import {
   Mail,
   MapPin,
   Phone,
-  Send,
   Clock3,
   MessageCircle,
   ArrowUpRight,
