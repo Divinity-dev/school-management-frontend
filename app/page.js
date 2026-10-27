@@ -624,8 +624,9 @@ function DashboardCard({ icon: Icon, label, value }) {
 }
 
 function FeatureCard({ icon: Icon, title, text, highlighted = false }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45 }}
+    <motion.div initial={reduceMotion ? false : { opacity: 0, y: 18 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45 }}
       className={`group rounded-3xl border p-7 transition duration-300 hover:-translate-y-1 hover:shadow-xl ${
         highlighted
           ? "border-emerald-200 bg-emerald-50/70"
@@ -650,8 +651,9 @@ function FeatureCard({ icon: Icon, title, text, highlighted = false }) {
 }
 
 function HowStep({ number, title, text }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45 }} className="relative rounded-3xl border border-white/10 bg-white/5 p-8">
+    <motion.div initial={reduceMotion ? false : { opacity: 0, y: 18 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45 }} className="relative rounded-3xl border border-white/10 bg-white/5 p-8">
       <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 font-bold text-white">
         {number}
       </div>
@@ -662,8 +664,9 @@ function HowStep({ number, title, text }) {
 }
 
 function PortalCard({ icon: Icon, title, text }) {
+  const reduceMotion = useReducedMotion();
   return (
-    <motion.div initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45 }} className="group rounded-3xl border border-slate-200 bg-white p-7 transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl">
+    <motion.div initial={reduceMotion ? false : { opacity: 0, y: 18 }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.2 }} transition={{ duration: 0.45 }} className="group rounded-3xl border border-slate-200 bg-white p-7 transition hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl">
       <div className="flex items-center justify-between">
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
           <Icon size={22} />
