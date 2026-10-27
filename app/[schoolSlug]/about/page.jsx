@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, GraduationCap } from "lucide-react";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 
 import PublicSiteLayout from "@/components/PublicSchoolWebsite/PublicSiteLayout";
 import { getPublicSchool } from "@/lib/publicSchool";
