@@ -33,6 +33,12 @@ const actionGroups = [
         href: "/dashboard/school-admin/students",
       },
       {
+        label: "Student Seat Allocation",
+        description: "Choose which students use purchased seats",
+        icon: Users,
+        href: "/dashboard/school-admin/students/seat-allocation",
+      },
+      {
         label: "Teachers",
         description: "Manage teaching staff",
         icon: GraduationCap,
