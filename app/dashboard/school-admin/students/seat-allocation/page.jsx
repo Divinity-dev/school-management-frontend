@@ -47,16 +47,20 @@ export default function StudentSeatAllocationPage() {
   const toggleStudent = (studentId) => {
     setError("");
     setSuccess("");
-    setSelectedIds((current) => {
-      if (current.includes(studentId)) {
-        return current.filter((id) => id !== studentId);
-      }
-      if (current.length >= studentLimit) {
-        setError(`Your subscription covers ${studentLimit} student seat(s). Remove a selection or upgrade to assign more seats.`);
-        return current;
-      }
-      return [...current, studentId];
-    });
+
+    if (selectedIds.includes(studentId)) {
+      setSelectedIds(selectedIds.filter((id) => id !== studentId));
+      return;
+    }
+
+    if (selectedIds.length >= studentLimit) {
+      setError(
+        `Your subscription covers ${studentLimit} student seat(s). Remove a selection or upgrade to assign more seats.`
+      );
+      return;
+    }
+
+    setSelectedIds([...selectedIds, studentId]);
   };
 
   const saveAllocation = async () => {
