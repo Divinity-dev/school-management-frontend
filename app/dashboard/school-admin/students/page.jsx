@@ -385,6 +385,14 @@ const handleRefreshStudents = async () => {
 
               
 <Link
+  href="/dashboard/school-admin/students/seat-allocation"
+  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
+>
+  <Users size={17} />
+  Assign Seats
+</Link>
+
+<Link
   href="/dashboard/school-admin/students/import"
   className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
 >
