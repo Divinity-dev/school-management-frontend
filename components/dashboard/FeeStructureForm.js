@@ -685,6 +685,11 @@ export default function FeeStructureForm({
                       disabled={submitting}
                       className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm font-medium text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 disabled:opacity-60"
                     />
+
+                    <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+                      <span className="font-semibold text-slate-600">Payment processing fee:</span>{" "}
+                      Paystack deducts processing fees before the balance reaches your school. For local card payments, the published rate is generally 1.5% + ₦100 (the ₦100 component is waived for payments below ₦2,500); rates can vary by payment method and Paystack pricing. Consider factoring this cost into your fee amount if you want to receive closer to the full amount set.
+                    </p>
                   </div>
                 </div>
               </div>
