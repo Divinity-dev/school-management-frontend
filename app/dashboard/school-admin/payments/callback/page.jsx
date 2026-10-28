@@ -35,7 +35,7 @@ searchParams.get("trxref");
      */
     if (reference.startsWith("SUB-")) {
       const response = await api.get(
-        `/subscriptions/payment/verify/${encodeURIComponent(
+        `/subscriptions/callback/verify/${encodeURIComponent(
           reference
         )}`
       );
@@ -60,7 +60,7 @@ searchParams.get("trxref");
      */
     if (reference.startsWith("SEAT-")) {
       const response = await api.get(
-        `/subscriptions/add-seats/payment/verify/${encodeURIComponent(
+        `/subscriptions/callback/verify/${encodeURIComponent(
           reference
         )}`
       );
@@ -107,7 +107,7 @@ searchParams.get("trxref");
     setStatus("failed");
     setMessage(
       error.response?.data?.message ||
-        "We could not verify your payment. Please contact support if money was deducted."
+        "We could not verify your payment. Do not pay again. Keep your Paystack reference and contact support."
     );
   }
 };
