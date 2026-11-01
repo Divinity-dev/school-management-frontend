@@ -17,6 +17,7 @@ import {
 import authService from "../../../services/authService";
 import { setCredentials } from "../../../store/slices/authSlice";
 import { getLoginRedirectPath } from "../../../lib/dashboardNavigation";
+import { saveSession } from "../../../lib/authStorage";
 
 function formatSchoolName(slug) {
   if (!slug) return "School Portal";
@@ -86,8 +87,7 @@ export default function SchoolLoginPage() {
         );
       }
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      saveSession({ token, user: loggedInUser });
 
       dispatch(
         setCredentials({
