@@ -3,7 +3,6 @@ import {
   ArrowRight,
   BookOpen,
   CheckCircle2,
-  GraduationCap,
   Users,
   Trophy,
   ShieldCheck,
