@@ -32,8 +32,7 @@ export default function AuthInitializer() {
       try {
         parsedUser = JSON.parse(savedUser);
       } catch {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        clearSession();
         dispatch(logout());
         return;
       }
