@@ -15,6 +15,7 @@ import {
 
 import api from "@/lib/api";
 import CloudinaryImageUpload from "@/components/dashboard/CloudinaryImageUpload";
+import RichTextEditor from "@/components/dashboard/RichTextEditor";
 
 export default function CreateSchoolPostPage() {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function CreateSchoolPostPage() {
     excerpt: "",
     content: "",
     coverImage: "",
+    images: ["", ""],
     eventDate: "",
     eventEndDate: "",
     location: "",
@@ -88,6 +90,7 @@ export default function CreateSchoolPostPage() {
         excerpt: formData.excerpt.trim(),
         content: formData.content.trim(),
         coverImage: formData.coverImage,
+        images: formData.images.filter(Boolean),
         isPublished,
       };
 
@@ -309,14 +312,9 @@ export default function CreateSchoolPostPage() {
                   Content
                 </label>
 
-                <textarea
-                  id="content"
-                  name="content"
+                <RichTextEditor
                   value={formData.content}
-                  onChange={handleChange}
-                  rows={12}
-                  placeholder="Write the full content of your post..."
-                  className="w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  onChange={(value) => setFormData((prev) => ({ ...prev, content: value }))}
                 />
 
                 <p className="mt-1 text-xs text-slate-400">
@@ -352,6 +350,30 @@ export default function CreateSchoolPostPage() {
               description="Use a high-quality landscape image for the best result."
               aspect="wide"
             />
+          </section>
+
+          {/* Additional Images */}
+          <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="mb-6">
+              <h2 className="text-base font-semibold text-slate-900">Additional Images</h2>
+              <p className="mt-1 text-sm text-slate-500">Add up to two images to appear within your article. The cover image remains the main thumbnail.</p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2">
+              {[0, 1].map((index) => (
+                <CloudinaryImageUpload
+                  key={index}
+                  label={`Article Image ${index + 1}`}
+                  value={formData.images[index]}
+                  onChange={(value) => setFormData((prev) => {
+                    const images = [...prev.images];
+                    images[index] = value;
+                    return { ...prev, images };
+                  })}
+                  description="Optional image for the article body."
+                  aspect="wide"
+                />
+              ))}
+            </div>
           </section>
 
           {/* Event Information */}
