@@ -36,6 +36,9 @@ const DEFAULT_FEATURES = [
   },
 ];
 
+const DEFAULT_PRINCIPAL_PHOTO =
+  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=900&q=85";
+
 const DEFAULT_HOME_IMAGES = [
   {
     src: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1200&q=85",
@@ -282,21 +285,45 @@ export default async function SchoolHomePage({ params }) {
         </section>
       )}
 
-      {profile.showPrincipalMessage && profile.principalMessage && (
-        <section className="bg-slate-50 py-20">
-          <div className="mx-auto max-w-5xl px-6 lg:px-8">
-            <div className="grid items-center gap-10 md:grid-cols-[220px_1fr]">
-              {profile.principalPhoto ? (
-                <img src={profile.principalPhoto} alt={profile.principalName || "School principal"} className="mx-auto h-52 w-52 rounded-full object-cover shadow-lg" />
-              ) : (
-                <div className="mx-auto flex h-52 w-52 items-center justify-center rounded-full text-white" style={{ backgroundColor: primaryColor }}>
-                  <GraduationCap size={65} />
+      {(profile.showPrincipalMessage ?? true) && (
+        <section className="bg-slate-50 py-20 sm:py-24">
+          <div className="mx-auto max-w-6xl px-6 lg:px-8">
+            <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm">
+              <div className="grid items-center gap-9 p-7 sm:p-10 md:grid-cols-[260px_1fr] md:gap-12 md:p-12">
+                <div className="mx-auto w-full max-w-[240px]">
+                  <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-slate-100 shadow-md">
+                    <img
+                      src={profile.principalPhoto?.trim() || DEFAULT_PRINCIPAL_PHOTO}
+                      alt={profile.principalName?.trim() || "Illustrative portrait of the school principal"}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="mt-4 text-center">
+                    <p className="font-bold text-slate-900">
+                      {profile.principalName?.trim() || "The School Principal"}
+                    </p>
+                    <p className="mt-1 text-sm text-slate-500">Principal</p>
+                  </div>
                 </div>
-              )}
-              <div>
-                <p className="text-sm font-bold uppercase tracking-widest" style={{ color: primaryColor }}>Principal's Message</p>
-                <p className="mt-5 text-lg leading-8 text-slate-600">{profile.principalMessage}</p>
-                {profile.principalName && <p className="mt-5 font-bold">{profile.principalName}</p>}
+
+                <div>
+                  <p className="text-sm font-bold uppercase tracking-[0.18em]" style={{ color: primaryColor }}>
+                    A Message from Our Principal
+                  </p>
+                  <h2 className="mt-3 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+                    Welcome to {school.name}
+                  </h2>
+                  <div className="mt-6 h-1 w-16 rounded-full" style={{ backgroundColor: secondaryColor }} />
+                  <p className="mt-6 text-lg leading-8 text-slate-600">
+                    {profile.principalMessage?.trim() ||
+                      `It is my pleasure to welcome you to ${school.name}. We are committed to creating a supportive and inspiring environment where every learner is encouraged to discover their strengths, develop a love for learning and grow in character. Together with our dedicated teachers, parents and wider school community, we strive to give every child the knowledge, confidence and values needed to make a positive difference in the world. Thank you for being part of our journey.`}
+                  </p>
+                  <p className="mt-6 font-semibold" style={{ color: primaryColor }}>
+                    {profile.principalName?.trim() || "The School Principal"}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">Principal, {school.name}</p>
+                </div>
               </div>
             </div>
           </div>
