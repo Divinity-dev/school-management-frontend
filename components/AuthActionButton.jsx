@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 
 import { logout } from "../store/slices/authSlice";
+import { clearSession } from "../lib/authStorage";
 
 export default function AuthActionButton({
   label = "Login",
@@ -34,8 +35,7 @@ export default function AuthActionButton({
       className={className}
       style={style}
       onClick={() => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        clearSession();
         dispatch(logout());
       }}
     >
