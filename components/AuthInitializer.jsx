@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 
 import api from "../lib/api";
+import { clearSession, getSessionToken, getSessionUser, saveSessionUser } from "../lib/authStorage";
 import {
   finishAuthInitialization,
   logout,
@@ -18,12 +19,11 @@ export default function AuthInitializer() {
     let cancelled = false;
 
     const initialize = async () => {
-      const token = localStorage.getItem("token");
-      const savedUser = localStorage.getItem("user");
+      const token = getSessionToken();
+      const savedUser = getSessionUser();
 
       if (!token || !savedUser) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        clearSession();
         dispatch(finishAuthInitialization());
         return;
       }
@@ -44,7 +44,7 @@ export default function AuthInitializer() {
         if (!currentUser) throw new Error("Current session response did not contain a user.");
         if (cancelled) return;
 
-        localStorage.setItem("user", JSON.stringify(currentUser));
+        saveSessionUser(currentUser);
         dispatch(setCredentials({ token, user: currentUser }));
       } catch (error) {
         if (cancelled) return;
