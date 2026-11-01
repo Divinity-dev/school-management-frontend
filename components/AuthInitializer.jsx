@@ -49,8 +49,7 @@ export default function AuthInitializer() {
         if (cancelled) return;
 
         if (error?.response?.status === 401 || error?.response?.status === 403) {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
+          clearSession();
           dispatch(logout());
         } else {
           dispatch(restoreCredentials({ token, user: parsedUser }));
