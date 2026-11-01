@@ -19,6 +19,7 @@ import {
 import authService from "../../services/authService";
 import { logout, setCredentials } from "../../store/slices/authSlice";
 import { getLoginRedirectPath } from "../../lib/dashboardNavigation";
+import { clearSession, saveSession } from "../../lib/authStorage";
 
 export default function LoginPage() {
   const dispatch = useDispatch();
@@ -42,8 +43,7 @@ export default function LoginPage() {
     if (emailWasVerified) {
       // Email verification is a public entry point. Clear any previous browser
       // session so a different, already logged-in role cannot hijack this flow.
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      clearSession();
       dispatch(logout());
       setVerificationMessage(
         "Your email has been verified. Please sign in with your school administrator account."
@@ -89,8 +89,7 @@ export default function LoginPage() {
         );
       }
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(loggedInUser));
+      saveSession({ token, user: loggedInUser });
 
       dispatch(
         setCredentials({
