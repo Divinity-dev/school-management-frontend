@@ -256,7 +256,7 @@ export default function MarketingOutreachPage() {
     try {
       await api.post("/marketing/contacts", contactForm);
       setContactForm({ schoolName: "", email: "", category: "Secondary", location: "" });
-      await Promise.all([loadContacts(), loadOverview()]);
+      await Promise.all([loadContacts(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
     }
@@ -276,7 +276,7 @@ export default function MarketingOutreachPage() {
         notes: editingContact.notes,
       });
       setEditingContact(null);
-      await Promise.all([loadContacts(), loadOverview()]);
+      await Promise.all([loadContacts(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
     }
@@ -288,7 +288,7 @@ export default function MarketingOutreachPage() {
     try {
       await api.delete(`/marketing/contacts/${contact._id}`);
       setSelectedIds((current) => current.filter((id) => id !== contact._id));
-      await Promise.all([loadContacts(), loadOverview()]);
+      await Promise.all([loadContacts(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
     }
@@ -309,7 +309,7 @@ export default function MarketingOutreachPage() {
           message: `Import complete: ${summary.imported || 0} added, ${summary.duplicates || 0} duplicates skipped, ${summary.invalid || 0} invalid rows.`,
         },
       }));
-      await Promise.all([loadContacts(), loadOverview()]);
+      await Promise.all([loadContacts(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
       event.target.value = "";
@@ -332,7 +332,7 @@ export default function MarketingOutreachPage() {
       });
       setCampaignForm({ name: "", subject: "", html: "<p>Hello {{schoolName}},</p><p>Write your SchoolPilot message here.</p><p>Best regards,<br/>SchoolPilot Team</p>" });
       setSelectedIds([]);
-      await Promise.all([loadCampaigns(), loadOverview()]);
+      await Promise.all([loadCampaigns(), loadOverview(), loadActivities()]);
       setActiveTab("campaigns");
     } finally {
       setWorking(false);
@@ -354,7 +354,7 @@ export default function MarketingOutreachPage() {
       });
       setScheduleCampaign(null);
       setScheduleDateTime("");
-      await Promise.all([loadCampaigns(), loadOverview()]);
+      await Promise.all([loadCampaigns(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
     }
@@ -365,7 +365,7 @@ export default function MarketingOutreachPage() {
     setWorking(true);
     try {
       await api.post(`/marketing/campaigns/${campaign._id}/cancel-scheduled`, { confirmCancel: true });
-      await Promise.all([loadCampaigns(), loadOverview()]);
+      await Promise.all([loadCampaigns(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
     }
@@ -380,7 +380,7 @@ export default function MarketingOutreachPage() {
     setWorking(true);
     try {
       await api.post(`/marketing/campaigns/${campaign._id}/send`, { confirmSend: true });
-      await Promise.all([loadCampaigns(), loadOverview()]);
+      await Promise.all([loadCampaigns(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
     }
@@ -401,7 +401,7 @@ export default function MarketingOutreachPage() {
     try {
       await api.post(`/marketing/inbox/${selectedMessage._id}/reply`, { text: replyText });
       setReplyText("");
-      await loadInbox();
+      await Promise.all([loadInbox(), loadActivities()]);
     } finally {
       setWorking(false);
     }
