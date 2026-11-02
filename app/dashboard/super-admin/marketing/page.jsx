@@ -32,6 +32,27 @@ const tabs = [
   { id: "suppressions", label: "Suppressions", icon: ShieldAlert },
 ];
 
+const campaignTemplates = [
+  {
+    id: "introduction",
+    label: "SchoolPilot introduction",
+    subject: "A free SchoolPilot demonstration for {{schoolName}}",
+    html: "<p>Hello {{schoolName}},</p><p>I'm reaching out from <strong>SchoolPilot</strong>, a school management platform designed to simplify school administration.</p><p>We would be happy to give your school a free, personalised demonstration. There is no obligation.</p><p>Would you be available for a short conversation?</p><p>Best regards,<br/>SchoolPilot Team</p>",
+  },
+  {
+    id: "follow-up",
+    label: "Follow-up",
+    subject: "Following up on SchoolPilot for {{schoolName}}",
+    html: "<p>Hello {{schoolName}},</p><p>I wanted to follow up on my earlier message about <strong>SchoolPilot</strong>.</p><p>If your school is exploring ways to simplify administration, student records, results and fee management, we'd be glad to show you how the platform works.</p><p>Would a brief demonstration be convenient?</p><p>Best regards,<br/>SchoolPilot Team</p>",
+  },
+  {
+    id: "demo",
+    label: "Demo invitation",
+    subject: "Let's arrange a SchoolPilot demo for {{schoolName}}",
+    html: "<p>Hello {{schoolName}},</p><p>We'd love to walk your team through SchoolPilot and show how it can support your school's daily operations.</p><p>The demonstration is free and tailored to your school's needs, with no obligation to subscribe.</p><p>Please let us know a convenient day and time.</p><p>Best regards,<br/>SchoolPilot Team</p>",
+  },
+];
+
 const statusLabels = {
   new: "New",
   contacted: "Contacted",
@@ -142,6 +163,7 @@ export default function MarketingOutreachPage() {
   const [replyText, setReplyText] = useState("");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [contactForm, setContactForm] = useState({
@@ -164,10 +186,10 @@ export default function MarketingOutreachPage() {
 
   const loadContacts = useCallback(async () => {
     const response = await api.get("/marketing/contacts", {
-      params: { q: query || undefined, status: statusFilter || undefined, limit: 100 },
+      params: { q: query || undefined, status: statusFilter || undefined, category: categoryFilter || undefined, limit: 100 },
     });
     setContacts(response.data.contacts || []);
-  }, [query, statusFilter]);
+  }, [query, statusFilter, categoryFilter]);
 
   const loadCampaigns = useCallback(async () => {
     const response = await api.get("/marketing/campaigns");
@@ -187,15 +209,19 @@ export default function MarketingOutreachPage() {
   const refreshAll = useCallback(async () => {
     setLoading(true);
     try {
-      await Promise.all([loadOverview(), loadContacts(), loadCampaigns(), loadInbox(), loadSuppressions()]);
+      await Promise.all([loadOverview(), loadCampaigns(), loadInbox(), loadSuppressions()]);
     } finally {
       setLoading(false);
     }
-  }, [loadOverview, loadContacts, loadCampaigns, loadInbox, loadSuppressions]);
+  }, [loadOverview, loadCampaigns, loadInbox, loadSuppressions]);
 
   useEffect(() => {
     refreshAll().catch(() => setLoading(false));
   }, [refreshAll]);
+
+  useEffect(() => {
+    loadContacts().catch(() => {});
+  }, [loadContacts]);
 
   const selectedCount = selectedIds.length;
   const allVisibleSelected = contacts.length > 0 && contacts.every((contact) => selectedIds.includes(contact._id));
@@ -359,7 +385,7 @@ export default function MarketingOutreachPage() {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Marketing & Outreach</h1>
           <p className="mt-1 text-sm text-slate-500">Manage school prospects, campaigns and replies from one place.</p>
         </div>
-        <button type="button" onClick={() => refreshAll()} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        <button type="button" onClick={() => Promise.all([refreshAll(), loadContacts()])} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100">
           <RefreshCw className="h-4 w-4" /> Refresh
         </button>
       </div>
@@ -425,6 +451,10 @@ export default function MarketingOutreachPage() {
                 <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
                   <option value="">All statuses</option>
                   {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
+                </select>
+                <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+                  <option value="">All categories</option>
+                  {[...new Set(contacts.map((contact) => contact.category).filter(Boolean))].sort().map((category) => <option key={category} value={category}>{category}</option>)}
                 </select>
               </div>
             </div>
@@ -502,6 +532,20 @@ export default function MarketingOutreachPage() {
             </div>
             <form onSubmit={handleCreateCampaign} className="space-y-4">
               <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Start from a template</label>
+                <select
+                  defaultValue=""
+                  onChange={(event) => {
+                    const template = campaignTemplates.find((item) => item.id === event.target.value);
+                    if (template) setCampaignForm((current) => ({ ...current, subject: template.subject, html: template.html }));
+                  }}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm"
+                >
+                  <option value="">Choose a template (optional)</option>
+                  {campaignTemplates.map((template) => <option key={template.id} value={template.id}>{template.label}</option>)}
+                </select>
+              </div>
+              <div>
                 <label className="mb-1.5 block text-sm font-medium text-slate-700">Campaign name</label>
                 <input required value={campaignForm.name} onChange={(event) => setCampaignForm((current) => ({ ...current, name: event.target.value }))} placeholder="Benin City school introduction" className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm" />
               </div>
@@ -542,9 +586,12 @@ export default function MarketingOutreachPage() {
                   </div>
                   <StatusPill status={campaign.status} />
                 </div>
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-3">
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-slate-900">{campaign.recipientCount || 0}</p><p className="text-xs text-slate-500">Recipients</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-emerald-700">{campaign.sentCount || 0}</p><p className="text-xs text-slate-500">Sent</p></div>
+                  <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-sky-700">{campaign.deliveredCount || 0}</p><p className="text-xs text-slate-500">Delivered</p></div>
+                  <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-red-700">{campaign.bouncedCount || 0}</p><p className="text-xs text-slate-500">Bounced / complaints</p></div>
+                  <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-amber-700">{campaign.failedCount || 0}</p><p className="text-xs text-slate-500">Failed</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-violet-700">{campaign.replyCount || 0}</p><p className="text-xs text-slate-500">Replies</p></div>
                 </div>
                 {["draft", "partial", "failed"].includes(campaign.status) && (
@@ -589,7 +636,18 @@ export default function MarketingOutreachPage() {
                   <p className="mt-1 text-sm text-slate-500">From: {selectedMessage.from}</p>
                   {selectedMessage.contact?.schoolName && <p className="text-sm text-slate-500">School: {selectedMessage.contact.schoolName}</p>}
                 </div>
-                <div className="flex-1 whitespace-pre-wrap p-5 text-sm leading-7 text-slate-700">{selectedMessage.text || "This email does not contain a plain-text body."}</div>
+                <div className="flex-1 space-y-4 overflow-y-auto p-5">
+                  {selectedMessage.text && <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{selectedMessage.text}</div>}
+                  {!selectedMessage.text && selectedMessage.html && (
+                    <iframe
+                      title="Incoming email content"
+                      sandbox=""
+                      srcDoc={selectedMessage.html}
+                      className="min-h-[320px] w-full rounded-xl border border-slate-100 bg-white"
+                    />
+                  )}
+                  {!selectedMessage.text && !selectedMessage.html && <p className="text-sm text-slate-500">This email does not contain a readable message body.</p>}
+                </div>
                 <form onSubmit={handleReply} className="border-t border-slate-100 p-5">
                   <label className="mb-2 block text-sm font-semibold text-slate-700">Reply</label>
                   <textarea required rows={5} value={replyText} onChange={(event) => setReplyText(event.target.value)} placeholder="Write your reply..." className="w-full resize-y rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-emerald-500" />
@@ -657,6 +715,9 @@ export default function MarketingOutreachPage() {
                 <select value={editingContact.status || "new"} onChange={(event) => setEditingContact((current) => ({ ...current, status: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal">
                   {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
                 </select>
+              </label>
+              <label className="text-sm font-medium text-slate-700">Next follow-up
+                <input type="date" value={editingContact.nextFollowUpAt ? String(editingContact.nextFollowUpAt).slice(0, 10) : ""} onChange={(event) => setEditingContact((current) => ({ ...current, nextFollowUpAt: event.target.value || null }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
               </label>
               <label className="text-sm font-medium text-slate-700 sm:col-span-2">Notes
                 <textarea rows={3} value={editingContact.notes || ""} onChange={(event) => setEditingContact((current) => ({ ...current, notes: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
