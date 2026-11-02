@@ -371,8 +371,8 @@ export default function MarketingOutreachPage() {
 
   const handleSendBatch = async (campaign) => {
     const message = campaign.status === "partial"
-      ? "Send the next batch of up to 50 remaining recipients?"
-      : `Send this campaign to up to 50 of its ${campaign.recipientCount} recipients now?`;
+      ? "Send the next batch of up to 10 remaining recipients?"
+      : `Send this campaign to up to 10 of its ${campaign.recipientCount} recipients now?`;
     if (!window.confirm(`${message}\n\nOnly eligible contacts will receive the email. This action cannot be undone.`)) return;
 
     setWorking(true);
@@ -613,7 +613,7 @@ export default function MarketingOutreachPage() {
           <section className="space-y-3">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="font-bold text-slate-900">Campaigns</h2>
-              <p className="mt-1 text-sm text-slate-500">Sending is manual and processed in batches of up to 50 recipients.</p>
+              <p className="mt-1 text-sm text-slate-500">Sending is manual and processed in batches of up to 10 recipients.</p>
             </div>
             {campaigns.map((campaign) => (
               <article key={campaign._id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
