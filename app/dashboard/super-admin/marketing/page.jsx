@@ -287,7 +287,7 @@ export default function MarketingOutreachPage() {
     formData.append("file", file);
     setWorking(true);
     try {
-      const response = await api.post("/marketing/contacts/import", formData);
+      const response = await api.post("/marketing/contacts/import", formData, { suppressSuccessToast: true });
       const summary = response.data.summary || {};
       window.dispatchEvent(new CustomEvent("schoolpilot:toast", {
         detail: {
