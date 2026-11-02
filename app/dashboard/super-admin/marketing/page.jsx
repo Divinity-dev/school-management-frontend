@@ -11,6 +11,8 @@ import {
   FileSpreadsheet,
   Inbox,
   Loader2,
+  Pencil,
+  Archive,
   Mail,
   Megaphone,
   Plus,
@@ -135,6 +137,8 @@ export default function MarketingOutreachPage() {
   const [suppressions, setSuppressions] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [editingContact, setEditingContact] = useState(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -193,10 +197,6 @@ export default function MarketingOutreachPage() {
     refreshAll().catch(() => setLoading(false));
   }, [refreshAll]);
 
-  useEffect(() => {
-    loadContacts().catch(() => {});
-  }, [loadContacts]);
-
   const selectedCount = selectedIds.length;
   const allVisibleSelected = contacts.length > 0 && contacts.every((contact) => selectedIds.includes(contact._id));
 
@@ -223,6 +223,38 @@ export default function MarketingOutreachPage() {
     }
   };
 
+  const handleEditContact = async (event) => {
+    event.preventDefault();
+    if (!editingContact?._id) return;
+    setWorking(true);
+    try {
+      await api.patch(`/marketing/contacts/${editingContact._id}`, {
+        schoolName: editingContact.schoolName,
+        category: editingContact.category,
+        location: editingContact.location,
+        phone: editingContact.phone,
+        status: editingContact.status,
+        notes: editingContact.notes,
+      });
+      setEditingContact(null);
+      await Promise.all([loadContacts(), loadOverview()]);
+    } finally {
+      setWorking(false);
+    }
+  };
+
+  const handleArchiveContact = async (contact) => {
+    if (!window.confirm(`Archive ${contact.schoolName}? It will be hidden from the active contact list and won't be included in new campaigns.`)) return;
+    setWorking(true);
+    try {
+      await api.delete(`/marketing/contacts/${contact._id}`);
+      setSelectedIds((current) => current.filter((id) => id !== contact._id));
+      await Promise.all([loadContacts(), loadOverview()]);
+    } finally {
+      setWorking(false);
+    }
+  };
+
   const handleImport = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -232,7 +264,12 @@ export default function MarketingOutreachPage() {
     try {
       const response = await api.post("/marketing/contacts/import", formData);
       const summary = response.data.summary || {};
-      window.alert(`Import complete. Added: ${summary.imported || 0}, duplicates: ${summary.duplicates || 0}, invalid: ${summary.invalid || 0}.`);
+      window.dispatchEvent(new CustomEvent("schoolpilot:toast", {
+        detail: {
+          type: "success",
+          message: `Import complete: ${summary.imported || 0} added, ${summary.duplicates || 0} duplicates skipped, ${summary.invalid || 0} invalid rows.`,
+        },
+      }));
       await Promise.all([loadContacts(), loadOverview()]);
     } finally {
       setWorking(false);
@@ -243,7 +280,9 @@ export default function MarketingOutreachPage() {
   const handleCreateCampaign = async (event) => {
     event.preventDefault();
     if (!selectedIds.length) {
-      window.alert("Select at least one eligible contact first.");
+      window.dispatchEvent(new CustomEvent("schoolpilot:toast", {
+        detail: { type: "error", message: "Select at least one eligible contact first." },
+      }));
       return;
     }
     setWorking(true);
@@ -292,7 +331,6 @@ export default function MarketingOutreachPage() {
       await api.post(`/marketing/inbox/${selectedMessage._id}/reply`, { text: replyText });
       setReplyText("");
       await loadInbox();
-      window.alert("Reply sent successfully.");
     } finally {
       setWorking(false);
     }
@@ -407,6 +445,7 @@ export default function MarketingOutreachPage() {
                     <th className="px-5 py-3">Email</th>
                     <th className="px-5 py-3">Category / Location</th>
                     <th className="px-5 py-3">Status</th>
+                    <th className="px-5 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -419,10 +458,34 @@ export default function MarketingOutreachPage() {
                         <td className="whitespace-nowrap px-5 py-3 text-slate-600">{contact.email}</td>
                         <td className="px-5 py-3 text-slate-500">{[contact.category, contact.location].filter(Boolean).join(" · ") || "—"}</td>
                         <td className="px-5 py-3"><StatusPill status={contact.status} /></td>
+                        <td className="whitespace-nowrap px-5 py-3 text-right">
+                          <div className="inline-flex items-center gap-1">
+                            <button
+                              type="button"
+                              disabled={working}
+                              onClick={() => setEditingContact({ ...contact })}
+                              className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-emerald-700 disabled:opacity-50"
+                              aria-label={`Edit ${contact.schoolName}`}
+                              title="Edit contact"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={working}
+                              onClick={() => handleArchiveContact(contact)}
+                              className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+                              aria-label={`Archive ${contact.schoolName}`}
+                              title="Archive contact"
+                            >
+                              <Archive className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
                       </tr>
                     );
                   })}
-                  {!contacts.length && <tr><td colSpan="5" className="px-5 py-12 text-center text-sm text-slate-500">No contacts found. Import your school list or add a contact above.</td></tr>}
+                  {!contacts.length && <tr><td colSpan="6" className="px-5 py-12 text-center text-sm text-slate-500">No contacts found. Import your school list or add a contact above.</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -449,7 +512,10 @@ export default function MarketingOutreachPage() {
               <div>
                 <div className="mb-1.5 flex items-center justify-between gap-2">
                   <label className="text-sm font-medium text-slate-700">Email content</label>
-                  <span className="text-xs text-slate-400">Use {"{{schoolName}}"} to personalise</span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-400">Use {"{{schoolName}}"} to personalise</span>
+                    <button type="button" onClick={() => setPreviewOpen(true)} className="text-xs font-semibold text-emerald-700 hover:text-emerald-900">Preview</button>
+                  </div>
                 </div>
                 <RichEmailEditor value={campaignForm.html} onChange={(html) => setCampaignForm((current) => ({ ...current, html }))} />
               </div>
@@ -559,6 +625,69 @@ export default function MarketingOutreachPage() {
             </table>
           </div>
         </section>
+      )}
+
+      {editingContact && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="edit-contact-title">
+          <form onSubmit={handleEditContact} className="w-full max-w-xl space-y-4 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 id="edit-contact-title" className="text-lg font-bold text-slate-900">Edit school contact</h2>
+                <p className="mt-1 text-sm text-slate-500">Update the contact details and outreach status.</p>
+              </div>
+              <button type="button" onClick={() => setEditingContact(null)} className="rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-100" aria-label="Close edit contact">✕</button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-sm font-medium text-slate-700">School name
+                <input required value={editingContact.schoolName || ""} onChange={(event) => setEditingContact((current) => ({ ...current, schoolName: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Email address
+                <input disabled value={editingContact.email || ""} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-normal text-slate-500" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Category
+                <input value={editingContact.category || ""} onChange={(event) => setEditingContact((current) => ({ ...current, category: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Location
+                <input value={editingContact.location || ""} onChange={(event) => setEditingContact((current) => ({ ...current, location: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Phone
+                <input value={editingContact.phone || ""} onChange={(event) => setEditingContact((current) => ({ ...current, phone: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
+              </label>
+              <label className="text-sm font-medium text-slate-700">Outreach status
+                <select value={editingContact.status || "new"} onChange={(event) => setEditingContact((current) => ({ ...current, status: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal">
+                  {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
+                </select>
+              </label>
+              <label className="text-sm font-medium text-slate-700 sm:col-span-2">Notes
+                <textarea rows={3} value={editingContact.notes || ""} onChange={(event) => setEditingContact((current) => ({ ...current, notes: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
+              </label>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setEditingContact(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Cancel</button>
+              <button disabled={working} className="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">Save changes</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {previewOpen && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="campaign-preview-title">
+          <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-100 p-4">
+              <div>
+                <h2 id="campaign-preview-title" className="font-bold text-slate-900">Email preview</h2>
+                <p className="mt-1 text-sm text-slate-500">{campaignForm.subject || "No subject entered"}</p>
+              </div>
+              <button type="button" onClick={() => setPreviewOpen(false)} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Close</button>
+            </div>
+            <iframe
+              title="Campaign email preview"
+              sandbox=""
+              srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial,sans-serif;padding:24px;color:#334155">${campaignForm.html.replace(/{{\\s*schoolName\\s*}}/gi, "Sample School")}</body></html>`}
+              className="min-h-[420px] w-full flex-1 bg-white"
+            />
+          </div>
+        </div>
       )}
 
       <p className="text-xs leading-5 text-slate-400">
