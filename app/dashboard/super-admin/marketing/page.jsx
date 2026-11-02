@@ -7,6 +7,7 @@ import {
   ChevronRight,
   FileSpreadsheet,
   Inbox,
+  History,
   Loader2,
   Pencil,
   Archive,
@@ -27,6 +28,7 @@ const tabs = [
   { id: "campaigns", label: "Campaigns", icon: Megaphone },
   { id: "inbox", label: "Reply inbox", icon: Inbox },
   { id: "suppressions", label: "Suppressions", icon: ShieldAlert },
+  { id: "activity", label: "Activity", icon: History },
 ];
 
 const campaignTemplates = [
@@ -154,6 +156,7 @@ export default function MarketingOutreachPage() {
   const [campaigns, setCampaigns] = useState([]);
   const [messages, setMessages] = useState([]);
   const [suppressions, setSuppressions] = useState([]);
+  const [activities, setActivities] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editingContact, setEditingContact] = useState(null);
@@ -205,14 +208,19 @@ export default function MarketingOutreachPage() {
     setSuppressions(response.data.suppressions || []);
   }, []);
 
+  const loadActivities = useCallback(async () => {
+    const response = await api.get("/marketing/activity", { params: { limit: 100 } });
+    setActivities(response.data.activities || []);
+  }, []);
+
   const refreshAll = useCallback(async () => {
     setLoading(true);
     try {
-      await Promise.all([loadOverview(), loadCampaigns(), loadInbox(), loadSuppressions()]);
+      await Promise.all([loadOverview(), loadCampaigns(), loadInbox(), loadSuppressions(), loadActivities()]);
     } finally {
       setLoading(false);
     }
-  }, [loadOverview, loadCampaigns, loadInbox, loadSuppressions]);
+  }, [loadOverview, loadCampaigns, loadInbox, loadSuppressions, loadActivities]);
 
   useEffect(() => {
     refreshAll().catch(() => setLoading(false));
@@ -657,6 +665,33 @@ export default function MarketingOutreachPage() {
                 <p className="mt-1 max-w-sm text-sm text-slate-500">Incoming school responses will appear here when Resend delivers them to your webhook.</p>
               </div>
             )}
+          </div>
+        </section>
+      )}
+
+      {activeTab === "activity" && (
+        <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="border-b border-slate-100 p-5">
+            <h2 className="font-bold text-slate-900">Marketing activity history</h2>
+            <p className="mt-1 text-sm text-slate-500">A record of contact changes, imports, campaign sends, replies and unsubscribes.</p>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {activities.map((activity) => (
+              <article key={activity._id} className="flex flex-col gap-2 p-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800">{activity.description}</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {activity.actor?.name || activity.actor?.email || "System"}
+                    {activity.contact?.schoolName ? ` · ${activity.contact.schoolName}` : ""}
+                    {activity.campaign?.name ? ` · ${activity.campaign.name}` : ""}
+                  </p>
+                </div>
+                <time className="shrink-0 text-xs text-slate-400">
+                  {activity.createdAt ? new Date(activity.createdAt).toLocaleString() : ""}
+                </time>
+              </article>
+            ))}
+            {!activities.length && <p className="p-10 text-center text-sm text-slate-500">No marketing activity has been recorded yet.</p>}
           </div>
         </section>
       )}
