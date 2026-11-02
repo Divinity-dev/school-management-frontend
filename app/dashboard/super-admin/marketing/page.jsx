@@ -66,6 +66,7 @@ const statusLabels = {
   partial: "Partially sent",
   scheduled: "Scheduled",
   failed: "Failed",
+  suppressed: "Skipped / suppressed",
   queued: "Queued",
   delivered: "Delivered",
   complained: "Complaint",
@@ -86,6 +87,7 @@ function StatusPill({ status }) {
     partial: "bg-amber-50 text-amber-700",
     scheduled: "bg-violet-50 text-violet-700",
     failed: "bg-red-50 text-red-700",
+    suppressed: "bg-slate-200 text-slate-600",
     queued: "bg-slate-100 text-slate-700",
     delivered: "bg-emerald-50 text-emerald-700",
     complained: "bg-red-50 text-red-700",
@@ -628,6 +630,7 @@ export default function MarketingOutreachPage() {
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-slate-900">{campaign.recipientCount || 0}</p><p className="text-xs text-slate-500">Recipients</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-emerald-700">{campaign.sentCount || 0}</p><p className="text-xs text-slate-500">Sent</p></div>
                   <div className="rounded-lg bg-violet-50 p-2"><p className="text-lg font-bold text-violet-700">{campaign.scheduledCount || 0}</p><p className="text-xs text-slate-500">Scheduled</p></div>
+                  <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-slate-700">{campaign.queuedCount || 0}</p><p className="text-xs text-slate-500">Queued</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-sky-700">{campaign.deliveredCount || 0}</p><p className="text-xs text-slate-500">Delivered</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-red-700">{campaign.bouncedCount || 0}</p><p className="text-xs text-slate-500">Bounced / complaints</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-amber-700">{campaign.failedCount || 0}</p><p className="text-xs text-slate-500">Failed</p></div>
@@ -646,7 +649,7 @@ export default function MarketingOutreachPage() {
                 {campaign.scheduledAt && campaign.scheduledCount > 0 && (
                   <p className="mt-2 text-xs text-slate-500">Scheduled for {new Date(campaign.scheduledAt).toLocaleString()}</p>
                 )}
-                {["draft", "partial", "failed"].includes(campaign.status) && (
+                {["draft", "partial", "failed"].includes(campaign.status) && ((campaign.queuedCount || 0) > 0 || (campaign.failedCount || 0) > 0) && (
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
                     <button type="button" disabled={working} onClick={() => handleSendBatch(campaign)} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-700 px-4 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">
                       <Send className="h-4 w-4" /> Send batch now
