@@ -64,6 +64,7 @@ const statusLabels = {
   sending: "Sending",
   sent: "Sent",
   partial: "Partially sent",
+  scheduled: "Scheduled",
   failed: "Failed",
   queued: "Queued",
   delivered: "Delivered",
@@ -83,6 +84,7 @@ function StatusPill({ status }) {
     sending: "bg-blue-50 text-blue-700",
     sent: "bg-emerald-50 text-emerald-700",
     partial: "bg-amber-50 text-amber-700",
+    scheduled: "bg-violet-50 text-violet-700",
     failed: "bg-red-50 text-red-700",
     queued: "bg-slate-100 text-slate-700",
     delivered: "bg-emerald-50 text-emerald-700",
@@ -161,6 +163,8 @@ export default function MarketingOutreachPage() {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editingContact, setEditingContact] = useState(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [scheduleCampaign, setScheduleCampaign] = useState(null);
+  const [scheduleDateTime, setScheduleDateTime] = useState("");
   const [replyText, setReplyText] = useState("");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -328,6 +332,27 @@ export default function MarketingOutreachPage() {
       setSelectedIds([]);
       await Promise.all([loadCampaigns(), loadOverview()]);
       setActiveTab("campaigns");
+    } finally {
+      setWorking(false);
+    }
+  };
+
+  const handleScheduleBatch = async (event) => {
+    event.preventDefault();
+    if (!scheduleCampaign || !scheduleDateTime) return;
+    const scheduledAt = new Date(scheduleDateTime);
+    if (Number.isNaN(scheduledAt.getTime())) return;
+    if (!window.confirm(`Schedule the next batch of up to 10 emails for ${scheduleCampaign.name}?`)) return;
+
+    setWorking(true);
+    try {
+      await api.post(`/marketing/campaigns/${scheduleCampaign._id}/schedule`, {
+        confirmSchedule: true,
+        scheduledAt: scheduledAt.toISOString(),
+      });
+      setScheduleCampaign(null);
+      setScheduleDateTime("");
+      await Promise.all([loadCampaigns(), loadOverview()]);
     } finally {
       setWorking(false);
     }
@@ -591,15 +616,30 @@ export default function MarketingOutreachPage() {
                 <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-3">
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-slate-900">{campaign.recipientCount || 0}</p><p className="text-xs text-slate-500">Recipients</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-emerald-700">{campaign.sentCount || 0}</p><p className="text-xs text-slate-500">Sent</p></div>
+                  <div className="rounded-lg bg-violet-50 p-2"><p className="text-lg font-bold text-violet-700">{campaign.scheduledCount || 0}</p><p className="text-xs text-slate-500">Scheduled</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-sky-700">{campaign.deliveredCount || 0}</p><p className="text-xs text-slate-500">Delivered</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-red-700">{campaign.bouncedCount || 0}</p><p className="text-xs text-slate-500">Bounced / complaints</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-amber-700">{campaign.failedCount || 0}</p><p className="text-xs text-slate-500">Failed</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-violet-700">{campaign.replyCount || 0}</p><p className="text-xs text-slate-500">Replies</p></div>
                 </div>
                 {["draft", "partial", "failed"].includes(campaign.status) && (
-                  <button type="button" disabled={working} onClick={() => handleSendBatch(campaign)} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-700 px-4 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">
-                    <Send className="h-4 w-4" /> {campaign.sentCount ? "Send next batch" : "Send first batch"}
-                  </button>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                    <button type="button" disabled={working} onClick={() => handleSendBatch(campaign)} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-700 px-4 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">
+                      <Send className="h-4 w-4" /> Send batch now
+                    </button>
+                    <button
+                      type="button"
+                      disabled={working}
+                      onClick={() => {
+                        setScheduleCampaign(campaign);
+                        const minDate = new Date(Date.now() + 10 * 60 * 1000 - new Date().getTimezoneOffset() * 60000);
+                        setScheduleDateTime(minDate.toISOString().slice(0, 16));
+                      }}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-50"
+                    >
+                      <History className="h-4 w-4" /> Schedule next 10
+                    </button>
+                  </div>
                 )}
               </article>
             ))}
@@ -755,6 +795,36 @@ export default function MarketingOutreachPage() {
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setEditingContact(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Cancel</button>
               <button disabled={working} className="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">Save changes</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {scheduleCampaign && (
+        <div className="fixed inset-0 z-[95] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="schedule-campaign-title">
+          <form onSubmit={handleScheduleBatch} className="w-full max-w-md space-y-4 rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 id="schedule-campaign-title" className="text-lg font-bold text-slate-900">Schedule campaign batch</h2>
+                <p className="mt-1 text-sm text-slate-500">{scheduleCampaign.name}</p>
+              </div>
+              <button type="button" onClick={() => setScheduleCampaign(null)} className="rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-100" aria-label="Close schedule dialog">✕</button>
+            </div>
+            <label className="block text-sm font-medium text-slate-700">Send date and time
+              <input
+                required
+                type="datetime-local"
+                min={new Date(Date.now() + 5 * 60 * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                max={new Date(Date.now() + 72 * 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                value={scheduleDateTime}
+                onChange={(event) => setScheduleDateTime(event.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5"
+              />
+            </label>
+            <p className="text-xs leading-5 text-slate-500">Resend supports scheduled emails up to 72 hours ahead. Each scheduling action handles up to 10 recipients, so larger campaigns can be scheduled in separate batches.</p>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setScheduleCampaign(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Cancel</button>
+              <button disabled={working || !scheduleDateTime} className="rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">Schedule batch</button>
             </div>
           </form>
         </div>
