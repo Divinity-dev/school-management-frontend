@@ -1,12 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  BarChart3,
-  CheckCircle2,
-  ChevronLeft,
   ChevronRight,
   FileSpreadsheet,
   Inbox,
@@ -153,6 +150,7 @@ export default function MarketingOutreachPage() {
   const [activeTab, setActiveTab] = useState("contacts");
   const [overview, setOverview] = useState({});
   const [contacts, setContacts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [campaigns, setCampaigns] = useState([]);
   const [messages, setMessages] = useState([]);
   const [suppressions, setSuppressions] = useState([]);
@@ -189,6 +187,7 @@ export default function MarketingOutreachPage() {
       params: { q: query || undefined, status: statusFilter || undefined, category: categoryFilter || undefined, limit: 100 },
     });
     setContacts(response.data.contacts || []);
+    setCategories(response.data.categories || []);
   }, [query, statusFilter, categoryFilter]);
 
   const loadCampaigns = useCallback(async () => {
@@ -362,11 +361,6 @@ export default function MarketingOutreachPage() {
     }
   };
 
-  const eligibleContacts = useMemo(
-    () => contacts.filter((contact) => !["unsubscribed", "not_interested", "bounced"].includes(contact.status)),
-    [contacts]
-  );
-
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center gap-3 text-sm text-slate-500">
@@ -454,7 +448,7 @@ export default function MarketingOutreachPage() {
                 </select>
                 <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
                   <option value="">All categories</option>
-                  {[...new Set(contacts.map((contact) => contact.category).filter(Boolean))].sort().map((category) => <option key={category} value={category}>{category}</option>)}
+                  {categories.map((category) => <option key={category} value={category}>{category}</option>)}
                 </select>
               </div>
             </div>
