@@ -358,6 +358,17 @@ export default function MarketingOutreachPage() {
     }
   };
 
+  const handleCancelScheduledBatch = async (campaign) => {
+    if (!window.confirm(`Cancel up to 10 scheduled emails for ${campaign.name}? Emails already sent by Resend cannot be cancelled.`)) return;
+    setWorking(true);
+    try {
+      await api.post(`/marketing/campaigns/${campaign._id}/cancel-scheduled`, { confirmCancel: true });
+      await Promise.all([loadCampaigns(), loadOverview()]);
+    } finally {
+      setWorking(false);
+    }
+  };
+
   const handleSendBatch = async (campaign) => {
     const message = campaign.status === "partial"
       ? "Send the next batch of up to 50 remaining recipients?"
@@ -622,6 +633,19 @@ export default function MarketingOutreachPage() {
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-amber-700">{campaign.failedCount || 0}</p><p className="text-xs text-slate-500">Failed</p></div>
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-violet-700">{campaign.replyCount || 0}</p><p className="text-xs text-slate-500">Replies</p></div>
                 </div>
+                {campaign.scheduledCount > 0 && (
+                  <button
+                    type="button"
+                    disabled={working}
+                    onClick={() => handleCancelScheduledBatch(campaign)}
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-semibold text-amber-700 hover:bg-amber-100 disabled:opacity-50"
+                  >
+                    Cancel next scheduled batch (up to 10)
+                  </button>
+                )}
+                {campaign.scheduledAt && campaign.scheduledCount > 0 && (
+                  <p className="mt-2 text-xs text-slate-500">Scheduled for {new Date(campaign.scheduledAt).toLocaleString()}</p>
+                )}
                 {["draft", "partial", "failed"].includes(campaign.status) && (
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
                     <button type="button" disabled={working} onClick={() => handleSendBatch(campaign)} className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-700 px-4 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">
