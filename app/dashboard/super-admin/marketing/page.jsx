@@ -11,6 +11,7 @@ import {
   Loader2,
   Pencil,
   Archive,
+  CalendarDays,
   Mail,
   Megaphone,
   Plus,
@@ -647,7 +648,7 @@ export default function MarketingOutreachPage() {
                   </button>
                 )}
                 {campaign.scheduledAt && campaign.scheduledCount > 0 && (
-                  <p className="mt-2 text-xs text-slate-500">Scheduled for {new Date(campaign.scheduledAt).toLocaleString()}</p>
+                  <p className="mt-2 text-xs text-slate-500">Latest batch scheduled for {new Date(campaign.scheduledAt).toLocaleString()}</p>
                 )}
                 {["draft", "partial", "failed"].includes(campaign.status) && ((campaign.queuedCount || 0) > 0 || (campaign.failedCount || 0) > 0) && (
                   <div className="mt-4 grid gap-2 sm:grid-cols-2">
@@ -664,7 +665,7 @@ export default function MarketingOutreachPage() {
                       }}
                       className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2.5 text-sm font-semibold text-violet-700 hover:bg-violet-100 disabled:opacity-50"
                     >
-                      <History className="h-4 w-4" /> Schedule next 10
+                      <CalendarDays className="h-4 w-4" /> Schedule next 10
                     </button>
                   </div>
                 )}
