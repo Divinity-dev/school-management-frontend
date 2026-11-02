@@ -61,6 +61,8 @@ const statusLabels = {
   not_interested: "Not interested",
   unsubscribed: "Unsubscribed",
   bounced: "Bounced",
+  complained: "Complaint",
+  suppressed: "Provider suppressed",
   draft: "Draft",
   sending: "Sending",
   sent: "Sent",
@@ -247,7 +249,7 @@ export default function MarketingOutreachPage() {
   const toggleAllVisible = () => {
     setSelectedIds((current) => allVisibleSelected
       ? current.filter((id) => !contacts.some((contact) => contact._id === id))
-      : [...new Set([...current, ...contacts.filter((contact) => !["unsubscribed", "not_interested", "bounced"].includes(contact.status)).map((contact) => contact._id)])]
+      : [...new Set([...current, ...contacts.filter((contact) => !["unsubscribed", "not_interested", "bounced", "complained", "suppressed"].includes(contact.status)).map((contact) => contact._id)])]
     );
   };
 
@@ -491,7 +493,7 @@ export default function MarketingOutreachPage() {
                 </div>
                 <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
                   <option value="">All statuses</option>
-                  {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
+                  {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced", "complained", "suppressed"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
                 </select>
                 <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
                   <option value="">All categories</option>
@@ -810,7 +812,7 @@ export default function MarketingOutreachPage() {
               </label>
               <label className="text-sm font-medium text-slate-700">Outreach status
                 <select value={editingContact.status || "new"} onChange={(event) => setEditingContact((current) => ({ ...current, status: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal">
-                  {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
+                  {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced", "complained", "suppressed"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
                 </select>
               </label>
               <label className="text-sm font-medium text-slate-700">Next follow-up
