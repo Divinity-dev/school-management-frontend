@@ -843,13 +843,13 @@ export default function MarketingOutreachPage() {
                 required
                 type="datetime-local"
                 min={new Date(Date.now() + 5 * 60 * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
-                max={new Date(Date.now() + 72 * 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
+                max={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000 - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                 value={scheduleDateTime}
                 onChange={(event) => setScheduleDateTime(event.target.value)}
                 className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5"
               />
             </label>
-            <p className="text-xs leading-5 text-slate-500">Resend supports scheduled emails up to 72 hours ahead. Each scheduling action handles up to 10 recipients, so larger campaigns can be scheduled in separate batches.</p>
+            <p className="text-xs leading-5 text-slate-500">Resend supports scheduled emails up to 30 days ahead. Each scheduling action handles up to 10 recipients, so larger campaigns can be scheduled in separate batches.</p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setScheduleCampaign(null)} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Cancel</button>
               <button disabled={working || !scheduleDateTime} className="rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">Schedule batch</button>
