@@ -169,6 +169,7 @@ export default function MarketingOutreachPage() {
   const [savedCampaignPreview, setSavedCampaignPreview] = useState(null);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
   const [scheduleCampaign, setScheduleCampaign] = useState(null);
+  const [sendBatchCampaign, setSendBatchCampaign] = useState(null);
   const [scheduleDateTime, setScheduleDateTime] = useState("");
   const [replyText, setReplyText] = useState("");
   const [query, setQuery] = useState("");
@@ -421,15 +422,17 @@ export default function MarketingOutreachPage() {
     }
   };
 
-  const handleSendBatch = async (campaign) => {
-    const message = campaign.status === "partial"
-      ? "Send the next batch of up to 10 remaining recipients?"
-      : `Send this campaign to up to 10 of its ${campaign.recipientCount} recipients now?`;
-    if (!window.confirm(`${message}\n\nOnly eligible contacts will receive the email. This action cannot be undone.`)) return;
+  const handleSendBatch = (campaign) => {
+    setSendBatchCampaign(campaign);
+  };
+
+  const confirmSendBatch = async () => {
+    if (!sendBatchCampaign || working) return;
 
     setWorking(true);
     try {
-      await api.post(`/marketing/campaigns/${campaign._id}/send`, { confirmSend: true });
+      await api.post(`/marketing/campaigns/${sendBatchCampaign._id}/send`, { confirmSend: true });
+      setSendBatchCampaign(null);
       await Promise.all([loadCampaigns(), loadOverview(), loadActivities()]);
     } finally {
       setWorking(false);
@@ -836,6 +839,73 @@ export default function MarketingOutreachPage() {
             </table>
           </div>
         </section>
+      )}
+
+      {sendBatchCampaign && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="send-batch-title"
+          aria-describedby="send-batch-description"
+        >
+          <div className="w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-start gap-4 border-b border-slate-100 p-6">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                <Send className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <h2 id="send-batch-title" className="text-lg font-bold text-slate-900">Confirm batch send</h2>
+                <p className="mt-1 break-words text-sm text-slate-500">{sendBatchCampaign.name}</p>
+              </div>
+              <button
+                type="button"
+                disabled={working}
+                onClick={() => setSendBatchCampaign(null)}
+                className="rounded-lg px-2 py-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label="Close send confirmation"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4 p-6">
+              <p id="send-batch-description" className="text-sm leading-6 text-slate-600">
+                {sendBatchCampaign.status === "partial"
+                  ? "You're about to send the next batch to up to 10 remaining recipients."
+                  : `You're about to send this campaign to up to 10 of its ${sendBatchCampaign.recipientCount || 0} recipients.`}
+                {" "}Only eligible contacts will receive the email.
+              </p>
+
+              <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+                <p className="text-xs leading-5 text-amber-800">
+                  Sending emails cannot be undone. Please make sure the campaign content and recipients are correct before continuing.
+                </p>
+              </div>
+
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  disabled={working}
+                  onClick={() => setSendBatchCampaign(null)}
+                  className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={working}
+                  onClick={confirmSendBatch}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {working ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {working ? "Sending batch..." : "Confirm & Send"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {editingContact && (
