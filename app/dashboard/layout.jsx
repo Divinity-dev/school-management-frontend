@@ -67,6 +67,19 @@ export default function DashboardLayout({ children }) {
             </Link>
           )}
 
+          {isSuperAdmin && (
+            <Link
+              href="/dashboard/super-admin/marketing"
+              className={`rounded-lg border px-4 py-2 text-sm font-semibold transition ${
+                pathname === "/dashboard/super-admin/marketing"
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-slate-200 text-slate-700 hover:bg-slate-50"
+              }`}
+            >
+              Marketing & Outreach
+            </Link>
+          )}
+
           {isMainDashboard && isSchoolAdmin && (
             <>
               <Link
