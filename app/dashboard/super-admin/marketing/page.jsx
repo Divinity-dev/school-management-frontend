@@ -166,6 +166,8 @@ export default function MarketingOutreachPage() {
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [editingContact, setEditingContact] = useState(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [savedCampaignPreview, setSavedCampaignPreview] = useState(null);
+  const [editingCampaignId, setEditingCampaignId] = useState(null);
   const [scheduleCampaign, setScheduleCampaign] = useState(null);
   const [scheduleDateTime, setScheduleDateTime] = useState("");
   const [replyText, setReplyText] = useState("");
@@ -331,17 +333,60 @@ export default function MarketingOutreachPage() {
     }
     setWorking(true);
     try {
-      await api.post("/marketing/campaigns", {
-        ...campaignForm,
-        contactIds: selectedIds,
-      });
+      const payload = { ...campaignForm, contactIds: selectedIds };
+      if (editingCampaignId) {
+        await api.patch(`/marketing/campaigns/${editingCampaignId}`, payload);
+      } else {
+        await api.post("/marketing/campaigns", payload);
+      }
       setCampaignForm({ name: "", subject: "", html: "<p>Hello {{schoolName}},</p><p>Write your SchoolPilot message here.</p><p>Best regards,<br/>SchoolPilot Team</p>" });
       setSelectedIds([]);
+      setEditingCampaignId(null);
       await Promise.all([loadCampaigns(), loadOverview(), loadActivities()]);
       setActiveTab("campaigns");
     } finally {
       setWorking(false);
     }
+  };
+
+  const handleViewCampaign = async (campaign) => {
+    setWorking(true);
+    try {
+      const response = await api.get(`/marketing/campaigns/${campaign._id}`);
+      setSavedCampaignPreview({
+        campaign: response.data.campaign,
+        recipients: response.data.recipients || [],
+      });
+    } finally {
+      setWorking(false);
+    }
+  };
+
+  const handleEditCampaign = async (campaign) => {
+    setWorking(true);
+    try {
+      const response = await api.get(`/marketing/campaigns/${campaign._id}`);
+      const details = response.data;
+      const recipients = details.recipients || [];
+      setCampaignForm({
+        name: details.campaign.name || "",
+        subject: details.campaign.subject || "",
+        html: details.campaign.html || "",
+      });
+      setSelectedIds(recipients.map((recipient) => String(recipient.contact?._id || recipient.contact)));
+      setEditingCampaignId(campaign._id);
+      setSavedCampaignPreview(null);
+      setActiveTab("campaigns");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setWorking(false);
+    }
+  };
+
+  const cancelCampaignEdit = () => {
+    setEditingCampaignId(null);
+    setCampaignForm({ name: "", subject: "", html: "<p>Hello {{schoolName}},</p><p>Write your SchoolPilot message here.</p><p>Best regards,<br/>SchoolPilot Team</p>" });
+    setSelectedIds([]);
   };
 
   const handleScheduleBatch = async (event) => {
@@ -572,8 +617,8 @@ export default function MarketingOutreachPage() {
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
           <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="mb-4">
-              <h2 className="font-bold text-slate-900">Create an email campaign</h2>
-              <p className="mt-1 text-sm text-slate-500">Select contacts on the Contacts tab first, then prepare and save a draft.</p>
+              <h2 className="font-bold text-slate-900">{editingCampaignId ? "Edit campaign draft" : "Create an email campaign"}</h2>
+              <p className="mt-1 text-sm text-slate-500">{editingCampaignId ? "Changes are allowed only before sending or scheduling begins." : "Select contacts on the Contacts tab first, then prepare and save a draft."}</p>
             </div>
             <form onSubmit={handleCreateCampaign} className="space-y-4">
               <div>
@@ -611,8 +656,9 @@ export default function MarketingOutreachPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                 <p className="text-sm text-slate-600">{selectedCount} contacts selected</p>
                 <button disabled={working || !selectedCount} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">
-                  <Plus className="h-4 w-4" /> Save campaign draft
+                  <Plus className="h-4 w-4" /> {editingCampaignId ? "Save draft changes" : "Save campaign draft"}
                 </button>
+                {editingCampaignId && <button type="button" onClick={cancelCampaignEdit} className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600">Cancel edit</button>}
               </div>
             </form>
           </section>
@@ -630,6 +676,12 @@ export default function MarketingOutreachPage() {
                     <p className="mt-1 text-sm text-slate-500">{campaign.subject}</p>
                   </div>
                   <StatusPill status={campaign.status} />
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" disabled={working} onClick={() => handleViewCampaign(campaign)} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">View / Preview</button>
+                  {campaign.status === "draft" && !campaign.sentCount && !campaign.scheduledCount && (
+                    <button type="button" disabled={working} onClick={() => handleEditCampaign(campaign)} className="rounded-lg border border-emerald-200 px-3 py-2 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 disabled:opacity-50">Edit draft</button>
+                  )}
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-3">
                   <div className="rounded-lg bg-slate-50 p-2"><p className="text-lg font-bold text-slate-900">{campaign.recipientCount || 0}</p><p className="text-xs text-slate-500">Recipients</p></div>
@@ -859,6 +911,47 @@ export default function MarketingOutreachPage() {
               <button disabled={working || !scheduleDateTime} className="rounded-xl bg-violet-700 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">Schedule batch</button>
             </div>
           </form>
+        </div>
+      )}
+
+      {savedCampaignPreview && (
+        <div className="fixed inset-0 z-[92] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="saved-campaign-preview-title">
+          <div className="flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between gap-3 border-b border-slate-100 p-5">
+              <div className="min-w-0">
+                <h2 id="saved-campaign-preview-title" className="font-bold text-slate-900">{savedCampaignPreview.campaign.name}</h2>
+                <p className="mt-1 text-sm text-slate-600">Subject: {savedCampaignPreview.campaign.subject}</p>
+                <p className="mt-1 text-xs text-slate-500">{savedCampaignPreview.recipients.length} recipients · {savedCampaignPreview.campaign.status}</p>
+              </div>
+              <button type="button" onClick={() => setSavedCampaignPreview(null)} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Close</button>
+            </div>
+            <div className="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_280px]">
+              <div className="min-h-[420px] border-b border-slate-100 lg:border-b-0 lg:border-r">
+                <iframe
+                  title="Saved campaign email preview"
+                  sandbox=""
+                  srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial,sans-serif;padding:24px;color:#334155">${String(savedCampaignPreview.campaign.html || "").replace(/{{\\s*schoolName\\s*}}/gi, "Sample School")}</body></html>`}
+                  className="h-full min-h-[420px] w-full bg-white"
+                />
+              </div>
+              <aside className="p-4">
+                <h3 className="text-sm font-bold text-slate-800">Recipients</h3>
+                <div className="mt-3 space-y-3">
+                  {savedCampaignPreview.recipients.map((recipient) => (
+                    <div key={recipient._id} className="border-b border-slate-100 pb-2">
+                      <p className="text-sm font-medium text-slate-800">{recipient.schoolName || "School"}</p>
+                      <p className="break-all text-xs text-slate-500">{recipient.email}</p>
+                      <p className="mt-1 text-[11px] capitalize text-slate-400">{recipient.status}</p>
+                    </div>
+                  ))}
+                  {!savedCampaignPreview.recipients.length && <p className="text-sm text-slate-500">No recipients found.</p>}
+                </div>
+                {savedCampaignPreview.campaign.status === "draft" && !savedCampaignPreview.campaign.sentCount && !savedCampaignPreview.campaign.scheduledCount && (
+                  <button type="button" disabled={working} onClick={() => handleEditCampaign(savedCampaignPreview.campaign)} className="mt-5 w-full rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">Edit this draft</button>
+                )}
+              </aside>
+            </div>
+          </div>
         </div>
       )}
 
