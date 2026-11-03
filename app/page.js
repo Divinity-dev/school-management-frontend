@@ -26,7 +26,7 @@ import HomeMobileMenu from "@/components/HomeMobileMenu";
 import { motion, useReducedMotion } from "framer-motion";
 
 // Replace these with contact details you actually control.
-const CONTACT_EMAIL = "schoolpilot@gmail.com";
+const CONTACT_EMAIL = "info@school-pilot.app";
 const CONTACT_PHONE = "+2348068715964";
 
 export default function Home() {
