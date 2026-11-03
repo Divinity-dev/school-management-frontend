@@ -275,6 +275,7 @@ export default function MarketingOutreachPage() {
         phone: editingContact.phone,
         status: editingContact.status,
         notes: editingContact.notes,
+        nextFollowUpAt: editingContact.nextFollowUpAt || null,
       });
       setEditingContact(null);
       await Promise.all([loadContacts(), loadOverview(), loadActivities()]);
@@ -521,7 +522,7 @@ export default function MarketingOutreachPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {contacts.map((contact) => {
-                    const blocked = ["unsubscribed", "not_interested", "bounced"].includes(contact.status);
+                    const blocked = ["unsubscribed", "not_interested", "bounced", "complained", "suppressed"].includes(contact.status);
                     return (
                       <tr key={contact._id} className="hover:bg-slate-50">
                         <td className="px-5 py-3"><input type="checkbox" checked={selectedIds.includes(contact._id)} disabled={blocked} onChange={() => toggleContact(contact._id)} aria-label={`Select ${contact.schoolName}`} /></td>
