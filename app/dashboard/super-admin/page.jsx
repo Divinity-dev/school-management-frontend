@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import {
   AlertCircle,
@@ -11,6 +12,7 @@ import {
   CreditCard,
   GraduationCap,
   Loader2,
+  Megaphone,
   ShieldCheck,
   UserCog,
   UserRound,
@@ -442,14 +444,24 @@ export default function SuperAdminDashboard() {
           HEADER
       ===================================================== */}
 
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-          Super Admin Dashboard
-        </h1>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Super Admin Dashboard
+          </h1>
 
-        <p className="mt-1 text-sm text-slate-500">
-          Overview of your school management platform
-        </p>
+          <p className="mt-1 text-sm text-slate-500">
+            Overview of your school management platform
+          </p>
+        </div>
+
+        <Link
+          href="/dashboard/super-admin/marketing"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+        >
+          <Megaphone className="h-4 w-4" />
+          Marketing & Outreach
+        </Link>
       </div>
 
       {/* =====================================================
