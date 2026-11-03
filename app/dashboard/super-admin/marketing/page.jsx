@@ -930,7 +930,7 @@ export default function MarketingOutreachPage() {
                 <iframe
                   title="Saved campaign email preview"
                   sandbox=""
-                  srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial,sans-serif;padding:24px;color:#334155">${String(savedCampaignPreview.campaign.html || "").replace(/{{\\s*schoolName\\s*}}/gi, "Sample School")}</body></html>`}
+                  srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial,sans-serif;padding:24px;color:#334155">${String(savedCampaignPreview.campaign.html || "").replace(/{{\s*schoolName\s*}}/gi, "Sample School")}</body></html>`}
                   className="h-full min-h-[420px] w-full bg-white"
                 />
               </div>
