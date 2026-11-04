@@ -705,8 +705,8 @@ export default function SuperAdminDashboard() {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <SchoolMetric
               icon={GraduationCap}
-              label="Students"
-              value={users.students || 0}
+              label="Student Accounts"
+              value={users.studentAccounts || 0}
               iconClassName="bg-blue-50 text-blue-600"
             />
 
