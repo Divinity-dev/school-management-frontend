@@ -247,7 +247,6 @@ export default function MarketingOutreachPage() {
   const toggleContact = (id) => {
     setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   };
-
   const toggleAllVisible = () => {
     setSelectedIds((current) => allVisibleSelected
       ? current.filter((id) => !contacts.some((contact) => contact._id === id))
@@ -497,8 +496,7 @@ export default function MarketingOutreachPage() {
           <button key={id} type="button" onClick={() => setActiveTab(id)} className={`inline-flex shrink-0 items-center gap-2 border-b-2 px-4 py-3 text-sm font-semibold transition ${activeTab === id ? "border-emerald-600 text-emerald-700" : "border-transparent text-slate-500 hover:text-slate-800"}`}>
             <Icon className="h-4 w-4" /> {label}
             {id === "inbox" && overview.unreadMessages > 0 && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-800">{overview.unreadMessages}</span>}
-          </button>
-        ))}
+          </button>        ))}
       </div>
 
       {activeTab === "contacts" && (
@@ -582,7 +580,7 @@ export default function MarketingOutreachPage() {
                         <td className="whitespace-nowrap px-5 py-3 font-semibold text-slate-800">{contact.schoolName}</td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-600">{contact.email}</td>
                         <td className="px-5 py-3 text-slate-500">{[contact.category, contact.location].filter(Boolean).join(" · ") || "—"}</td>
-                        <td className="px-5 py-3"><div className="space-y-1"><StatusPill status={contact.status} /><p className="text-[11px] text-slate-500">Delivery: {statusLabels[contact.deliveryStatus] || contact.deliveryStatus || "Unverified"}</p>{contact.lastBounceReason && <p className="max-w-xs whitespace-normal text-[11px] text-red-600" title={contact.lastBounceReason}>{contact.lastBounceReason}</p>}</div></td>
+                        <td className="px-5 py-3"><div className="space-y-1"><StatusPill status={contact.status} /><p className="text-[11px] text-slate-500">Delivery: {statusLabels[contact.deliveryStatus] || contact.deliveryStatus || "Unverified"}</p></div></td>
                         <td className="whitespace-nowrap px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <button
@@ -747,8 +745,7 @@ export default function MarketingOutreachPage() {
             <div className="max-h-[650px] overflow-y-auto">
               {messages.map((message) => (
                 <button key={message._id} type="button" onClick={() => openMessage(message)} className={`block w-full border-b border-slate-100 p-4 text-left hover:bg-slate-50 ${selectedMessage?._id === message._id ? "bg-emerald-50" : ""}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="truncate text-sm font-semibold text-slate-800">{message.contact?.schoolName || message.from}</p>
+                  <div className="flex items-start justify-between gap-2">                    <p className="truncate text-sm font-semibold text-slate-800">{message.contact?.schoolName || message.from}</p>
                     {!message.readAt && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-600" />}
                   </div>
                   <p className="mt-1 truncate text-sm text-slate-700">{message.subject || "(No subject)"}</p>
@@ -998,58 +995,3 @@ export default function MarketingOutreachPage() {
               <button type="button" onClick={() => setSavedCampaignPreview(null)} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Close</button>
             </div>
             <div className="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_280px]">
-              <div className="min-h-[420px] border-b border-slate-100 lg:border-b-0 lg:border-r">
-                <iframe
-                  title="Saved campaign email preview"
-                  sandbox=""
-                  srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial,sans-serif;padding:24px;color:#334155">${String(savedCampaignPreview.campaign.html || "").replace(/{{\s*schoolName\s*}}/gi, "Sample School")}</body></html>`}
-                  className="h-full min-h-[420px] w-full bg-white"
-                />
-              </div>
-              <aside className="p-4">
-                <h3 className="text-sm font-bold text-slate-800">Recipients</h3>
-                <div className="mt-3 space-y-3">
-                  {savedCampaignPreview.recipients.map((recipient) => (
-                    <div key={recipient._id} className="border-b border-slate-100 pb-2">
-                      <p className="text-sm font-medium text-slate-800">{recipient.schoolName || "School"}</p>
-                      <p className="break-all text-xs text-slate-500">{recipient.email}</p>
-                      <p className="mt-1 text-[11px] capitalize text-slate-400">{recipient.status}</p>
-                    </div>
-                  ))}
-                  {!savedCampaignPreview.recipients.length && <p className="text-sm text-slate-500">No recipients found.</p>}
-                </div>
-                {savedCampaignPreview.campaign.status === "draft" && !savedCampaignPreview.campaign.sentCount && !savedCampaignPreview.campaign.scheduledCount && (
-                  <button type="button" disabled={working} onClick={() => handleEditCampaign(savedCampaignPreview.campaign)} className="mt-5 w-full rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">Edit this draft</button>
-                )}
-              </aside>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {previewOpen && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="campaign-preview-title">
-          <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 p-4">
-              <div>
-                <h2 id="campaign-preview-title" className="font-bold text-slate-900">Email preview</h2>
-                <p className="mt-1 text-sm text-slate-500">{campaignForm.subject || "No subject entered"}</p>
-              </div>
-              <button type="button" onClick={() => setPreviewOpen(false)} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-100">Close</button>
-            </div>
-            <iframe
-              title="Campaign email preview"
-              sandbox=""
-              srcDoc={`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:Arial,sans-serif;padding:24px;color:#334155">${campaignForm.html.replace(/{{\s*schoolName\s*}}/gi, "Sample School")}</body></html>`}
-              className="min-h-[420px] w-full flex-1 bg-white"
-            />
-          </div>
-        </div>
-      )}
-
-      <p className="text-xs leading-5 text-slate-400">
-        Marketing emails are sent only after you confirm each batch. Contacts who unsubscribe, bounce or complain are automatically suppressed. Start with a small, relevant group and review replies before sending further batches.
-      </p>
-    </main>
-  );
-}
