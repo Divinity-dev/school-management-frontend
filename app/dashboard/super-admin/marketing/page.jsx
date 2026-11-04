@@ -582,7 +582,7 @@ export default function MarketingOutreachPage() {
                         <td className="whitespace-nowrap px-5 py-3 font-semibold text-slate-800">{contact.schoolName}</td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-600">{contact.email}</td>
                         <td className="px-5 py-3 text-slate-500">{[contact.category, contact.location].filter(Boolean).join(" · ") || "—"}</td>
-                        <td className="px-5 py-3"><div className="space-y-1"><StatusPill status={contact.status} /><p className="text-[11px] text-slate-500">Delivery: {statusLabels[contact.deliveryStatus] || contact.deliveryStatus || "Unverified"}</p>{contact.lastBounceReason && <p className="max-w-xs whitespace-normal text-[11px] text-red-600" title={contact.lastBounceReason}>{contact.lastBounceReason}</p>}</div></td>
+                        <td className="px-5 py-3"><div className="space-y-1"><StatusPill status={contact.status} /><p className="text-[11px] text-slate-500">Delivery: {statusLabels[contact.deliveryStatus] || contact.deliveryStatus || "Unverified"}</p></div></td>
                         <td className="whitespace-nowrap px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <button
