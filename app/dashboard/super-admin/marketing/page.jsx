@@ -71,6 +71,7 @@ const statusLabels = {
   queued: "Queued",
   delivered: "Delivered",
   complained: "Complaint",
+  unverified: "Unverified",
 };
 
 function StatusPill({ status }) {
@@ -276,6 +277,7 @@ export default function MarketingOutreachPage() {
         category: editingContact.category,
         location: editingContact.location,
         phone: editingContact.phone,
+        email: editingContact.email,
         status: editingContact.status,
         notes: editingContact.notes,
         nextFollowUpAt: editingContact.nextFollowUpAt || null,
@@ -580,7 +582,7 @@ export default function MarketingOutreachPage() {
                         <td className="whitespace-nowrap px-5 py-3 font-semibold text-slate-800">{contact.schoolName}</td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-600">{contact.email}</td>
                         <td className="px-5 py-3 text-slate-500">{[contact.category, contact.location].filter(Boolean).join(" · ") || "—"}</td>
-                        <td className="px-5 py-3"><StatusPill status={contact.status} /></td>
+                        <td className="px-5 py-3"><div className="space-y-1"><StatusPill status={contact.status} /><p className="text-[11px] text-slate-500">Delivery: {statusLabels[contact.deliveryStatus] || contact.deliveryStatus || "Unverified"}</p>{contact.lastBounceReason && <p className="max-w-xs whitespace-normal text-[11px] text-red-600" title={contact.lastBounceReason}>{contact.lastBounceReason}</p>}</div></td>
                         <td className="whitespace-nowrap px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <button
@@ -923,7 +925,7 @@ export default function MarketingOutreachPage() {
                 <input required value={editingContact.schoolName || ""} onChange={(event) => setEditingContact((current) => ({ ...current, schoolName: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
               </label>
               <label className="text-sm font-medium text-slate-700">Email address
-                <input disabled value={editingContact.email || ""} className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 font-normal text-slate-500" />
+                <input type="email" required value={editingContact.email || ""} onChange={(event) => setEditingContact((current) => ({ ...current, email: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" /><span className="mt-1 block text-xs font-normal text-slate-500">Replacing this address keeps previous campaign history. Any suppression on the old address remains in place.</span>
               </label>
               <label className="text-sm font-medium text-slate-700">Category
                 <input value={editingContact.category || ""} onChange={(event) => setEditingContact((current) => ({ ...current, category: event.target.value }))} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 font-normal" />
