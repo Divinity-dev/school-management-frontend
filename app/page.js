@@ -27,7 +27,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 // Replace these with contact details you actually control.
 const CONTACT_EMAIL = "info@school-pilot.app";
-const CONTACT_PHONE = "+2348068715964";
+const CONTACT_PHONE = "+2348069715964";
 
 export default function Home() {
   const reduceMotion = useReducedMotion();
