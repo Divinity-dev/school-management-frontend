@@ -22,6 +22,7 @@ export default function StudentCbtPlayer({ assignment }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
+  const [autoSubmitAttempted, setAutoSubmitAttempted] = useState(false);
 
   const answeredCount = useMemo(
     () => Object.values(answers).filter((answer) => String(answer).trim()).length,
@@ -109,10 +110,11 @@ export default function StudentCbtPlayer({ assignment }) {
   };
 
   useEffect(() => {
-    if (secondsRemaining === 0 && attempt?.status === "in_progress" && !result && !submitting) {
+    if (secondsRemaining === 0 && attempt?.status === "in_progress" && !result && !submitting && !autoSubmitAttempted) {
+      setAutoSubmitAttempted(true);
       submitAnswers(true);
     }
-  }, [secondsRemaining, attempt?.status, result, submitting]);
+  }, [secondsRemaining, attempt?.status, result, submitting, autoSubmitAttempted]);
 
   if (loading) {
     return <div className="flex min-h-[55vh] items-center justify-center gap-3 text-sm text-slate-500"><Loader2 className="h-5 w-5 animate-spin" /> Preparing your test...</div>;
