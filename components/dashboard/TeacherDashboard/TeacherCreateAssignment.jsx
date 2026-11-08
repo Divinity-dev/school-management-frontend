@@ -530,7 +530,7 @@ export default function TeacherCreateAssignment() {
                   </label>
                   <label className="flex items-start gap-3 text-sm text-slate-700">
                     <input type="checkbox" checked={form.showResultsImmediately} onChange={(event) => setForm((current) => ({ ...current, showResultsImmediately: event.target.checked }))} className="mt-0.5 h-4 w-4 accent-emerald-600" />
-                    <span><strong>Release scores immediately</strong><span className="mt-0.5 block text-xs text-slate-500">If disabled, students will not see their score until results are released by the school.</span></span>
+                    <span><strong>Release scores and answer solutions immediately</strong><span className="mt-0.5 block text-xs text-slate-500">If disabled, students cannot see their score, correct answers or worked solutions until the school releases them.</span></span>
                   </label>
                 </div>
               </>
