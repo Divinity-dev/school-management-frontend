@@ -35,6 +35,10 @@ export default function StudentCbtPlayer({ assignment }) {
         const response = await api.post(`/assignments/${assignment._id}/cbt/start`);
         if (!mounted) return;
         const data = response.data;
+        if (data.alreadySubmitted) {
+          setResult(data.submission || {});
+          return;
+        }
         setAttempt(data.attempt);
         setQuestions(data.assignment?.questions || []);
         const saved = {};
