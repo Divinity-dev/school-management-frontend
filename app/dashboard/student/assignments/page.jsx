@@ -131,7 +131,7 @@ const getDescription = (assignment) => {
   );
 };
 
-export default function StudentAssignmentsPage() {
+export default function StudentAssignmentsPage({ mode = "all" } = {}) {
   const [assignments, setAssignments] = useState([]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
@@ -213,9 +213,10 @@ export default function StudentAssignmentsPage() {
       const matchesFilter =
         filter === "all" || assignment.uiStatus === filter;
 
-      return matchesSearch && matchesFilter;
+      const matchesMode = mode === "cbt" ? assignment.assessmentMode === "cbt" : true;
+      return matchesSearch && matchesFilter && matchesMode;
     });
-  }, [assignmentsWithStatus, search, filter]);
+  }, [assignmentsWithStatus, search, filter, mode]);
 
   return (
     <div className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
@@ -223,11 +224,11 @@ export default function StudentAssignmentsPage() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-            Assignments & Exams
+            {mode === "cbt" ? "Examinations (CBT)" : "Assignments & Exams"}
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Access written assignments and computer-based examinations, submit your work, and review released results.
+            {mode === "cbt" ? "Take your scheduled computer-based tests and review released answers and solutions." : "Access written assignments and computer-based examinations, submit your work, and review released results."}
           </p>
         </div>
 
