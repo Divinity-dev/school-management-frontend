@@ -170,6 +170,12 @@ export default function TeacherDashboard({ user }) {
     href: "/dashboard/teacher/assignments/create",
   },
   {
+    title: "Create Examination",
+    description: "Create and manage formal examinations",
+    icon: ClipboardCheck,
+    href: "/dashboard/teacher/exams",
+  },
+  {
     title: "Mark Attendance",
     description: "Record today's class attendance",
     icon: ClipboardCheck,

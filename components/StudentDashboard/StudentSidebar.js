@@ -25,6 +25,11 @@ href: "/dashboard/student/assignments",
 icon: BookOpen,
 },
 {
+name: "Examinations (CBT)",
+href: "/dashboard/student/exams",
+icon: GraduationCap,
+},
+{
 name: "Attendance",
 href: "/dashboard/student/attendance",
 icon: CalendarCheck,

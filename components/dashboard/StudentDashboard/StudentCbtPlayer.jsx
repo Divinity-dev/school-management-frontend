@@ -131,7 +131,7 @@ export default function StudentCbtPlayer({ assignment }) {
         <h1 className="mt-4 text-center text-2xl font-bold text-slate-900">Test submitted</h1>
         <p className="mt-2 text-center text-sm text-slate-600">{result.gradingStatus === "pending_manual" ? "Your objective answers have been marked. Your written answers are awaiting teacher review." : "Your answers have been marked automatically."}</p>
         {assignment.showResultsImmediately && result.score !== null && result.score !== undefined && <p className="mt-5 text-center text-4xl font-bold text-emerald-700">{result.score}%</p>}
-        <div className="mt-7 text-center"><Link href="/dashboard/student/assignments" className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white"><ArrowLeft className="h-4 w-4" /> Back to assignments</Link></div>
+        <div className="mt-7 flex flex-wrap justify-center gap-3">{assignment.showResultsImmediately && <Link href={`/dashboard/student/assignments/${assignment._id}/review`} className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white">Review answers and solutions</Link>}<Link href="/dashboard/student/assignments" className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white"><ArrowLeft className="h-4 w-4" /> Back to assignments</Link></div>
       </section>
     );
   }

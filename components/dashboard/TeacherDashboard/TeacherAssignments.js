@@ -169,7 +169,7 @@ export default function TeacherAssignments() {
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
           >
             <Plus className="h-4 w-4" />
-            Create Assignment
+            Create Assignment / CBT
           </Link>
         </section>
 
@@ -357,7 +357,7 @@ export default function TeacherAssignments() {
                         </h2>
 
                         <p className="mt-0.5 text-xs text-slate-500">
-                          {subjectName}
+                          {subjectName} • {assignment.assessmentMode === "cbt" ? "Computer-based test" : "Written assignment"}
                         </p>
                       </div>
                     </div>
