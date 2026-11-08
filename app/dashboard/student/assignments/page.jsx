@@ -223,11 +223,11 @@ export default function StudentAssignmentsPage() {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-            Assignments
+            Assignments & Exams
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            View your assignments, submit your work, and track your results.
+            Access written assignments and computer-based examinations, submit your work, and review released results.
           </p>
         </div>
 
@@ -414,7 +414,7 @@ function AssignmentCard({ assignment }) {
             href={`/dashboard/student/assignments/${assignment._id}`}
             className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 text-sm font-medium text-white transition hover:bg-gray-800 sm:w-auto"
           >
-            View Assignment
+            Open Assignment / Exam
             <ChevronRight size={16} />
           </Link>
         </div>
