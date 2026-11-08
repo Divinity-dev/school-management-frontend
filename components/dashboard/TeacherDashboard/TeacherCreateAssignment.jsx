@@ -33,6 +33,8 @@ export default function TeacherCreateAssignment() {
     dueDate: "",
     assessmentMode: "written",
     durationMinutes: 30,
+    showResultsImmediately: false,
+    shuffleQuestions: false,
   });
 
   const [questions, setQuestions] = useState([{
@@ -220,6 +222,8 @@ export default function TeacherCreateAssignment() {
         assessmentMode: form.assessmentMode,
         durationMinutes: form.assessmentMode === "cbt" ? Number(form.durationMinutes) : null,
         questions: form.assessmentMode === "cbt" ? questions : [],
+        showResultsImmediately: form.showResultsImmediately,
+        shuffleQuestions: form.shuffleQuestions,
       };
 
       const response = await api.post(
@@ -517,7 +521,19 @@ export default function TeacherCreateAssignment() {
             </div>
 
             {form.assessmentMode === "cbt" && (
-              <CbtQuestionBuilder questions={questions} setQuestions={setQuestions} />
+              <>
+                <CbtQuestionBuilder questions={questions} setQuestions={setQuestions} />
+                <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input type="checkbox" checked={form.shuffleQuestions} onChange={(event) => setForm((current) => ({ ...current, shuffleQuestions: event.target.checked }))} className="mt-0.5 h-4 w-4 accent-emerald-600" />
+                    <span><strong>Shuffle questions</strong><span className="mt-0.5 block text-xs text-slate-500">Display questions in a different order for each test attempt.</span></span>
+                  </label>
+                  <label className="flex items-start gap-3 text-sm text-slate-700">
+                    <input type="checkbox" checked={form.showResultsImmediately} onChange={(event) => setForm((current) => ({ ...current, showResultsImmediately: event.target.checked }))} className="mt-0.5 h-4 w-4 accent-emerald-600" />
+                    <span><strong>Release scores immediately</strong><span className="mt-0.5 block text-xs text-slate-500">If disabled, students will not see their score until results are released by the school.</span></span>
+                  </label>
+                </div>
+              </>
             )}
 
             {/* Due Date */}
