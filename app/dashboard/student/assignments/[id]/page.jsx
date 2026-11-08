@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import api from "@/lib/api";
+import StudentCbtPlayer from "@/components/dashboard/StudentDashboard/StudentCbtPlayer";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
 
@@ -499,6 +500,14 @@ export default function StudentAssignmentDetailPage() {
             </Link>
           </div>
         </div>
+      </main>
+    );
+  }
+
+  if (assignment.assessmentMode === "cbt") {
+    return (
+      <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 lg:px-8">
+        <StudentCbtPlayer assignment={assignment} />
       </main>
     );
   }
