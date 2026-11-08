@@ -14,6 +14,7 @@ import {
 import { useSelector } from "react-redux";
 
 import api from "@/lib/api";
+import CbtQuestionBuilder from "./CbtQuestionBuilder";
 
 export default function TeacherCreateAssignment() {
   const router = useRouter();
@@ -30,7 +31,15 @@ export default function TeacherCreateAssignment() {
     description: "",
     instructions: "",
     dueDate: "",
+    assessmentMode: "written",
+    durationMinutes: 30,
   });
+
+  const [questions, setQuestions] = useState([{
+    question: "", type: "multiple_choice", marks: 1,
+    options: [{ text: "", value: "A" }, { text: "", value: "B" }, { text: "", value: "C" }, { text: "", value: "D" }],
+    correctAnswer: "A", acceptedAnswers: [],
+  }]);
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -208,6 +217,9 @@ export default function TeacherCreateAssignment() {
         description: form.description.trim(),
         instructions: form.instructions.trim(),
         dueDate: form.dueDate,
+        assessmentMode: form.assessmentMode,
+        durationMinutes: form.assessmentMode === "cbt" ? Number(form.durationMinutes) : null,
+        questions: form.assessmentMode === "cbt" ? questions : [],
       };
 
       const response = await api.post(
@@ -473,6 +485,40 @@ export default function TeacherCreateAssignment() {
                 className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
               />
             </div>
+
+            {/* Assessment format */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block text-sm font-semibold text-slate-700">
+                Assignment format
+                <select
+                  name="assessmentMode"
+                  value={form.assessmentMode}
+                  onChange={handleChange}
+                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-normal"
+                >
+                  <option value="written">Traditional written assignment</option>
+                  <option value="cbt">Computer-based test (CBT)</option>
+                </select>
+              </label>
+              {form.assessmentMode === "cbt" && (
+                <label className="block text-sm font-semibold text-slate-700">
+                  Test duration (minutes)
+                  <input
+                    type="number"
+                    name="durationMinutes"
+                    min="1"
+                    max="300"
+                    value={form.durationMinutes}
+                    onChange={handleChange}
+                    className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-normal"
+                  />
+                </label>
+              )}
+            </div>
+
+            {form.assessmentMode === "cbt" && (
+              <CbtQuestionBuilder questions={questions} setQuestions={setQuestions} />
+            )}
 
             {/* Due Date */}
             <div>
