@@ -1,7 +1,7 @@
 "use client";
 import { Plus, Trash2 } from "lucide-react";
 const createQuestion=()=>({question:"",type:"multiple_choice",marks:1,options:[{text:"",value:"A"},{text:"",value:"B"},{text:"",value:"C"},{text:"",value:"D"}],correctAnswer:"A",acceptedAnswers:[],explanation:""});
-export default function CbtQuestionBuilder({questions,setQuestions}) {
+export default function ExamQuestionBuilder({questions,setQuestions}) {
  const updateQuestion=(index,updates)=>setQuestions(current=>current.map((q,i)=>i===index?{...q,...updates}:q));
  const updateOption=(qi,oi,text)=>setQuestions(current=>current.map((q,i)=>i!==qi?q:{...q,options:q.options.map((o,j)=>j===oi?{...o,text}:o)}));
  const addQuestion=()=>setQuestions(current=>[...current,createQuestion()]);
