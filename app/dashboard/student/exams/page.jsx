@@ -1,3 +1,3 @@
 "use client";
 import StudentAssignmentsPage from "../assignments/page";
-export default function StudentExamsPage(){return <StudentAssignmentsPage/>;}
+export default function StudentExamsPage(){return <StudentAssignmentsPage mode="cbt"/>;}
