@@ -455,13 +455,22 @@ export default function SuperAdminDashboard() {
           </p>
         </div>
 
-        <Link
-          href="/dashboard/super-admin/marketing"
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
-        >
-          <Megaphone className="h-4 w-4" />
-          Marketing & Outreach
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/dashboard/super-admin/subscription-pricing"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-50"
+          >
+            <WalletCards className="h-4 w-4" />
+            Subscription Pricing
+          </Link>
+          <Link
+            href="/dashboard/super-admin/marketing"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+          >
+            <Megaphone className="h-4 w-4" />
+            Marketing & Outreach
+          </Link>
+        </div>
       </div>
 
       {/* =====================================================
