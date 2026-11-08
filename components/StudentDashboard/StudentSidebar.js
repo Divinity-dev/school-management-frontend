@@ -25,7 +25,7 @@ href: "/dashboard/student/assignments",
 icon: BookOpen,
 },
 {
-name: "Formal Examinations",
+name: "Examinations (CBT)",
 href: "/dashboard/student/exams",
 icon: GraduationCap,
 },

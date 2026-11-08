@@ -5,6 +5,7 @@ import {
   BookOpen,
   CalendarDays,
   CheckCircle2,
+  ClipboardCheck,
   Clock3,
   FileText,
   GraduationCap,
@@ -450,6 +451,12 @@ export default function StudentDashboard({ user }) {
 
 function StudentQuickLinks() {
   const links = [
+    {
+      href: "/dashboard/student/exams",
+      icon: <ClipboardCheck className="h-5 w-5" />,
+      title: "Formal Examinations",
+      description: "View and take your scheduled examinations",
+    },
     {
       href: "/dashboard/student/assignments",
       icon: <FileText className="h-5 w-5" />,
