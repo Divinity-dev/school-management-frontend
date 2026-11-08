@@ -224,11 +224,11 @@ export default function StudentAssignmentsPage({ mode = "all" } = {}) {
         {/* Header */}
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-            {mode === "cbt" ? "Examinations (CBT)" : "Assignments & Exams"}
+            {mode === "cbt" ? "Examinations (CBT)" : "Assignments"}
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            {mode === "cbt" ? "Take your scheduled computer-based tests and review released answers and solutions." : "Access written assignments and computer-based examinations, submit your work, and review released results."}
+            {mode === "cbt" ? "Take your scheduled computer-based tests and review released answers and solutions." : "Access your written assignments and assignment-based computer tests, submit your work, and review released results."}
           </p>
         </div>
 
@@ -415,7 +415,7 @@ function AssignmentCard({ assignment }) {
             href={`/dashboard/student/assignments/${assignment._id}`}
             className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 text-sm font-medium text-white transition hover:bg-gray-800 sm:w-auto"
           >
-            Open Assignment / Exam
+            Open Assignment
             <ChevronRight size={16} />
           </Link>
         </div>
