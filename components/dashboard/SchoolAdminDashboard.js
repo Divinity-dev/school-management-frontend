@@ -82,6 +82,11 @@ export default function SchoolAdminDashboard({ user }) {
     <div className="space-y-6">
       <DashboardHeader user={user} />
 
+      <a href="/dashboard/school-admin/exams" className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-semibold text-amber-900 hover:bg-amber-100">
+        <span>Review and approve formal examinations submitted by teachers</span>
+        <span aria-hidden="true">→</span>
+      </a>
+
       {error && (
         <div className="rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
           {error}
