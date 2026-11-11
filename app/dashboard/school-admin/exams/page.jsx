@@ -37,6 +37,7 @@ export default function SchoolAdminExamsPage() {
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:px-6">
       <header className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <div>
         <p className="text-sm font-semibold text-emerald-700">School Administration</p>
         <h1 className="mt-1 text-2xl font-bold">Formal Examination Approval</h1>
         <p className="mt-2 text-sm text-slate-500">Review teacher-created examinations. Students can only access examinations after you approve them.</p></div>
