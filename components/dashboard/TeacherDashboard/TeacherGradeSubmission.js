@@ -101,8 +101,8 @@ export default function TeacherGradeSubmission() {
 
     const numericScore = Number(score);
 
-    if (Number.isNaN(numericScore)) {
-      setError("Score must be a valid number.");
+    if (!Number.isInteger(numericScore)) {
+      setError("Score must be a whole number.");
       return;
     }
 
