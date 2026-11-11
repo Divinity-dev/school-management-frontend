@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import Link from "next/link";
 
 export default function SchoolAdminExamsPage() {
   const [exams, setExams] = useState([]);
@@ -35,10 +36,11 @@ export default function SchoolAdminExamsPage() {
   const pending = exams.filter(exam => ["pending_approval", "draft"].includes(exam.status));
   return (
     <main className="mx-auto max-w-6xl space-y-6 px-4 py-7 sm:px-6">
-      <header className="rounded-2xl bg-white p-6 shadow-sm">
+      <header className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-semibold text-emerald-700">School Administration</p>
         <h1 className="mt-1 text-2xl font-bold">Formal Examination Approval</h1>
-        <p className="mt-2 text-sm text-slate-500">Review teacher-created examinations. Students can only access examinations after you approve them.</p>
+        <p className="mt-2 text-sm text-slate-500">Review teacher-created examinations. Students can only access examinations after you approve them.</p></div>
+        <Link href="/dashboard/teacher/question-bank" className="inline-flex items-center justify-center rounded-xl border border-emerald-200 px-4 py-3 text-sm font-semibold text-emerald-700">Manage Question Bank</Link>
       </header>
       {error && <p role="alert" className="rounded-xl bg-red-50 p-4 text-sm text-red-700">{error}</p>}
       {loading ? <p className="p-8 text-center">Loading examinations...</p> :
