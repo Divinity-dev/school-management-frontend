@@ -522,7 +522,7 @@ export default function TeacherCreateAssignment() {
 
             {form.assessmentMode === "cbt" && (
               <>
-                <CbtQuestionBuilder questions={questions} setQuestions={setQuestions} />
+                <CbtQuestionBuilder questions={questions} setQuestions={setQuestions} subjectAssignmentId={form.subjectAssignment} />
                 <div className="space-y-3 rounded-xl border border-slate-200 bg-white p-4">
                   <label className="flex items-start gap-3 text-sm text-slate-700">
                     <input type="checkbox" checked={form.shuffleQuestions} onChange={(event) => setForm((current) => ({ ...current, shuffleQuestions: event.target.checked }))} className="mt-0.5 h-4 w-4 accent-emerald-600" />
