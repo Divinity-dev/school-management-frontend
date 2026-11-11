@@ -147,7 +147,7 @@ export default function TeacherQuestionBankPage() {
       const response = await api.post("/question-bank/import", data);
       setNotice(response.data?.message || "Import completed.");
       await loadQuestions();
-      event.currentTarget.reset();
+
     } catch (err) {
       setError(err.response?.data?.message || "Unable to import questions.");
     } finally {
