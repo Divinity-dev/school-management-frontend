@@ -1,13 +1,15 @@
 "use client";
 import { Plus, Trash2 } from "lucide-react";
+import QuestionBankPicker from "./QuestionBankPicker";
 const createQuestion=()=>({question:"",type:"multiple_choice",marks:1,options:[{text:"",value:"A"},{text:"",value:"B"},{text:"",value:"C"},{text:"",value:"D"}],correctAnswer:"A",acceptedAnswers:[],explanation:""});
-export default function CbtQuestionBuilder({questions,setQuestions}) {
+export default function CbtQuestionBuilder({questions,setQuestions,subjectAssignmentId}) {
  const updateQuestion=(index,updates)=>setQuestions(current=>current.map((q,i)=>i===index?{...q,...updates}:q));
  const updateOption=(qi,oi,text)=>setQuestions(current=>current.map((q,i)=>i!==qi?q:{...q,options:q.options.map((o,j)=>j===oi?{...o,text}:o)}));
  const addQuestion=()=>setQuestions(current=>[...current,createQuestion()]);
  const removeQuestion=index=>setQuestions(current=>current.filter((_,i)=>i!==index));
  return <section className="space-y-5 rounded-2xl border border-emerald-100 bg-emerald-50/40 p-5">
  <div className="flex flex-wrap items-center justify-between gap-3"><div><h3 className="font-semibold text-slate-900">CBT questions</h3><p className="mt-1 text-xs text-slate-500">Select the correct answer and add a worked solution students can review after results are released.</p></div><button type="button" onClick={addQuestion} className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white"><Plus className="h-4 w-4"/>Add question</button></div>
+ <QuestionBankPicker subjectAssignmentId={subjectAssignmentId} questions={questions} setQuestions={setQuestions}/>
  {questions.map((q,i)=><div key={i} className="space-y-4 rounded-xl border border-slate-200 bg-white p-4">
  <div className="flex items-center justify-between"><b className="text-sm">Question {i+1}</b>{questions.length>1&&<button type="button" onClick={()=>removeQuestion(i)} className="text-xs text-red-600"><Trash2 className="inline h-4 w-4"/> Remove</button>}</div>
  <textarea value={q.question} onChange={e=>updateQuestion(i,{question:e.target.value})} rows={3} placeholder="Enter the question..." className="w-full rounded-lg border p-3 text-sm"/>
