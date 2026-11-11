@@ -72,8 +72,8 @@ export default function SuperAdminSubscriptionPricingPage() {
             <div className="rounded-xl bg-emerald-50 p-3 text-emerald-700"><WalletCards className="h-6 w-6" /></div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Subscription pricing</h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Set the per-child subscription fee for each school. The platform default is ₦1,500 per student per term. Negotiated prices apply to new subscription payments; existing payment records keep their original amounts.</p>
-              <p className="mt-3 text-sm font-semibold text-emerald-700">Default price: ₦1,500 per child / term</p>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Set the per-child subscription fee for each school. The platform default is ₦1,000 per student per term. Negotiated prices apply to new subscription payments; existing payment records keep their original amounts.</p>
+              <p className="mt-3 text-sm font-semibold text-emerald-700">Default price: ₦1,000 per child / term</p>
             </div>
           </div>
         </header>
