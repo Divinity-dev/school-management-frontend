@@ -14,6 +14,7 @@ const emptyManual = () => ({
 export default function TeacherQuestionBankPage() {
   const { user } = useSelector(state => state.auth);
   const [assignments, setAssignments] = useState([]);
+  const [schoolClassId, setSchoolClassId] = useState("");
   const [subjectAssignmentId, setSubjectAssignmentId] = useState("");
   const [questions, setQuestions] = useState([]);
   const [generated, setGenerated] = useState([]);
@@ -31,6 +32,23 @@ export default function TeacherQuestionBankPage() {
   const [importing, setImporting] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+
+  const classOptions = useMemo(() => {
+    const seen = new Set();
+    return assignments.filter(item => {
+      const id = String(item.schoolClass?._id || item.schoolClass || "");
+      if (!id || seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+  }, [assignments]);
+
+  const classAssignments = useMemo(
+    () => assignments.filter(item =>
+      String(item.schoolClass?._id || item.schoolClass || "") === schoolClassId
+    ),
+    [assignments, schoolClassId]
+  );
 
   const selectedAssignment = useMemo(
     () => assignments.find(item => String(item._id) === subjectAssignmentId),
@@ -60,7 +78,10 @@ export default function TeacherQuestionBankPage() {
           return String(assignedTeacherId) === String(teacherId);
         });
         setAssignments(active);
-        if (active.length) setSubjectAssignmentId(String(active[0]._id));
+        if (active.length) {
+          setSchoolClassId(String(active[0].schoolClass?._id || active[0].schoolClass || ""));
+          setSubjectAssignmentId(String(active[0]._id));
+        }
       } catch (err) {
         setError(err.response?.data?.message || "Unable to load your subject assignments.");
       } finally {
@@ -188,20 +209,36 @@ export default function TeacherQuestionBankPage() {
         {error && <p className="rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
         {notice && <p className="rounded-xl border border-emerald-100 bg-emerald-50 p-4 text-sm text-emerald-800">{notice}</p>}
 
-        <section className="rounded-2xl border bg-white p-5 shadow-sm">
-          <label className="block text-sm font-semibold text-slate-700">Subject and class</label>
-          {loading ? <p className="mt-2 text-sm text-slate-500">Loading your subjects…</p> : (
-            <select value={subjectAssignmentId} onChange={event => setSubjectAssignmentId(event.target.value)} className="mt-2 w-full max-w-xl rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
-              {assignments.map(item => <option key={item._id} value={item._id}>{item.subject?.name || "Subject"} — {item.schoolClass?.name || "Class"} {item.schoolClass?.arm || ""}</option>)}
-            </select>
-          )}
-          {selectedAssignment && <p className="mt-2 text-xs text-slate-500">Questions are saved to your school's bank for {selectedAssignment.subject?.name} · {selectedAssignment.schoolClass?.name}.</p>}
-        </section>
-
         <section className="grid gap-5 lg:grid-cols-2">
           <form onSubmit={generate} className="space-y-4 rounded-2xl border border-violet-100 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-violet-600"/><h2 className="font-bold text-slate-900">Generate with AI</h2></div>
-            <p className="text-xs leading-5 text-slate-500">Generate original questions from topics, teacher notes or uploaded learning material. Every question is returned as a draft for teacher review.</p>
+            <p className="text-xs leading-5 text-slate-500">Choose the class and subject, then generate original questions from topics, teacher notes or uploaded learning material. Every question is returned as a draft for teacher review.</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-xs font-semibold text-slate-700">Class
+                <select required value={schoolClassId} onChange={event => {
+                  const nextClassId = event.target.value;
+                  setSchoolClassId(nextClassId);
+                  const firstSubject = assignments.find(item => String(item.schoolClass?._id || item.schoolClass || "") === nextClassId);
+                  setSubjectAssignmentId(firstSubject ? String(firstSubject._id) : "");
+                  setQuestions([]);
+                  setGenerated([]);
+                }} disabled={loading} className="mt-1 w-full rounded-lg border bg-white p-3 text-sm font-normal">
+                  <option value="">Select class</option>
+                  {classOptions.map(item => <option key={String(item.schoolClass?._id || item.schoolClass)} value={String(item.schoolClass?._id || item.schoolClass)}>{item.schoolClass?.name || "Class"} {item.schoolClass?.arm || ""}</option>)}
+                </select>
+              </label>
+              <label className="block text-xs font-semibold text-slate-700">Subject
+                <select required value={subjectAssignmentId} onChange={event => {
+                  setSubjectAssignmentId(event.target.value);
+                  setQuestions([]);
+                  setGenerated([]);
+                }} disabled={loading || !schoolClassId} className="mt-1 w-full rounded-lg border bg-white p-3 text-sm font-normal">
+                  <option value="">Select subject</option>
+                  {classAssignments.map(item => <option key={item._id} value={item._id}>{item.subject?.name || "Subject"}</option>)}
+                </select>
+              </label>
+            </div>
+            {selectedAssignment && <p className="rounded-lg bg-violet-50 p-3 text-xs text-violet-800">Questions will be saved for {selectedAssignment.subject?.name} — {selectedAssignment.schoolClass?.name} {selectedAssignment.schoolClass?.arm || ""}.</p>}
             <label className="block text-xs font-semibold text-slate-700">Topics<input value={topics} onChange={event => setTopics(event.target.value)} placeholder="e.g. Fractions, decimals and percentages" className="mt-1 w-full rounded-lg border p-3 text-sm font-normal"/></label>
             <label className="block text-xs font-semibold text-slate-700">Paste learning material (optional)<textarea rows={4} value={materialText} onChange={event => setMaterialText(event.target.value)} placeholder="Paste notes, a lesson summary or scheme-of-work content…" className="mt-1 w-full rounded-lg border p-3 text-sm font-normal"/></label>
             <label className="block text-xs font-semibold text-slate-700">Or upload notes (.txt, .md, .csv, .xlsx, .xls)<input type="file" accept=".txt,.md,.csv,.xlsx,.xls" onChange={event => setMaterialFile(event.target.files?.[0] || null)} className="mt-1 block w-full rounded-lg border p-2 text-xs font-normal"/></label>
