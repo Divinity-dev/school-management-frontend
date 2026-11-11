@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, FileUp, Plus, RefreshCw, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import api from "@/lib/api";
@@ -11,6 +12,7 @@ const emptyManual = () => ({
 });
 
 export default function TeacherQuestionBankPage() {
+  const { user } = useSelector(state => state.auth);
   const [assignments, setAssignments] = useState([]);
   const [subjectAssignmentId, setSubjectAssignmentId] = useState("");
   const [questions, setQuestions] = useState([]);
@@ -50,7 +52,13 @@ export default function TeacherQuestionBankPage() {
       try {
         const response = await api.get("/subject-assignments");
         const items = response.data?.assignments || response.data?.subjectAssignments || [];
-        const active = items.filter(item => item.isActive !== false);
+        const teacherId = user?._id || user?.id;
+        const active = items.filter(item => {
+          if (item.isActive === false) return false;
+          if (user?.role !== "teacher") return true;
+          const assignedTeacherId = item.teacher?._id || item.teacher?.id || item.teacher;
+          return String(assignedTeacherId) === String(teacherId);
+        });
         setAssignments(active);
         if (active.length) setSubjectAssignmentId(String(active[0]._id));
       } catch (err) {
@@ -59,8 +67,8 @@ export default function TeacherQuestionBankPage() {
         setLoading(false);
       }
     };
-    load();
-  }, []);
+    if (user) load();
+  }, [user]);
 
   useEffect(() => { loadQuestions(); }, [subjectAssignmentId]);
 
