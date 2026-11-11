@@ -273,20 +273,18 @@ export default function Home() {
           </div>
 
           <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            <FeatureCard icon={Users} title="Student Management" text="Manage student profiles, enrollment, classes, guardians and academic information from one place." />
-            <FeatureCard icon={GraduationCap} title="Teacher Management" text="Organize teachers, class assignments and teaching responsibilities with ease." />
-            <FeatureCard icon={CalendarCheck} title="Attendance" text="Record and monitor attendance while giving schools a clear picture of student participation." />
-            <FeatureCard icon={BookOpen} title="Assignments" text="Create assignments, publish them to students, collect submissions and manage grading." />
-            <FeatureCard icon={BarChart3} title="Results & Grading" text="Manage continuous assessment, examinations, results review, publishing and academic records." />
-            <FeatureCard icon={WalletCards} title="School Fees" text="Create fee structures, track balances and receive online payments securely." />
-            <FeatureCard icon={Users} title="Parent Portal" text="Give parents access to their children's academic progress, attendance, fees and more." />
-            <FeatureCard icon={Megaphone} title="Announcements" text="Keep your school community informed with important announcements and updates." />
-            <FeatureCard
-              icon={Globe2}
-              title="Public School Website"
-              text="Give your school its own professional website with its own branding, content and public pages."
-              highlighted
-            />
+            <FeatureCard icon={Users} title="Student Management" text="Manage admissions, student profiles, class placement, guardians and complete academic records." />
+            <FeatureCard icon={GraduationCap} title="Teacher & Staff Management" text="Organise teacher profiles, subject assignments, class responsibilities and staff access." />
+            <FeatureCard icon={CalendarCheck} title="Attendance Tracking" text="Record daily attendance, monitor participation and keep reliable attendance histories." />
+            <FeatureCard icon={BookOpen} title="Assignments & CBT" text="Create written assignments and computer-based tests, collect submissions and manage marking." />
+            <FeatureCard icon={ShieldCheck} title="Formal Examinations" text="Schedule separate school examinations with approval workflows, timed student attempts and controlled result release." />
+            <FeatureCard icon={Sparkles} title="AI Question Generation" text="Help teachers prepare questions from topics and learning materials, review them and save approved questions for reuse." highlighted />
+            <FeatureCard icon={BookOpen} title="Reusable Question Bank" text="Build an organised collection of questions by class, subject, topic and difficulty for future assessments." />
+            <FeatureCard icon={BarChart3} title="Results & Report Cards" text="Manage continuous assessment, examination scores, grading, result review and report-card publishing." />
+            <FeatureCard icon={WalletCards} title="Fees & Online Payments" text="Set fee structures, track payments and balances, and give families a clearer payment experience." />
+            <FeatureCard icon={Users} title="Parent & Student Portals" text="Give families and learners access to results, assignments, attendance, fees and school updates." />
+            <FeatureCard icon={Megaphone} title="News & Communication" text="Publish school announcements, news and events to keep your school community informed." />
+            <FeatureCard icon={Globe2} title="Dedicated School Website" text="Give your school a branded public website with admissions information, news, events and contact details." />
           </div>
         </div>
       </section>
@@ -463,10 +461,13 @@ export default function Home() {
                 "Student management",
                 "Teacher management",
                 "Attendance",
-                "Assignments",
-                "Results & grading",
-                "School fees",
-                "Student & parent portals",
+                "Assignments & CBT",
+                "Formal examinations",
+                "Question bank & AI question generation",
+                "Results & report cards",
+                "School fees & online payments",
+                "Parent & student portals",
+                "News, events & announcements",
                 "Public school website",
               ].map((item) => (
                 <div key={item} className="flex items-center gap-3">
