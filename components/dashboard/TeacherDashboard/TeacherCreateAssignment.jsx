@@ -22,6 +22,7 @@ export default function TeacherCreateAssignment() {
   const { user } = useSelector((state) => state.auth);
 
   const [subjectAssignments, setSubjectAssignments] = useState([]);
+  const [schoolClassId, setSchoolClassId] = useState("");
   const [terms, setTerms] = useState([]);
 
   const [form, setForm] = useState({
@@ -106,6 +107,25 @@ export default function TeacherCreateAssignment() {
       fetchData();
     }
   }, [user]);
+
+  const classOptions = useMemo(() => {
+    const seen = new Set();
+    return subjectAssignments.filter((assignment) => {
+      const schoolClass = assignment.schoolClass;
+      const classId = schoolClass?._id || schoolClass?.id || schoolClass;
+      if (!classId || seen.has(String(classId))) return false;
+      seen.add(String(classId));
+      return true;
+    });
+  }, [subjectAssignments]);
+
+  const classAssignments = useMemo(() => {
+    return subjectAssignments.filter((assignment) => {
+      const schoolClass = assignment.schoolClass;
+      const classId = schoolClass?._id || schoolClass?.id || schoolClass;
+      return String(classId || "") === String(schoolClassId);
+    });
+  }, [subjectAssignments, schoolClassId]);
 
   const selectedSubjectAssignment = useMemo(() => {
     return subjectAssignments.find(
@@ -351,48 +371,56 @@ export default function TeacherCreateAssignment() {
           className="rounded-2xl bg-white p-6 shadow-sm sm:p-8"
         >
           <div className="space-y-6">
-            {/* Subject Assignment */}
-            <div>
-              <label
-                htmlFor="subjectAssignment"
-                className="mb-2 block text-sm font-semibold text-slate-700"
-              >
-                Subject & Class
-              </label>
+            {/* Class and Subject */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="schoolClass" className="mb-2 block text-sm font-semibold text-slate-700">Class</label>
+                <select
+                  id="schoolClass"
+                  name="schoolClass"
+                  value={schoolClassId}
+                  onChange={(event) => {
+                    setSchoolClassId(event.target.value);
+                    setForm((previous) => ({ ...previous, subjectAssignment: "", term: "" }));
+                    setError("");
+                    setSuccess("");
+                  }}
+                  required
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                >
+                  <option value="">Select class</option>
+                  {classOptions.map((assignment) => {
+                    const schoolClass = assignment.schoolClass;
+                    const classId = schoolClass?._id || schoolClass?.id || schoolClass;
+                    return <option key={String(classId)} value={String(classId)}>{schoolClass?.name || "Class"}{schoolClass?.arm ? ` ${schoolClass.arm}` : ""}</option>;
+                  })}
+                </select>
+              </div>
 
-              <select
-                id="subjectAssignment"
-                name="subjectAssignment"
-                value={form.subjectAssignment}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-              >
-                <option value="">
-                  Select subject and class
-                </option>
-
-                {subjectAssignments.map((assignment) => {
-                  const assignmentId =
-                    assignment._id || assignment.id;
-
-                  const subject = assignment.subject;
-                  const schoolClass =
-                    assignment.schoolClass;
-
-                  return (
-                    <option
-                      key={assignmentId}
-                      value={assignmentId}
-                    >
-                      {subject?.name || "Subject"} —{" "}
-                      {schoolClass?.name || "Class"}
-                      {schoolClass?.arm
-                        ? ` ${schoolClass.arm}`
-                        : ""}
+              <div>
+                <label htmlFor="subjectAssignment" className="mb-2 block text-sm font-semibold text-slate-700">Subject</label>
+                <select
+                  id="subjectAssignment"
+                  name="subjectAssignment"
+                  value={form.subjectAssignment}
+                  onChange={(event) => {
+                    setForm((previous) => ({ ...previous, subjectAssignment: event.target.value, term: "" }));
+                    setError("");
+                    setSuccess("");
+                  }}
+                  disabled={!schoolClassId}
+                  required
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-50"
+                >
+                  <option value="">Select subject</option>
+                  {classAssignments.map((assignment) => (
+                    <option key={assignment._id || assignment.id} value={assignment._id || assignment.id}>
+                      {assignment.subject?.name || "Subject"}
+                      {assignment.academicSession?.name ? ` (${assignment.academicSession.name})` : ""}
                     </option>
-                  );
-                })}
-              </select>
+                  ))}
+                </select>
+              </div>
             </div>
 
             {/* Term */}

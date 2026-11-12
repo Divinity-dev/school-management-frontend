@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, FileUp, Plus, RefreshCw, Sparkles, Trash2, WandSparkles } from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronDown, ChevronUp, FileUp, Plus, RefreshCw, Sparkles, Trash2, WandSparkles } from "lucide-react";
 import api from "@/lib/api";
 
 const emptyManual = () => ({
@@ -17,6 +17,7 @@ export default function TeacherQuestionBankPage() {
   const [schoolClassId, setSchoolClassId] = useState("");
   const [subjectAssignmentId, setSubjectAssignmentId] = useState("");
   const [questions, setQuestions] = useState([]);
+  const [expandedQuestionIds, setExpandedQuestionIds] = useState([]);
   const [generated, setGenerated] = useState([]);
   const [topics, setTopics] = useState("");
   const [materialText, setMaterialText] = useState("");
@@ -292,7 +293,23 @@ export default function TeacherQuestionBankPage() {
         <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-slate-900">Saved questions ({questions.length})</h2><p className="mt-1 text-xs text-slate-500">Approved questions available to your examination and assignment builders.</p></div><button type="button" onClick={loadQuestions} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"><RefreshCw className="h-4 w-4"/>Refresh</button></div>
           <div className="flex gap-2"><input value={search} onChange={event=>setSearch(event.target.value)} onKeyDown={event=>event.key==="Enter"&&loadQuestions()} placeholder="Search by question or topic" className="min-w-0 flex-1 rounded-lg border p-2 text-sm"/><button type="button" onClick={loadQuestions} className="rounded-lg bg-slate-900 px-4 text-xs font-semibold text-white">Search</button></div>
-          {questions.length===0 ? <p className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">No saved questions for this subject and class yet.</p> : <div className="divide-y">{questions.map(question=><article key={question._id} className="flex items-start justify-between gap-3 py-4"><div className="min-w-0"><p className="text-sm font-medium text-slate-900">{question.question}</p><p className="mt-1 text-xs text-slate-500">{question.topic} · {question.type.replaceAll("_"," ")} · {question.difficulty} · {question.marks} mark(s) · {question.source}</p></div><button type="button" onClick={()=>archiveQuestion(question._id)} className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Archive question"><Trash2 className="h-4 w-4"/></button></article>)}</div>}
+          {questions.length===0 ? <p className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">No saved questions for this subject and class yet.</p> : <div className="divide-y">{questions.map(question=>{
+            const expanded = expandedQuestionIds.includes(question._id);
+            return <article key={question._id} className="border-b last:border-b-0">
+              <div className="flex items-start gap-2 py-3">
+                <button type="button" onClick={()=>setExpandedQuestionIds(current=>expanded?current.filter(id=>id!==question._id):[...current,question._id])} aria-expanded={expanded} className="min-w-0 flex-1 text-left">
+                  <span className="flex items-start gap-2 text-sm font-medium text-slate-900"><span className="min-w-0 flex-1">{question.question}</span>{expanded?<ChevronUp className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"/>:<ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"/>}</span>
+                  <span className="mt-1 block text-xs text-slate-500">{question.topic} · {question.type.replaceAll("_"," ")} · {question.difficulty} · {question.marks} mark(s) · {question.source}</span>
+                </button>
+                <button type="button" onClick={()=>archiveQuestion(question._id)} className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Archive question"><Trash2 className="h-4 w-4"/></button>
+              </div>
+              {expanded && <div className="space-y-2 pb-4 pl-1 text-xs text-slate-600">
+                {question.options?.length>0 && <div className="space-y-1">{question.options.map(option=><p key={option.value}>{option.value}. {option.text}</p>)}</div>}
+                {question.correctAnswer && <p className="font-semibold text-emerald-700">Correct answer: {question.correctAnswer}</p>}
+                {question.explanation && <p className="rounded-lg bg-slate-50 p-3 leading-5">{question.explanation}</p>}
+              </div>}
+            </article>;
+          })}</div>}
         </section>
       </div>
     </main>
