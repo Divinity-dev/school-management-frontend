@@ -646,9 +646,6 @@ export default function TeacherForm({
               }
               required={!isEditMode}
             />
-            <p className="mt-2 text-xs text-slate-500">
-              An email address is optional. SchoolPilot automatically generates a username that the teacher can use to sign in.
-            </p>
           </div>
         </section>
 
