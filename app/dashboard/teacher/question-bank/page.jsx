@@ -27,6 +27,10 @@ export default function TeacherQuestionBankPage() {
   const [types, setTypes] = useState(["multiple_choice"]);
   const [manual, setManual] = useState(emptyManual());
   const [search, setSearch] = useState("");
+  const [bankClassFilter, setBankClassFilter] = useState("");
+  const [bankSubjectFilter, setBankSubjectFilter] = useState("");
+  const [bankTopicFilter, setBankTopicFilter] = useState("");
+  const [savedBankExpanded, setSavedBankExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -57,14 +61,26 @@ export default function TeacherQuestionBankPage() {
   );
 
   const loadQuestions = async () => {
-    if (!subjectAssignmentId) return;
     try {
-      const response = await api.get("/question-bank", { params: { subjectAssignmentId, search: search || undefined } });
+      // Load the complete school bank; class and subject are browse filters,
+      // not a restriction to the current teacher's own assignments.
+      const response = await api.get("/question-bank", { params: { search: search || undefined } });
       setQuestions(response.data?.questions || []);
     } catch (err) {
       setError(err.response?.data?.message || "Unable to load questions.");
     }
   };
+
+  const bankClassOptions = useMemo(() => [...new Set(questions.map(item => item.className || item.schoolClass?.name).filter(Boolean))].sort(), [questions]);
+  const bankSubjectOptions = useMemo(() => [...new Set(questions.map(item => item.subjectName || item.subject?.name).filter(Boolean))].sort(), [questions]);
+  const bankTopicOptions = useMemo(() => [...new Set(questions.map(item => item.topic).filter(Boolean))].sort(), [questions]);
+  const visibleQuestions = useMemo(() => questions.filter(item => {
+    const className = item.className || item.schoolClass?.name || "";
+    const subjectName = item.subjectName || item.subject?.name || "";
+    return (!bankClassFilter || className === bankClassFilter)
+      && (!bankSubjectFilter || subjectName === bankSubjectFilter)
+      && (!bankTopicFilter || item.topic === bankTopicFilter);
+  }), [questions, bankClassFilter, bankSubjectFilter, bankTopicFilter]);
 
   useEffect(() => {
     const load = async () => {
@@ -92,7 +108,7 @@ export default function TeacherQuestionBankPage() {
     if (user) load();
   }, [user]);
 
-  useEffect(() => { loadQuestions(); }, [subjectAssignmentId]);
+  useEffect(() => { if (user) loadQuestions(); }, [user]);
 
   const toggleType = value => setTypes(current => current.includes(value) ? current.filter(item => item !== value) : [...current, value]);
 
@@ -203,7 +219,7 @@ export default function TeacherQuestionBankPage() {
         <header className="rounded-2xl bg-slate-950 p-6 text-white sm:p-8">
           <div className="flex items-start gap-4">
             <div className="rounded-xl bg-white/10 p-3"><BookOpen className="h-7 w-7 text-emerald-300"/></div>
-            <div><p className="text-sm font-semibold text-emerald-300">SchoolPilot Assessments</p><h1 className="mt-1 text-2xl font-bold sm:text-3xl">Question Bank</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Build a reusable collection of approved questions for formal examinations and assignment CBTs. Generate drafts with AI, import existing questions or create them manually.</p></div>
+            <div><p className="text-sm font-semibold text-emerald-300">SchoolPilot Assessments</p><h1 className="mt-1 text-2xl font-bold sm:text-3xl">Question Bank</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Browse your school's complete shared collection of approved questions. Every teacher can access the bank and filter questions by class, subject and topic.</p></div>
           </div>
         </header>
 
@@ -291,17 +307,18 @@ export default function TeacherQuestionBankPage() {
         </section>}
 
         <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-slate-900">Saved questions ({questions.length})</h2><p className="mt-1 text-xs text-slate-500">Approved questions available to your examination and assignment builders.</p></div><button type="button" onClick={loadQuestions} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"><RefreshCw className="h-4 w-4"/>Refresh</button></div>
-          <div className="flex gap-2"><input value={search} onChange={event=>setSearch(event.target.value)} onKeyDown={event=>event.key==="Enter"&&loadQuestions()} placeholder="Search by question or topic" className="min-w-0 flex-1 rounded-lg border p-2 text-sm"/><button type="button" onClick={loadQuestions} className="rounded-lg bg-slate-900 px-4 text-xs font-semibold text-white">Search</button></div>
-          {questions.length===0 ? <p className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">No saved questions for this subject and class yet.</p> : <div className="divide-y">{questions.map(question=>{
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-slate-900">Saved questions ({questions.length})</h2><p className="mt-1 text-xs text-slate-500">All approved questions saved by teachers in your school. Filter by class, subject and topic to find what you need.</p></div><div className="flex gap-2"><button type="button" onClick={() => setSavedBankExpanded(value => !value)} aria-expanded={savedBankExpanded} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold">{savedBankExpanded ? "Collapse bank" : "Expand bank"} {savedBankExpanded ? <ChevronUp className="h-4 w-4"/> : <ChevronDown className="h-4 w-4"/>}</button><button type="button" onClick={loadQuestions} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"><RefreshCw className="h-4 w-4"/>Refresh</button></div></div>
+          {savedBankExpanded && <>
+          <div className="grid gap-2 sm:grid-cols-3"><select value={bankClassFilter} onChange={event=>setBankClassFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All classes</option>{bankClassOptions.map(value=><option key={value} value={value}>{value}</option>)}</select><select value={bankSubjectFilter} onChange={event=>setBankSubjectFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All subjects</option>{bankSubjectOptions.map(value=><option key={value} value={value}>{value}</option>)}</select><select value={bankTopicFilter} onChange={event=>setBankTopicFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All topics</option>{bankTopicOptions.map(value=><option key={value} value={value}>{value}</option>)}</select></div><div className="flex gap-2"><input value={search} onChange={event=>setSearch(event.target.value)} onKeyDown={event=>event.key==="Enter"&&loadQuestions()} placeholder="Search all questions or topics" className="min-w-0 flex-1 rounded-lg border p-2 text-sm"/><button type="button" onClick={loadQuestions} className="rounded-lg bg-slate-900 px-4 text-xs font-semibold text-white">Search</button></div>
+          {visibleQuestions.length===0 ? <p className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">{questions.length===0 ? "No approved questions have been added to your school bank yet." : "No questions match these filters."}</p> : <div className="divide-y">{visibleQuestions.map(question=>{
             const expanded = expandedQuestionIds.includes(question._id);
             return <article key={question._id} className="border-b last:border-b-0">
               <div className="flex items-start gap-2 py-3">
                 <button type="button" onClick={()=>setExpandedQuestionIds(current=>expanded?current.filter(id=>id!==question._id):[...current,question._id])} aria-expanded={expanded} className="min-w-0 flex-1 text-left">
                   <span className="flex items-start gap-2 text-sm font-medium text-slate-900"><span className="min-w-0 flex-1">{question.question}</span>{expanded?<ChevronUp className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"/>:<ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"/>}</span>
-                  <span className="mt-1 block text-xs text-slate-500">{question.topic} · {question.type.replaceAll("_"," ")} · {question.difficulty} · {question.marks} mark(s) · {question.source}</span>
+                  <span className="mt-1 block text-xs text-slate-500">{question.className || question.schoolClass?.name || "Class"} · {question.subjectName || question.subject?.name || "Subject"} · {question.topic} · {question.type.replaceAll("_"," ")} · {question.difficulty} · {question.marks} mark(s) · {question.source}</span><span className="mt-1 block text-[11px] text-slate-400">Added by {question.createdBy?.firstName || ""} {question.createdBy?.lastName || ""}</span>
                 </button>
-                <button type="button" onClick={()=>archiveQuestion(question._id)} className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Archive question"><Trash2 className="h-4 w-4"/></button>
+                {(user?.role === "schoolAdmin" || user?.role === "superAdmin" || String(question.createdBy?._id || question.createdBy) === String(user?._id || user?.id)) && <button type="button" onClick={()=>archiveQuestion(question._id)} className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Archive question"><Trash2 className="h-4 w-4"/></button>}
               </div>
               {expanded && <div className="space-y-2 pb-4 pl-1 text-xs text-slate-600">
                 {question.options?.length>0 && <div className="space-y-1">{question.options.map(option=><p key={option.value}>{option.value}. {option.text}</p>)}</div>}
@@ -310,6 +327,7 @@ export default function TeacherQuestionBankPage() {
               </div>}
             </article>;
           })}</div>}
+          </>}
         </section>
       </div>
     </main>
