@@ -33,6 +33,7 @@ export default function StudentsPage() {
   const [accountModalOpen, setAccountModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [accountEmail, setAccountEmail] = useState("");
+  const [accountUsername, setAccountUsername] = useState("");
   const [accountPassword, setAccountPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
@@ -149,6 +150,7 @@ const filteredStudents = useMemo(() => {
   const openAccountModal = (student) => {
     setSelectedStudent(student);
     setAccountEmail("");
+    setAccountUsername("");
     setAccountPassword("");
     setAccountError("");
     setAccountSuccess("");
@@ -178,11 +180,6 @@ const filteredStudents = useMemo(() => {
     setAccountError("");
     setAccountSuccess("");
 
-    if (!accountEmail.trim()) {
-      setAccountError("Student email is required.");
-      return;
-    }
-
     if (!accountPassword) {
       setAccountError("Password is required.");
       return;
@@ -201,11 +198,13 @@ const filteredStudents = useMemo(() => {
       const response = await api.post(
         `/students/${selectedStudent._id}/create-account`,
         {
-          email: accountEmail.trim(),
+          ...(accountEmail.trim() ? { email: accountEmail.trim() } : {}),
           password: accountPassword,
         }
       );
 
+      const generatedUsername = response.data?.account?.username || "";
+      setAccountUsername(generatedUsername);
       setAccountSuccess(
         response.data?.message ||
           "Student portal account created successfully."
@@ -214,16 +213,7 @@ const filteredStudents = useMemo(() => {
       // Refresh the students list so the account status updates.
       await fetchStudents();
 
-      // Give the success message a moment before closing.
-      setTimeout(() => {
-        setAccountModalOpen(false);
-        setSelectedStudent(null);
-        setAccountEmail("");
-        setAccountPassword("");
-        setAccountError("");
-        setAccountSuccess("");
-        setShowPassword(false);
-      }, 1200);
+      // Keep the modal open so the school can record and share the generated username.
     } catch (err) {
       console.error(
         "Failed to create student portal account:",
@@ -735,7 +725,7 @@ const handleRefreshStudents = async () => {
                   htmlFor="student-account-email"
                   className="mb-2 block text-sm font-medium text-slate-700"
                 >
-                  Student Email
+                  Email Address (optional)
                 </label>
 
                 <div className="relative">
@@ -809,8 +799,7 @@ const handleRefreshStudents = async () => {
                 </div>
 
                 <p className="mt-1.5 text-xs text-slate-400">
-                  The student will use this email and password
-                  to sign in.
+                  Email is optional. SchoolPilot automatically generates a username the student can use with this password to sign in.
                 </p>
               </div>
 
@@ -829,7 +818,17 @@ const handleRefreshStudents = async () => {
                     className="mt-0.5 shrink-0"
                   />
 
-                  <span>{accountSuccess}</span>
+                  <span>
+                    {accountSuccess}
+                    {accountUsername && (
+                      <span className="mt-2 block font-semibold">
+                        Student login username: {accountUsername}
+                      </span>
+                    )}
+                    <span className="mt-1 block text-xs">
+                      Share the username and password securely with the student.
+                    </span>
+                  </span>
                 </div>
               )}
 
@@ -841,12 +840,12 @@ const handleRefreshStudents = async () => {
                   disabled={creatingAccount}
                   className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Cancel
+                  {accountSuccess ? "Close" : "Cancel"}
                 </button>
 
                 <button
                   type="submit"
-                  disabled={creatingAccount}
+                  disabled={creatingAccount || Boolean(accountSuccess)}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {creatingAccount ? (
