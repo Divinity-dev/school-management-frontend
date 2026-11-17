@@ -203,7 +203,7 @@ export default function TeacherQuestionBankPage() {
         <header className="rounded-2xl bg-slate-950 p-6 text-white sm:p-8">
           <div className="flex items-start gap-4">
             <div className="rounded-xl bg-white/10 p-3"><BookOpen className="h-7 w-7 text-emerald-300"/></div>
-            <div><p className="text-sm font-semibold text-emerald-300">SchoolPilot Assessments</p><h1 className="mt-1 text-2xl font-bold sm:text-3xl">Question Bank</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Build a reusable collection of approved questions for formal examinations and assignment CBTs. Generate drafts with AI, import existing questions or create them manually.</p></div>
+            <div><p className="text-sm font-semibold text-emerald-300">SchoolPilot Assessments</p><h1 className="mt-1 text-2xl font-bold sm:text-3xl">Question Bank</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Build your school's shared collection of approved questions, organized by class and subject. Questions saved by one teacher become available to other teachers teaching the same class and subject.</p></div>
           </div>
         </header>
 
@@ -299,9 +299,9 @@ export default function TeacherQuestionBankPage() {
               <div className="flex items-start gap-2 py-3">
                 <button type="button" onClick={()=>setExpandedQuestionIds(current=>expanded?current.filter(id=>id!==question._id):[...current,question._id])} aria-expanded={expanded} className="min-w-0 flex-1 text-left">
                   <span className="flex items-start gap-2 text-sm font-medium text-slate-900"><span className="min-w-0 flex-1">{question.question}</span>{expanded?<ChevronUp className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"/>:<ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-slate-400"/>}</span>
-                  <span className="mt-1 block text-xs text-slate-500">{question.topic} · {question.type.replaceAll("_"," ")} · {question.difficulty} · {question.marks} mark(s) · {question.source}</span>
+                  <span className="mt-1 block text-xs text-slate-500">{question.className || question.schoolClass?.name || "Class"} · {question.subjectName || question.subject?.name || "Subject"} · {question.topic} · {question.type.replaceAll("_"," ")} · {question.difficulty} · {question.marks} mark(s) · {question.source}</span><span className="mt-1 block text-[11px] text-slate-400">Added by {question.createdBy?.firstName || ""} {question.createdBy?.lastName || ""}</span>
                 </button>
-                <button type="button" onClick={()=>archiveQuestion(question._id)} className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Archive question"><Trash2 className="h-4 w-4"/></button>
+                {(user?.role === "schoolAdmin" || user?.role === "superAdmin" || String(question.createdBy?._id || question.createdBy) === String(user?._id || user?.id)) && <button type="button" onClick={()=>archiveQuestion(question._id)} className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-red-50 hover:text-red-600" aria-label="Archive question"><Trash2 className="h-4 w-4"/></button>}
               </div>
               {expanded && <div className="space-y-2 pb-4 pl-1 text-xs text-slate-600">
                 {question.options?.length>0 && <div className="space-y-1">{question.options.map(option=><p key={option.value}>{option.value}. {option.text}</p>)}</div>}
