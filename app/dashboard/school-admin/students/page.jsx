@@ -744,7 +744,6 @@ const handleRefreshStudents = async () => {
                     }
                     placeholder="Enter email or preferred username"
                     disabled={creatingAccount}
-                    autoComplete="email"
                     className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-50"
                   />
                 </div>
