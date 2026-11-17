@@ -83,7 +83,7 @@ export default function TeacherForm({
         setFormData({
           firstName: teacher.firstName || "",
           lastName: teacher.lastName || "",
-          email: teacher.email || "",
+          email: teacher.email || teacher.username || "",
           phone: teacher.phone || "",
           password: "",
           confirmPassword: "",
@@ -278,11 +278,6 @@ export default function TeacherForm({
       return;
     }
 
-    if (!formData.email.trim()) {
-      setError("Email address is required.");
-      return;
-    }
-
     if (!isEditMode && !formData.password) {
       setError("Password is required.");
       return;
@@ -315,7 +310,9 @@ export default function TeacherForm({
       const payload = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        email: formData.email.trim(),
+        ...(formData.email.trim()
+          ? { email: formData.email.trim() }
+          : {}),
         phone: formData.phone.trim(),
         profileImage: profileImageUrl,
       };
@@ -338,19 +335,22 @@ export default function TeacherForm({
           router.push(
             `/dashboard/school-admin/teachers/${teacherId}`
           );
-        }, 1000);
+        }, 5000);
       } else {
-        await api.post("/teachers", payload);
+        const response = await api.post("/teachers", payload);
 
+        const generatedUsername = response.data?.teacher?.username;
         setSuccess(
-          "Teacher created successfully."
+          generatedUsername
+            ? `Teacher created successfully. Login username: ${generatedUsername}`
+            : "Teacher created successfully. A login username has been generated."
         );
 
         setTimeout(() => {
           router.push(
             "/dashboard/school-admin/teachers"
           );
-        }, 1000);
+        }, 5000);
       }
     } catch (err) {
       console.error(
@@ -598,14 +598,17 @@ export default function TeacherForm({
 
           <div className="grid gap-5 md:grid-cols-2">
             <Input
-              label="Email Address"
+              label="Email or username (optional)"
               name="email"
-              type="email"
+              type="text"
+              autoComplete="username"
               value={formData.email}
               onChange={handleChange}
-              placeholder="teacher@example.com"
-              required
+              placeholder="Enter email or preferred username"
             />
+            <p className="md:col-span-2 text-xs text-slate-500">
+              Enter an email address or choose a username. Leave blank and SchoolPilot will generate a username automatically.
+            </p>
 
             <PasswordInput
               label={
