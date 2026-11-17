@@ -45,8 +45,8 @@ export default function QuestionBankPicker({ subjectAssignmentId, questions, set
   }), [items, classFilter, subjectFilter]);
 
   const selectedQuestions = useMemo(
-    () => items.filter(item => selected.includes(String(item._id))),
-    [items, selected]
+    () => visibleItems.filter(item => selected.includes(String(item._id))),
+    [visibleItems, selected]
   );
 
   const appendQuestions = chosen => {
