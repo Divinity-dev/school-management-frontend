@@ -73,7 +73,7 @@ return;
     setFormData({
       firstName: parent.firstName || "",
       lastName: parent.lastName || "",
-      email: parent.email || "",
+      email: parent.email || parent.username || "",
       phone: parent.phone || "",
       password: "",
       confirmPassword: "",
@@ -376,15 +376,16 @@ className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-500 trans
 
       <div className="grid gap-5 md:grid-cols-2">
         <Input
-          label="Email Address (optional)"
+          label="Email or username (optional)"
           name="email"
-          type="email"
+          type="text"
+          autoComplete="username"
           value={formData.email}
           onChange={handleChange}
-          placeholder="parent@example.com"
+          placeholder="Enter email or preferred username"
         />
         <p className="md:col-span-2 text-xs text-slate-500">
-          An email address is optional. SchoolPilot automatically generates a username that the parent can use to sign in.
+          Enter an email address or choose a username. Leave blank and SchoolPilot will generate a username automatically.
         </p>
 
         <PasswordInput
