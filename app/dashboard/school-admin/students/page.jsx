@@ -725,7 +725,7 @@ const handleRefreshStudents = async () => {
                   htmlFor="student-account-email"
                   className="mb-2 block text-sm font-medium text-slate-700"
                 >
-                  Email Address (optional)
+                  Email or username (optional)
                 </label>
 
                 <div className="relative">
@@ -736,12 +736,13 @@ const handleRefreshStudents = async () => {
 
                   <input
                     id="student-account-email"
-                    type="email"
+                    type="text"
+                    autoComplete="username"
                     value={accountEmail}
                     onChange={(event) =>
                       setAccountEmail(event.target.value)
                     }
-                    placeholder="student@example.com"
+                    placeholder="Enter email or preferred username"
                     disabled={creatingAccount}
                     autoComplete="email"
                     className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-50"
@@ -799,7 +800,7 @@ const handleRefreshStudents = async () => {
                 </div>
 
                 <p className="mt-1.5 text-xs text-slate-400">
-                  Email is optional. SchoolPilot automatically generates a username the student can use with this password to sign in.
+                  Enter an email address or choose a username. Leave blank and SchoolPilot will generate a username automatically.
                 </p>
               </div>
 
