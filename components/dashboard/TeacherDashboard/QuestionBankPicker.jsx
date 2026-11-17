@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ChevronDown, ChevronUp, Database, Plus, RefreshCw } from "lucide-react";
 import api from "@/lib/api";
 
-export default function QuestionBankPicker({ subjectAssignmentId, questions, setQuestions }) {
+export default function QuestionBankPicker({ questions, setQuestions }) {
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState([]);
