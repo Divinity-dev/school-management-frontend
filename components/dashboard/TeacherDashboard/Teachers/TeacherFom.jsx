@@ -278,11 +278,6 @@ export default function TeacherForm({
       return;
     }
 
-    if (!formData.email.trim()) {
-      setError("Email address is required.");
-      return;
-    }
-
     if (!isEditMode && !formData.password) {
       setError("Password is required.");
       return;
@@ -315,7 +310,9 @@ export default function TeacherForm({
       const payload = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        email: formData.email.trim(),
+        ...(formData.email.trim()
+          ? { email: formData.email.trim() }
+          : {}),
         phone: formData.phone.trim(),
         profileImage: profileImageUrl,
       };
@@ -340,10 +337,13 @@ export default function TeacherForm({
           );
         }, 1000);
       } else {
-        await api.post("/teachers", payload);
+        const response = await api.post("/teachers", payload);
 
+        const generatedUsername = response.data?.teacher?.username;
         setSuccess(
-          "Teacher created successfully."
+          generatedUsername
+            ? `Teacher created successfully. Login username: ${generatedUsername}`
+            : "Teacher created successfully. A login username has been generated."
         );
 
         setTimeout(() => {
@@ -598,13 +598,12 @@ export default function TeacherForm({
 
           <div className="grid gap-5 md:grid-cols-2">
             <Input
-              label="Email Address"
+              label="Email Address (optional)"
               name="email"
               type="email"
               value={formData.email}
               onChange={handleChange}
               placeholder="teacher@example.com"
-              required
             />
 
             <PasswordInput
@@ -644,6 +643,9 @@ export default function TeacherForm({
               }
               required={!isEditMode}
             />
+            <p className="mt-2 text-xs text-slate-500">
+              An email address is optional. SchoolPilot automatically generates a username that the teacher can use to sign in.
+            </p>
           </div>
         </section>
 
