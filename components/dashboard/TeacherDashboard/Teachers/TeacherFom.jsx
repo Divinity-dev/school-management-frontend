@@ -335,7 +335,7 @@ export default function TeacherForm({
           router.push(
             `/dashboard/school-admin/teachers/${teacherId}`
           );
-        }, 1000);
+        }, 5000);
       } else {
         const response = await api.post("/teachers", payload);
 
@@ -350,7 +350,7 @@ export default function TeacherForm({
           router.push(
             "/dashboard/school-admin/teachers"
           );
-        }, 1000);
+        }, 5000);
       }
     } catch (err) {
       console.error(
@@ -605,6 +605,9 @@ export default function TeacherForm({
               onChange={handleChange}
               placeholder="teacher@example.com"
             />
+            <p className="md:col-span-2 text-xs text-slate-500">
+              An email address is optional. SchoolPilot automatically generates a username that the teacher can use to sign in.
+            </p>
 
             <PasswordInput
               label={
