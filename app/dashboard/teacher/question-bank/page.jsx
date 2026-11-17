@@ -29,6 +29,8 @@ export default function TeacherQuestionBankPage() {
   const [search, setSearch] = useState("");
   const [bankClassFilter, setBankClassFilter] = useState("");
   const [bankSubjectFilter, setBankSubjectFilter] = useState("");
+  const [bankTopicFilter, setBankTopicFilter] = useState("");
+  const [savedBankExpanded, setSavedBankExpanded] = useState(false);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -71,11 +73,14 @@ export default function TeacherQuestionBankPage() {
 
   const bankClassOptions = useMemo(() => [...new Set(questions.map(item => item.className || item.schoolClass?.name).filter(Boolean))].sort(), [questions]);
   const bankSubjectOptions = useMemo(() => [...new Set(questions.map(item => item.subjectName || item.subject?.name).filter(Boolean))].sort(), [questions]);
+  const bankTopicOptions = useMemo(() => [...new Set(questions.map(item => item.topic).filter(Boolean))].sort(), [questions]);
   const visibleQuestions = useMemo(() => questions.filter(item => {
     const className = item.className || item.schoolClass?.name || "";
     const subjectName = item.subjectName || item.subject?.name || "";
-    return (!bankClassFilter || className === bankClassFilter) && (!bankSubjectFilter || subjectName === bankSubjectFilter);
-  }), [questions, bankClassFilter, bankSubjectFilter]);
+    return (!bankClassFilter || className === bankClassFilter)
+      && (!bankSubjectFilter || subjectName === bankSubjectFilter)
+      && (!bankTopicFilter || item.topic === bankTopicFilter);
+  }), [questions, bankClassFilter, bankSubjectFilter, bankTopicFilter]);
 
   useEffect(() => {
     const load = async () => {
@@ -214,7 +219,7 @@ export default function TeacherQuestionBankPage() {
         <header className="rounded-2xl bg-slate-950 p-6 text-white sm:p-8">
           <div className="flex items-start gap-4">
             <div className="rounded-xl bg-white/10 p-3"><BookOpen className="h-7 w-7 text-emerald-300"/></div>
-            <div><p className="text-sm font-semibold text-emerald-300">SchoolPilot Assessments</p><h1 className="mt-1 text-2xl font-bold sm:text-3xl">Question Bank</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Browse your school's complete shared collection of approved questions. Every teacher can access the bank and filter questions by class and subject.</p></div>
+            <div><p className="text-sm font-semibold text-emerald-300">SchoolPilot Assessments</p><h1 className="mt-1 text-2xl font-bold sm:text-3xl">Question Bank</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Browse your school's complete shared collection of approved questions. Every teacher can access the bank and filter questions by class, subject and topic.</p></div>
           </div>
         </header>
 
@@ -302,8 +307,9 @@ export default function TeacherQuestionBankPage() {
         </section>}
 
         <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-slate-900">Saved questions ({questions.length})</h2><p className="mt-1 text-xs text-slate-500">All approved questions saved by teachers in your school. Filter by class and subject to find what you need.</p></div><button type="button" onClick={loadQuestions} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"><RefreshCw className="h-4 w-4"/>Refresh</button></div>
-          <div className="grid gap-2 sm:grid-cols-2"><select value={bankClassFilter} onChange={event=>setBankClassFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All classes</option>{bankClassOptions.map(value=><option key={value} value={value}>{value}</option>)}</select><select value={bankSubjectFilter} onChange={event=>setBankSubjectFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All subjects</option>{bankSubjectOptions.map(value=><option key={value} value={value}>{value}</option>)}</select></div><div className="flex gap-2"><input value={search} onChange={event=>setSearch(event.target.value)} onKeyDown={event=>event.key==="Enter"&&loadQuestions()} placeholder="Search all questions or topics" className="min-w-0 flex-1 rounded-lg border p-2 text-sm"/><button type="button" onClick={loadQuestions} className="rounded-lg bg-slate-900 px-4 text-xs font-semibold text-white">Search</button></div>
+          <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-bold text-slate-900">Saved questions ({questions.length})</h2><p className="mt-1 text-xs text-slate-500">All approved questions saved by teachers in your school. Filter by class, subject and topic to find what you need.</p></div><div className="flex gap-2"><button type="button" onClick={() => setSavedBankExpanded(value => !value)} aria-expanded={savedBankExpanded} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold">{savedBankExpanded ? "Collapse bank" : "Expand bank"} {savedBankExpanded ? <ChevronUp className="h-4 w-4"/> : <ChevronDown className="h-4 w-4"/>}</button><button type="button" onClick={loadQuestions} className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold"><RefreshCw className="h-4 w-4"/>Refresh</button></div></div>
+          {savedBankExpanded && <>
+          <div className="grid gap-2 sm:grid-cols-3"><select value={bankClassFilter} onChange={event=>setBankClassFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All classes</option>{bankClassOptions.map(value=><option key={value} value={value}>{value}</option>)}</select><select value={bankSubjectFilter} onChange={event=>setBankSubjectFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All subjects</option>{bankSubjectOptions.map(value=><option key={value} value={value}>{value}</option>)}</select><select value={bankTopicFilter} onChange={event=>setBankTopicFilter(event.target.value)} className="rounded-lg border p-2 text-sm"><option value="">All topics</option>{bankTopicOptions.map(value=><option key={value} value={value}>{value}</option>)}</select></div><div className="flex gap-2"><input value={search} onChange={event=>setSearch(event.target.value)} onKeyDown={event=>event.key==="Enter"&&loadQuestions()} placeholder="Search all questions or topics" className="min-w-0 flex-1 rounded-lg border p-2 text-sm"/><button type="button" onClick={loadQuestions} className="rounded-lg bg-slate-900 px-4 text-xs font-semibold text-white">Search</button></div>
           {visibleQuestions.length===0 ? <p className="rounded-xl bg-slate-50 p-8 text-center text-sm text-slate-500">{questions.length===0 ? "No approved questions have been added to your school bank yet." : "No questions match these filters."}</p> : <div className="divide-y">{visibleQuestions.map(question=>{
             const expanded = expandedQuestionIds.includes(question._id);
             return <article key={question._id} className="border-b last:border-b-0">
@@ -321,6 +327,7 @@ export default function TeacherQuestionBankPage() {
               </div>}
             </article>;
           })}</div>}
+          </>}
         </section>
       </div>
     </main>
