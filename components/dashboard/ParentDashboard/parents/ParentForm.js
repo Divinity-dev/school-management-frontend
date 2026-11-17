@@ -197,7 +197,7 @@ try {
       router.push(
         `/dashboard/school-admin/parents/${parentId}`
       );
-    }, 1000);
+    }, 5000);
   } else {
     const response = await api.post("/parents", payload);
 
@@ -212,7 +212,7 @@ try {
       router.push(
         "/dashboard/school-admin/parents"
       );
-    }, 1000);
+    }, 5000);
   }
 } catch (err) {
   console.error(
@@ -383,6 +383,9 @@ className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-500 trans
           onChange={handleChange}
           placeholder="parent@example.com"
         />
+        <p className="md:col-span-2 text-xs text-slate-500">
+          An email address is optional. SchoolPilot automatically generates a username that the parent can use to sign in.
+        </p>
 
         <PasswordInput
           label={
