@@ -32,7 +32,7 @@ export default function TeacherCreateAssignment() {
     description: "",
     instructions: "",
     dueDate: "",
-    assessmentMode: "written",
+    assessmentMode: "cbt",
     durationMinutes: 30,
     showResultsImmediately: false,
     shuffleQuestions: false,
