@@ -144,11 +144,6 @@ if (!formData.lastName.trim()) {
   return;
 }
 
-if (!formData.email.trim()) {
-  setError("Email address is required.");
-  return;
-}
-
 if (!isEditMode && !formData.password) {
   setError("Password is required.");
   return;
@@ -178,7 +173,9 @@ try {
   const payload = {
     firstName: formData.firstName.trim(),
     lastName: formData.lastName.trim(),
-    email: formData.email.trim(),
+    ...(formData.email.trim()
+      ? { email: formData.email.trim() }
+      : {}),
     phone: formData.phone.trim(),
   };
 
@@ -202,10 +199,13 @@ try {
       );
     }, 1000);
   } else {
-    await api.post("/parents", payload);
+    const response = await api.post("/parents", payload);
 
+    const generatedUsername = response.data?.parent?.username;
     setSuccess(
-      "Parent created successfully."
+      generatedUsername
+        ? `Parent created successfully. Login username: ${generatedUsername}`
+        : "Parent created successfully. A login username has been generated."
     );
 
     setTimeout(() => {
@@ -376,13 +376,12 @@ className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-500 trans
 
       <div className="grid gap-5 md:grid-cols-2">
         <Input
-          label="Email Address"
+          label="Email Address (optional)"
           name="email"
           type="email"
           value={formData.email}
           onChange={handleChange}
           placeholder="parent@example.com"
-          required
         />
 
         <PasswordInput
