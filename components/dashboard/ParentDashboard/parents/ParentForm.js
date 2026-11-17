@@ -73,7 +73,7 @@ return;
     setFormData({
       firstName: parent.firstName || "",
       lastName: parent.lastName || "",
-      email: parent.email || "",
+      email: parent.email || parent.username || "",
       phone: parent.phone || "",
       password: "",
       confirmPassword: "",
@@ -144,11 +144,6 @@ if (!formData.lastName.trim()) {
   return;
 }
 
-if (!formData.email.trim()) {
-  setError("Email address is required.");
-  return;
-}
-
 if (!isEditMode && !formData.password) {
   setError("Password is required.");
   return;
@@ -178,7 +173,9 @@ try {
   const payload = {
     firstName: formData.firstName.trim(),
     lastName: formData.lastName.trim(),
-    email: formData.email.trim(),
+    ...(formData.email.trim()
+      ? { email: formData.email.trim() }
+      : {}),
     phone: formData.phone.trim(),
   };
 
@@ -200,19 +197,22 @@ try {
       router.push(
         `/dashboard/school-admin/parents/${parentId}`
       );
-    }, 1000);
+    }, 5000);
   } else {
-    await api.post("/parents", payload);
+    const response = await api.post("/parents", payload);
 
+    const generatedUsername = response.data?.parent?.username;
     setSuccess(
-      "Parent created successfully."
+      generatedUsername
+        ? `Parent created successfully. Login username: ${generatedUsername}`
+        : "Parent created successfully. A login username has been generated."
     );
 
     setTimeout(() => {
       router.push(
         "/dashboard/school-admin/parents"
       );
-    }, 1000);
+    }, 5000);
   }
 } catch (err) {
   console.error(
@@ -376,14 +376,17 @@ className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-500 trans
 
       <div className="grid gap-5 md:grid-cols-2">
         <Input
-          label="Email Address"
+          label="Email or username (optional)"
           name="email"
-          type="email"
+          type="text"
+          autoComplete="username"
           value={formData.email}
           onChange={handleChange}
-          placeholder="parent@example.com"
-          required
+          placeholder="Enter email or preferred username"
         />
+        <p className="md:col-span-2 text-xs text-slate-500">
+          Enter an email address or choose a username. Leave blank and SchoolPilot will generate a username automatically.
+        </p>
 
         <PasswordInput
           label={
