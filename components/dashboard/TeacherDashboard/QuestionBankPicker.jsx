@@ -59,8 +59,8 @@ export default function QuestionBankPicker({ subjectAssignmentId, questions, set
         <div className="flex items-center gap-2">
           <Database className="h-5 w-5 text-blue-700" />
           <div>
-            <h4 className="text-sm font-bold text-slate-900">Reuse questions from your bank</h4>
-            <p className="text-xs text-slate-500">Add approved questions without typing them again.</p>
+            <h4 className="text-sm font-bold text-slate-900">Reuse questions from the school bank</h4>
+            <p className="text-xs text-slate-500">Browse approved questions saved by teachers in your school, grouped by the selected class and subject.</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -90,7 +90,7 @@ export default function QuestionBankPicker({ subjectAssignmentId, questions, set
                   <input type="checkbox" checked={selected.includes(String(item._id))} onChange={event => setSelected(current => event.target.checked ? [...current, String(item._id)] : current.filter(id => id !== String(item._id)))} className="mt-1 h-4 w-4 accent-blue-700" />
                   <span className="min-w-0 flex-1">
                     <span className="block text-sm font-medium text-slate-800">{item.question}</span>
-                    <span className="mt-1 block text-xs text-slate-500">{item.topic} · {item.difficulty} · {item.type.replaceAll("_", " ")} · {item.marks} mark(s)</span>
+                    <span className="mt-1 block text-xs text-slate-500">{item.className || item.schoolClass?.name || "Class"} · {item.subjectName || item.subject?.name || "Subject"} · {item.topic} · {item.difficulty} · {item.type.replaceAll("_", " ")} · {item.marks} mark(s)</span><span className="mt-1 block text-[11px] text-slate-400">Added by {item.createdBy?.firstName || ""} {item.createdBy?.lastName || ""}</span>
                   </span>
                 </label>
               ))}
