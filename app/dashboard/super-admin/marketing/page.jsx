@@ -175,6 +175,7 @@ export default function MarketingOutreachPage() {
   const [replyText, setReplyText] = useState("");
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [segmentFilter, setSegmentFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
@@ -198,11 +199,11 @@ export default function MarketingOutreachPage() {
 
   const loadContacts = useCallback(async () => {
     const response = await api.get("/marketing/contacts", {
-      params: { q: query || undefined, status: statusFilter || undefined, category: categoryFilter || undefined, limit: 100 },
+      params: { q: query || undefined, status: statusFilter || undefined, segment: segmentFilter || undefined, category: categoryFilter || undefined, limit: 100 },
     });
     setContacts(response.data.contacts || []);
     setCategories(response.data.categories || []);
-  }, [query, statusFilter, categoryFilter]);
+  }, [query, statusFilter, segmentFilter, categoryFilter]);
 
   const loadCampaigns = useCallback(async () => {
     const response = await api.get("/marketing/campaigns");
@@ -242,16 +243,19 @@ export default function MarketingOutreachPage() {
   }, [loadContacts]);
 
   const selectedCount = selectedIds.length;
-  const allVisibleSelected = contacts.length > 0 && contacts.every((contact) => selectedIds.includes(contact._id));
+  const blockedContactStatuses = ["unsubscribed", "not_interested", "bounced", "complained", "suppressed"];
+  const eligibleVisibleContacts = contacts.filter((contact) => !blockedContactStatuses.includes(contact.status));
+  const allVisibleSelected = eligibleVisibleContacts.length > 0 && eligibleVisibleContacts.every((contact) => selectedIds.includes(contact._id));
 
   const toggleContact = (id) => {
     setSelectedIds((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
   };
 
   const toggleAllVisible = () => {
+    const eligibleIds = eligibleVisibleContacts.map((contact) => contact._id);
     setSelectedIds((current) => allVisibleSelected
-      ? current.filter((id) => !contacts.some((contact) => contact._id === id))
-      : [...new Set([...current, ...contacts.filter((contact) => !["unsubscribed", "not_interested", "bounced", "complained", "suppressed"].includes(contact.status)).map((contact) => contact._id)])]
+      ? current.filter((id) => !eligibleIds.includes(id))
+      : [...new Set([...current, ...eligibleIds])]
     );
   };
 
@@ -543,7 +547,13 @@ export default function MarketingOutreachPage() {
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search schools or emails" className="w-full rounded-xl border border-slate-200 py-2.5 pl-9 pr-3 text-sm sm:w-64" />
                 </div>
-                <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+                <select value={segmentFilter} onChange={(event) => { setSegmentFilter(event.target.value); setStatusFilter(""); }} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm" aria-label="Filter outreach group">
+                  <option value="">All eligible contacts</option>
+                  <option value="new">New schools</option>
+                  <option value="previously_contacted">Previously contacted (recontact)</option>
+                  <option value="follow_up_due">Follow-up due</option>
+                </select>
+                <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setSegmentFilter(""); }} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
                   <option value="">All statuses</option>
                   {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced", "complained", "suppressed"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
                 </select>
@@ -569,19 +579,30 @@ export default function MarketingOutreachPage() {
                     <th className="px-5 py-3">School</th>
                     <th className="px-5 py-3">Email</th>
                     <th className="px-5 py-3">Category / Location</th>
+                    <th className="px-5 py-3">Outreach history</th>
                     <th className="px-5 py-3">Status</th>
                     <th className="px-5 py-3 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {contacts.map((contact) => {
-                    const blocked = ["unsubscribed", "not_interested", "bounced", "complained", "suppressed"].includes(contact.status);
+                    const blocked = blockedContactStatuses.includes(contact.status);
                     return (
                       <tr key={contact._id} className="hover:bg-slate-50">
                         <td className="px-5 py-3"><input type="checkbox" checked={selectedIds.includes(contact._id)} disabled={blocked} onChange={() => toggleContact(contact._id)} aria-label={`Select ${contact.schoolName}`} /></td>
                         <td className="whitespace-nowrap px-5 py-3 font-semibold text-slate-800">{contact.schoolName}</td>
                         <td className="whitespace-nowrap px-5 py-3 text-slate-600">{contact.email}</td>
                         <td className="px-5 py-3 text-slate-500">{[contact.category, contact.location].filter(Boolean).join(" · ") || "—"}</td>
+                        <td className="min-w-52 px-5 py-3 text-xs text-slate-500">
+                          <p>Last contact: {contact.lastContactedAt ? new Date(contact.lastContactedAt).toLocaleDateString() : "Never"}</p>
+                          <p className="mt-1">Next follow-up: {contact.nextFollowUpAt ? new Date(contact.nextFollowUpAt).toLocaleDateString() : "Not scheduled"}</p>
+                          <p className="mt-1 font-medium text-slate-600">{contact.campaignCount || 0} campaigns · {contact.sentEmailCount || 0} emails sent</p>
+                          {contact.campaignHistory?.slice(0, 2).map((entry, index) => (
+                            <p key={`${contact._id}-history-${index}`} className="mt-1 max-w-56 truncate" title={`${entry.name} · ${statusLabels[entry.status] || entry.status}`}>
+                              {entry.name} · {statusLabels[entry.status] || entry.status}
+                            </p>
+                          ))}
+                        </td>
                         <td className="px-5 py-3"><div className="space-y-1"><StatusPill status={contact.status} /><p className="text-[11px] text-slate-500">Delivery: {statusLabels[contact.deliveryStatus] || contact.deliveryStatus || "Unverified"}</p></div></td>
                         <td className="whitespace-nowrap px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
