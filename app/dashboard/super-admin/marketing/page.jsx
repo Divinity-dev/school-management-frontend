@@ -547,13 +547,13 @@ export default function MarketingOutreachPage() {
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search schools or emails" className="w-full rounded-xl border border-slate-200 py-2.5 pl-9 pr-3 text-sm sm:w-64" />
                 </div>
-                <select value={segmentFilter} onChange={(event) => setSegmentFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm" aria-label="Filter outreach group">
+                <select value={segmentFilter} onChange={(event) => { setSegmentFilter(event.target.value); setStatusFilter(""); }} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm" aria-label="Filter outreach group">
                   <option value="">All eligible contacts</option>
                   <option value="new">New schools</option>
                   <option value="previously_contacted">Previously contacted (recontact)</option>
                   <option value="follow_up_due">Follow-up due</option>
                 </select>
-                <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
+                <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value); setSegmentFilter(""); }} className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm">
                   <option value="">All statuses</option>
                   {["new", "contacted", "replied", "demo_booked", "not_interested", "unsubscribed", "bounced", "complained", "suppressed"].map((status) => <option key={status} value={status}>{statusLabels[status]}</option>)}
                 </select>
@@ -596,7 +596,7 @@ export default function MarketingOutreachPage() {
                         <td className="min-w-52 px-5 py-3 text-xs text-slate-500">
                           <p>Last contact: {contact.lastContactedAt ? new Date(contact.lastContactedAt).toLocaleDateString() : "Never"}</p>
                           <p className="mt-1">Next follow-up: {contact.nextFollowUpAt ? new Date(contact.nextFollowUpAt).toLocaleDateString() : "Not scheduled"}</p>
-                          <p className="mt-1 font-medium text-slate-600">{contact.campaignCount || 0} campaign {(contact.campaignCount || 0) === 1 ? "attempt" : "attempts"}</p>
+                          <p className="mt-1 font-medium text-slate-600">{contact.campaignCount || 0} campaigns · {contact.sentEmailCount || 0} emails sent</p>
                           {contact.campaignHistory?.slice(0, 2).map((entry, index) => (
                             <p key={`${contact._id}-history-${index}`} className="mt-1 max-w-56 truncate" title={`${entry.name} · ${statusLabels[entry.status] || entry.status}`}>
                               {entry.name} · {statusLabels[entry.status] || entry.status}
