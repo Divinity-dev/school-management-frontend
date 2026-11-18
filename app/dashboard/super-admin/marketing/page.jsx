@@ -738,6 +738,7 @@ export default function MarketingOutreachPage() {
                     Cancel next scheduled batch (up to 10)
                   </button>
                 )}
+                {campaign.personalizedPdf && <p className="mt-2 text-xs leading-5 text-slate-500">Personalized PDF proposal enabled · each email is sent individually with its own attachment. Resend does not support scheduling emails with attachments, so use “Send batch now”.</p>}
                 {campaign.scheduledAt && campaign.scheduledCount > 0 && (
                   <p className="mt-2 text-xs text-slate-500">Latest batch scheduled for {new Date(campaign.scheduledAt).toLocaleString()}</p>
                 )}
@@ -748,7 +749,8 @@ export default function MarketingOutreachPage() {
                     </button>
                     <button
                       type="button"
-                      disabled={working}
+                      disabled={working || campaign.personalizedPdf === true}
+                      title={campaign.personalizedPdf ? "PDF proposal campaigns must be sent immediately." : "Schedule next batch"}
                       onClick={() => {
                         setScheduleCampaign(campaign);
                         const minDate = new Date(Date.now() + 10 * 60 * 1000 - new Date().getTimezoneOffset() * 60000);
