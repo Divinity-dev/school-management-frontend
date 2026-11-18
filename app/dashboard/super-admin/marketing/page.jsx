@@ -394,7 +394,7 @@ export default function MarketingOutreachPage() {
 
   const cancelCampaignEdit = () => {
     setEditingCampaignId(null);
-    setCampaignForm({ name: "", subject: "", html: "<p>Hello {{schoolName}},</p><p>Write your SchoolPilot message here.</p><p>Best regards,<br/>SchoolPilot Team</p>" });
+    setCampaignForm({ name: "", subject: "", html: "<p>Hello {{schoolName}},</p><p>Write your SchoolPilot message here.</p><p>Best regards,<br/>SchoolPilot Team</p>", personalizedPdf: false });
     setSelectedIds([]);
   };
 
