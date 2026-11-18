@@ -189,6 +189,7 @@ export default function MarketingOutreachPage() {
     name: "",
     subject: "",
     html: "<p>Hello {{schoolName}},</p><p>I'm reaching out from <strong>SchoolPilot</strong>, a school management platform designed to simplify school administration.</p><p>We would be happy to give your school a free, personalised demonstration. There is no obligation.</p><p>Would you be available for a short conversation?</p><p>Best regards,<br/>SchoolPilot Team</p>",
+    personalizedPdf: false,
   });
   const importRef = useRef(null);
 
@@ -346,7 +347,7 @@ export default function MarketingOutreachPage() {
       } else {
         await api.post("/marketing/campaigns", payload);
       }
-      setCampaignForm({ name: "", subject: "", html: "<p>Hello {{schoolName}},</p><p>Write your SchoolPilot message here.</p><p>Best regards,<br/>SchoolPilot Team</p>" });
+      setCampaignForm({ name: "", subject: "", html: "<p>Hello {{schoolName}},</p><p>Write your SchoolPilot message here.</p><p>Best regards,<br/>SchoolPilot Team</p>", personalizedPdf: false });
       setSelectedIds([]);
       setEditingCampaignId(null);
       await Promise.all([loadCampaigns(), loadOverview(), loadActivities()]);
@@ -379,6 +380,7 @@ export default function MarketingOutreachPage() {
         name: details.campaign.name || "",
         subject: details.campaign.subject || "",
         html: details.campaign.html || "",
+        personalizedPdf: details.campaign.personalizedPdf === true,
       });
       setSelectedIds(recipients.map((recipient) => String(recipient.contact?._id || recipient.contact)));
       setEditingCampaignId(campaign._id);
@@ -679,6 +681,13 @@ export default function MarketingOutreachPage() {
                 </div>
                 <RichEmailEditor value={campaignForm.html} onChange={(html) => setCampaignForm((current) => ({ ...current, html }))} />
               </div>
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+                <input type="checkbox" checked={campaignForm.personalizedPdf === true} onChange={(event) => setCampaignForm((current) => ({ ...current, personalizedPdf: event.target.checked }))} className="mt-1 h-4 w-4 rounded border-slate-300 text-emerald-700 focus:ring-emerald-600" />
+                <span>
+                  <span className="block text-sm font-semibold text-slate-800">Personalized PDF Proposal</span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-600">Attach an individual SchoolPilot proposal PDF containing each recipient school’s name. Contacts without a school name will be skipped.</span>
+                </span>
+              </label>
               <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-50 p-3">
                 <p className="text-sm text-slate-600">{selectedCount} contacts selected</p>
                 <button disabled={working || !selectedCount} className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50">
