@@ -165,6 +165,7 @@ export default function MarketingOutreachPage() {
   const [activities, setActivities] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [selectedThread, setSelectedThread] = useState([]);
   const [editingContact, setEditingContact] = useState(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [savedCampaignPreview, setSavedCampaignPreview] = useState(null);
@@ -449,20 +450,32 @@ export default function MarketingOutreachPage() {
 
   const openMessage = async (message) => {
     setSelectedMessage(message);
+    setSelectedThread([]);
     setReplyText("");
     const response = await api.get(`/marketing/inbox/${message._id}`);
     setSelectedMessage(response.data.message);
+    setSelectedThread(response.data.thread || [response.data.message]);
     await Promise.all([loadInbox(), loadOverview()]);
   };
 
   const handleReply = async (event) => {
     event.preventDefault();
-    if (!selectedMessage || !replyText.trim()) return;
+    if (!selectedMessage || !replyText.trim() || working) return;
     setWorking(true);
     try {
       await api.post(`/marketing/inbox/${selectedMessage._id}/reply`, { text: replyText });
       setReplyText("");
-      await Promise.all([loadInbox(), loadActivities()]);
+      const [threadResponse] = await Promise.all([
+        api.get(`/marketing/inbox/${selectedMessage._id}`),
+        loadInbox(),
+        loadActivities(),
+        loadOverview(),
+      ]);
+      setSelectedMessage(threadResponse.data.message);
+      setSelectedThread(threadResponse.data.thread || [threadResponse.data.message]);
+      window.dispatchEvent(new CustomEvent("schoolpilot:toast", {
+        detail: { type: "success", message: "Your reply has been sent successfully." },
+      }));
     } finally {
       setWorking(false);
     }
@@ -797,19 +810,43 @@ export default function MarketingOutreachPage() {
                 <div className="border-b border-slate-100 p-5">
                   <h3 className="font-bold text-slate-900">{selectedMessage.subject || "(No subject)"}</h3>
                   <p className="mt-1 text-sm text-slate-500">From: {selectedMessage.from}</p>
+                  <p className="mt-1 text-xs text-slate-400">{selectedThread.length || 1} message{(selectedThread.length || 1) === 1 ? "" : "s"} in this conversation</p>
                   {selectedMessage.contact?.schoolName && <p className="text-sm text-slate-500">School: {selectedMessage.contact.schoolName}</p>}
                 </div>
-                <div className="flex-1 space-y-4 overflow-y-auto p-5">
-                  {selectedMessage.text && <div className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{selectedMessage.text}</div>}
-                  {!selectedMessage.text && selectedMessage.html && (
-                    <iframe
-                      title="Incoming email content"
-                      sandbox=""
-                      srcDoc={selectedMessage.html}
-                      className="min-h-[320px] w-full rounded-xl border border-slate-100 bg-white"
-                    />
-                  )}
-                  {!selectedMessage.text && !selectedMessage.html && <p className="text-sm text-slate-500">This email does not contain a readable message body.</p>}
+                <div className="flex-1 space-y-4 overflow-y-auto bg-slate-50/60 p-4 sm:p-5">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Conversation</p>
+                  {(selectedThread.length ? selectedThread : [selectedMessage]).map((item) => (
+                    <article
+                      key={item._id}
+                      className={`max-w-3xl rounded-2xl border p-4 shadow-sm ${item.direction === "outbound" ? "ml-auto border-emerald-100 bg-emerald-50/70" : "mr-auto border-slate-200 bg-white"}`}
+                    >
+                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <p className="text-xs font-semibold text-slate-700">
+                            {item.direction === "outbound" ? "SchoolPilot" : (item.contact?.schoolName || item.from || "School contact")}
+                          </p>
+                          <p className="text-[11px] text-slate-400">
+                            {item.direction === "outbound" ? "Sent" : "Received"} · {item.receivedAt ? new Date(item.receivedAt).toLocaleString() : ""}
+                          </p>
+                        </div>
+                        <span className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${item.direction === "outbound" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>
+                          {item.direction === "outbound" ? "Sent" : "Received"}
+                        </span>
+                      </div>
+                      {item.text ? (
+                        <div className="whitespace-pre-wrap break-words text-sm leading-7 text-slate-700">{item.text}</div>
+                      ) : item.html ? (
+                        <iframe
+                          title={item.direction === "outbound" ? "Sent email content" : "Incoming email content"}
+                          sandbox=""
+                          srcDoc={item.html}
+                          className="min-h-[180px] w-full rounded-xl border border-slate-100 bg-white"
+                        />
+                      ) : (
+                        <p className="text-sm text-slate-500">This email does not contain a readable message body.</p>
+                      )}
+                    </article>
+                  ))}
                 </div>
                 <form onSubmit={handleReply} className="border-t border-slate-100 p-5">
                   <label className="mb-2 block text-sm font-semibold text-slate-700">Reply</label>
